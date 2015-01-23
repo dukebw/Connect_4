@@ -1,2 +1,9 @@
 This Connect 4 project was made by Kuir Aguer, Brendan Duke, Jean Ferreira, 
 Zachariah Levine and Pranesh Satish.
+
+SDL2 is required to compile and run this program, and can be installed with
+your package manager or compiled from source from https://www.libsdl.org/.
+
+To compile: cd to the Connect_4/code/ directory and type "make".
+
+To run: cd to the Connect_4/build/ directory and type "./sdl2_connect4".
