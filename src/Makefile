@@ -26,7 +26,7 @@ CC = g++
 COMPILER_FLAGS = -w
 
 # LINKER_FLAGS specifies the libraries we're linking against
-LINKER_FLAGS = -lSDL2
+LINKER_FLAGS = -lSDL2 -lSDL2_image
 
 # OBJ_NAME speicifies the name of our executable
 OBJ_NAME = $(BUILD)sdl2_connect4
