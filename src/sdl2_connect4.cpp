@@ -8,6 +8,10 @@
 
 const int SCREEN_WIDTH = 702;
 const int SCREEN_HEIGHT = 602;
+const int TOKEN_WIDTH = 100;
+const int TOKEN_HEIGHT = 100;
+const int GRID_OFFSET_Y = 1;
+const int GRID_OFFSET_X = 1;
 
 // TODO(brendan): Move these functions declarations to header file?
 // NOTE(brendan): Starts up SDL and creates window
@@ -78,6 +82,7 @@ bool loadMedia() {
 		success = false;
 	}
 
+	// NOTE(Zach): Load the red token
 	//gRedToken = loadSurface("../misc/red_token.bmp");
 	gRedToken = loadSurface("../misc/red_token.png");
 	if (gRedToken == NULL) {
@@ -159,10 +164,10 @@ void blitToken(SDL_Surface *token, int row, int col)
 {
 		// NOTE(Zach): determine the position for the token
 		SDL_Rect tokenRect;
-		tokenRect.x = 1 + 100 * col;
-		tokenRect.y = 1 + 100 * row;
-		tokenRect.w = 100;
-		tokenRect.h = 100;
+		tokenRect.x = GRID_OFFSET_Y + TOKEN_WIDTH * col;
+		tokenRect.y = GRID_OFFSET_X + TOKEN_HEIGHT * row;
+		tokenRect.w = TOKEN_WIDTH;
+		tokenRect.h = TOKEN_HEIGHT;
 
 		// Note(Zach): blit the token to the desired position
       SDL_BlitSurface(token, NULL, gScreenSurface, &tokenRect);  
@@ -201,7 +206,7 @@ int main(int argc, char *argv[]) {
 					int x, y;
 					SDL_GetMouseState( &x, &y );
 
-					blitToken(gRedToken, (y-1)/100, (x-1)/100);
+					blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 				}
 
 				// NOTE(brendan): Update the surface
