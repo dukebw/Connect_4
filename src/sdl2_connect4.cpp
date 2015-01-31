@@ -184,6 +184,10 @@ int main(int argc, char *argv[]) {
 			// NOTE(Zach): Event handler
 			SDL_Event e;
 
+			// NOTE(brendan): Apply the image
+			// NOTE(Zach): blit the board outside the game loop during this phase of testing
+			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
+
 			// NOTE(Zach): While application is running
 			while(!quit) {
 				// NOTE(Zach): Wait for an event to occur
@@ -192,17 +196,13 @@ int main(int argc, char *argv[]) {
 				// NOTE(Zach): User requests quit
 				if (e.type == SDL_QUIT) {
 					quit = true;
+				} else if (e.type == SDL_MOUSEBUTTONDOWN) {
+					//Get mouse position
+					int x, y;
+					SDL_GetMouseState( &x, &y );
+
+					blitToken(gRedToken, (y-1)/100, (x-1)/100);
 				}
-
-				// NOTE(brendan): Apply the image
-				SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
-
-				// NOTE(Zach): blit the red token  ***Transparency not working*** 
-				SDL_BlitSurface(gRedToken, NULL, gScreenSurface, NULL);
-				// NOTE(Zach): blit red token to 2nd position along main diagonal
-				blitToken(gRedToken, 1, 1);
-				// NOTE(Zach): blit red token to bottom right cell
-				blitToken(gRedToken, 5, 6);
 
 				// NOTE(brendan): Update the surface
 				SDL_UpdateWindowSurface(gWindow);
