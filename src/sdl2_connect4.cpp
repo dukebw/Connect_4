@@ -34,6 +34,7 @@ SDL_Window *gWindow = NULL;
 SDL_Surface *gScreenSurface = NULL;
 SDL_Surface *gConnect4Board = NULL;
 SDL_Surface *gRedToken = NULL;
+SDL_Surface *gBackground = NULL;
 
 bool init() {
   // NOTE(brendan): Initialization flag.
@@ -52,9 +53,8 @@ bool init() {
                                SCREEN_HEIGHT,
                                0);
     if(gWindow == NULL) {
-      // NOTE(brendan): get window surface
       printf("Window could not be created! SDL_Error: %s\n", 
-          SDL_GetError());
+		SDL_GetError());
     } else {
 			//Initialize PNG loading
 			int imgFlags = IMG_INIT_PNG;
@@ -62,7 +62,7 @@ bool init() {
 				printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
 				success = false;
 			} else {
-				//NOTE(Zach): Get window surface
+				// NOTE(Zach): Get window surface
 				gScreenSurface = SDL_GetWindowSurface(gWindow);
 			}
     }
@@ -74,21 +74,33 @@ bool loadMedia() {
   // NOTE(brendan): Loading success flag
   bool success = true;
 
+	// NOTE(Zach): Load the background
+	gBackground = loadSurface("../misc/white_background.bmp");
+	if (gBackground == NULL) {
+		printf("Failed to load background!\n");
+		success = false;
+	}
+
 	// NOTE(brendan): Load splash image
 	//gConnect4Board = loadSurface( "../misc/connect4_board.bmp" );
-	gConnect4Board = loadSurface("../misc/simple_grid_on_white.bmp");
+	//gConnect4Board = loadSurface("../misc/simple_grid_on_white.bmp");
+	gConnect4Board = loadSurface("../misc/simple_grid.bmp");
 	if (gConnect4Board == NULL) {
 		printf( "Failed to load board!\n" );
 		success = false;
 	}
+	// NOTE(Zach): make all white pixels transparent
+	SDL_SetColorKey(gConnect4Board, SDL_TRUE, SDL_MapRGB(gBackground->format, 255, 255, 255));
 
 	// NOTE(Zach): Load the red token
-	//gRedToken = loadSurface("../misc/red_token.bmp");
-	gRedToken = loadSurface("../misc/red_token.png");
+	gRedToken = loadSurface("../misc/red_token.bmp");
+	//gRedToken = loadSurface("../misc/red_token.png");
 	if (gRedToken == NULL) {
 		printf("Failed to load red token!\n");
 		success = false;
 	}
+	// NOTE(Zach): make all white pixels transparent
+	SDL_SetColorKey(gRedToken, SDL_TRUE, SDL_MapRGB(gRedToken->format, 255, 255, 255));
 
 	return success;
 }
@@ -97,6 +109,7 @@ void close() {
   // NOTE(brendan): de-allocate surface
   SDL_FreeSurface(gConnect4Board);
   SDL_FreeSurface(gRedToken);
+  SDL_FreeSurface(gBackground);
 
 	gConnect4Board = NULL;
 	gRedToken = NULL;
@@ -189,9 +202,10 @@ int main(int argc, char *argv[]) {
 			// NOTE(Zach): Event handler
 			SDL_Event e;
 
-			// NOTE(brendan): Apply the image
-			// NOTE(Zach): blit the board outside the game loop during this phase of testing
+			// NOTE(Zach): blit the background and the board; and update the window surface
+			SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
 			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
+			SDL_UpdateWindowSurface(gWindow);
 
 			// NOTE(Zach): While application is running
 			while(!quit) {
@@ -206,7 +220,10 @@ int main(int argc, char *argv[]) {
 					int x, y;
 					SDL_GetMouseState( &x, &y );
 
+					// NOTE(Zach): Blit the token in cell that was clicked
 					blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					// NOTE(Zach): Blit the board on the tokens
+					SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 				}
 
 				// NOTE(brendan): Update the surface
