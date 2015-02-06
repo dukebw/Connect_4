@@ -14,6 +14,7 @@ extern SDL_Window *gWindow;
 extern SDL_Surface *gScreenSurface;
 extern SDL_Surface *gConnect4Board;
 extern SDL_Surface *gRedToken;
+extern SDL_Surface *gBlueToken;
 extern SDL_Surface *gBackground;
 
 // NOTE(brendan): Starts up SDL and creates window
@@ -23,7 +24,7 @@ bool init();
 bool loadMedia();
 
 // NOTE(brendan): Frees media and shuts down SDL
-void close();
+void close_sdl();
 
 // NOTE(Zach): Loads individual image
 SDL_Surface *loadSurface(std::string path);

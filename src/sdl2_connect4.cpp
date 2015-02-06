@@ -2,7 +2,7 @@
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
-#include <stdio.h>
+//#include <stdio.h>
   
 int main(int argc, char *argv[]) {
 	// NOTE(brendan): Start up SDL and create window.
@@ -37,8 +37,16 @@ int main(int argc, char *argv[]) {
 					int x, y;
 					SDL_GetMouseState( &x, &y );
 
+					// NOTE(Zach): We only want to place token on left mouse click
+					// For illustration, left click places red, right click places blue
+					// TODO(Zach): Keep trying to figure out why just e.button doesn't work here
+					if (e.button.button == SDL_BUTTON_LEFT) {
 					// NOTE(Zach): Blit the token in cell that was clicked
 					blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					} else if (e.button.button == SDL_BUTTON_RIGHT) {
+					blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					}
+
 					// NOTE(Zach): Blit the board on the tokens
 					SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 				}
@@ -50,8 +58,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// NOTE(brendan): Free resources and close SDL.
-	// TODO(brendan): Figure out how much of close() is necessary?
-	close();
+	close_sdl();
 
 	return 0;
 }

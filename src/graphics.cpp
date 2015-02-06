@@ -6,6 +6,7 @@ SDL_Window *gWindow = NULL;
 SDL_Surface *gScreenSurface = NULL;
 SDL_Surface *gConnect4Board = NULL;
 SDL_Surface *gRedToken = NULL;
+SDL_Surface *gBlueToken = NULL;
 SDL_Surface *gBackground = NULL;
 
 bool init() {
@@ -74,17 +75,29 @@ bool loadMedia() {
 	// NOTE(Zach): make all white pixels transparent
 	SDL_SetColorKey(gRedToken, SDL_TRUE, SDL_MapRGB(gRedToken->format, 255, 255, 255));
 
+	// NOTE(Zach): Load the red token
+	gBlueToken = loadSurface("../misc/blue_token.bmp");
+	if (gBlueToken == NULL) {
+		printf("Failed to load blue token!\n");
+		success = false;
+	}
+	// NOTE(Zach): make all white pixels transparent
+	SDL_SetColorKey(gBlueToken, SDL_TRUE, SDL_MapRGB(gBlueToken->format, 255, 255, 255));
+
 	return success;
 }
 
-void close() {
+void close_sdl() {
   // NOTE(brendan): de-allocate surface
   SDL_FreeSurface(gConnect4Board);
   SDL_FreeSurface(gRedToken);
+  SDL_FreeSurface(gBlueToken);
   SDL_FreeSurface(gBackground);
 
 	gConnect4Board = NULL;
 	gRedToken = NULL;
+	gBlueToken = NULL;
+	gBackground = NULL;
 
 	// NOTE(brendan): Destroy window
 	SDL_DestroyWindow(gWindow);
