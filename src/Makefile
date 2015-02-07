@@ -14,10 +14,12 @@ directories: OUT_DIR
 OUT_DIR:
 	$(MKDIR_P) $(OUT_DIR)
 
-HEADERS = graphics.h
+HEADERS = 	graphics.h\
+				board.h
 
 # OBJS specifies which files to compile as part of the project
 OBJS = 	graphics.cpp\
+			board.cpp\
 			sdl2_connect4.cpp
 			
 

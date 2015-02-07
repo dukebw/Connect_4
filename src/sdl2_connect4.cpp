@@ -2,6 +2,7 @@
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
+#include "board.h"
 //#include <stdio.h>
   
 int main(int argc, char *argv[]) {
@@ -24,19 +25,6 @@ int main(int argc, char *argv[]) {
 			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 			SDL_UpdateWindowSurface(gWindow);
 
-			// NOTE(Zach): Test the drop function
-			dropToken(gRedToken, 0, 0);
-			SDL_Delay(700);
-			dropToken(gRedToken, 1, 1);
-			SDL_Delay(700);
-			dropToken(gRedToken, 2, 2);
-			SDL_Delay(700);
-			dropToken(gRedToken, 3, 3);
-			SDL_Delay(700);
-			dropToken(gRedToken, 4, 4);
-			SDL_Delay(700);
-			dropToken(gRedToken, 5, 5);
-
 			// NOTE(Zach): While application is running
 			while(!quit) {
 				// NOTE(Zach): Wait for an event to occur
@@ -55,9 +43,11 @@ int main(int argc, char *argv[]) {
 					// TODO(Zach): Keep trying to figure out why just e.button doesn't work here
 					if (e.button.button == SDL_BUTTON_LEFT) {
 					// NOTE(Zach): Blit the token in cell that was clicked
-					blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					//blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(gRedToken, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					} else if (e.button.button == SDL_BUTTON_RIGHT) {
-					blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					//blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(gBlueToken, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					}
 
 					// NOTE(Zach): Blit the board on the tokens

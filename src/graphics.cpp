@@ -1,5 +1,6 @@
 #include "graphics.h"
 #include <string>
+#include "board.h"
 
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
@@ -173,16 +174,18 @@ void blitToken(SDL_Surface *token, int row, int col)
 		return;
 }
 
-// NOTE(Zach): visually drops the token into a cell
-// TODO(Zach): This will need to be modified to blit all the other tokens to
-// the screen each frame (but not the token that is falling!) once we
-// store the state of the board
-void dropToken(SDL_Surface *token, int row, int col)
+// NOTE(Zach): visually drops the token into a cell and add it to the board
+void dropToken(SDL_Surface *token, int col)
 {
-	// Destination rectangle to blit to
+	// NOTE(Zach): Find the row where the token should land
+	int row = insertPosition(col);
+	// NOTE(Zach): Check if the column was full
+	if (row == -1) return;
+
+	// NOTE(Zach): Destination rectangle to blit to
 	SDL_Rect DestR;
 
-	// Initial position of the token
+	// NOTE(Zach): Initial position of the token
 	DestR.x = GRID_OFFSET_X + TOKEN_WIDTH * col;
 	DestR.y = GRID_OFFSET_Y;
 	DestR.w = TOKEN_WIDTH;
@@ -207,21 +210,49 @@ void dropToken(SDL_Surface *token, int row, int col)
 		// NOTE(Zach): Eliminate small velocity noise to let the token settle
 		if (v <= 5 && v >= -5 && DestR.y >= minHeight) {
 			DestR.y = minHeight;
-			// NOTE(Zach): blit background, token and board; then update the window surface
+			// NOTE(Zach): blit background, tokens, falling token and board;
+			// then update the window surface
 			SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
+			blitTokens();
 			SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
 			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 			SDL_UpdateWindowSurface(gWindow);
 			break;
 		}
-		// NOTE(Zach): blit background, token and board; then update the window surface
+		// NOTE(Zach): blit background, tokens, falling token and board;
+		// then update the window surface
 		SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
+		blitTokens();
 		SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
 		SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 		SDL_UpdateWindowSurface(gWindow);
 		// NOTE(Zach): delay 32 milliseconds to produce ~30fps,
 		// using 32 instead of 33 to give some time for system delays
-      SDL_Delay(32);
+		SDL_Delay(32);
+	}
+	// NOTE(Zach): Insert the token into the board
+	if (token == gRedToken) {
+		insertToken(RED, col);
+	} else if (token == gBlueToken) {
+		insertToken(BLUE, col);
 	}
 	return;
+}
+
+// NOTE(Zach): blit all tokens currently on the board to the window surface
+void blitTokens(void)
+{
+	int row, col;
+
+	// NOTE(Zach): Loop through all the cells of the board and if there is a
+	// token present blit it to the window surface
+	for (row = 0; row < NUM_ROWS; row++) {
+		for (col = 0; col < NUM_COLS; col++) {
+			if (checkCell(row, col) == RED) {
+				blitToken(gRedToken, row, col);
+			} else if (checkCell(row, col) == BLUE) {
+				blitToken(gBlueToken, row, col);
+			}
+		}
+	}
 }

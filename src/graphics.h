@@ -34,5 +34,8 @@ SDL_Surface *loadSurface(std::string path);
 // NOTE(Zach): blits the token to a cell in the grid
 void blitToken(SDL_Surface *token, int row, int col);
 
-// NOTE(Zach): visually drops the token into a cell
-void dropToken(SDL_Surface *token, int row, int col);
+// NOTE(Zach): visually drops the token into a cell and add it to the board
+void dropToken(SDL_Surface *token, int col);
+
+// NOTE(Zach): blit all tokens currently on the board to the window surface
+void blitTokens(void);
