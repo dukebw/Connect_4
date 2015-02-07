@@ -8,6 +8,8 @@
 #define TOKEN_HEIGHT  100
 #define GRID_OFFSET_Y  1
 #define GRID_OFFSET_X  1
+#define GRID_WIDTH 700
+#define GRID_HEIGHT 600
 
 // NOTE(brendan): Global window/image declarations.
 extern SDL_Window *gWindow;
@@ -31,3 +33,6 @@ SDL_Surface *loadSurface(std::string path);
 
 // NOTE(Zach): blits the token to a cell in the grid
 void blitToken(SDL_Surface *token, int row, int col);
+
+// NOTE(Zach): visually drops the token into a cell
+void dropToken(SDL_Surface *token, int row, int col);

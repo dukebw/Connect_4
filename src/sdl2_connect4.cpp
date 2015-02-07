@@ -24,6 +24,19 @@ int main(int argc, char *argv[]) {
 			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 			SDL_UpdateWindowSurface(gWindow);
 
+			// NOTE(Zach): Test the drop function
+			dropToken(gRedToken, 0, 0);
+			SDL_Delay(700);
+			dropToken(gRedToken, 1, 1);
+			SDL_Delay(700);
+			dropToken(gRedToken, 2, 2);
+			SDL_Delay(700);
+			dropToken(gRedToken, 3, 3);
+			SDL_Delay(700);
+			dropToken(gRedToken, 4, 4);
+			SDL_Delay(700);
+			dropToken(gRedToken, 5, 5);
+
 			// NOTE(Zach): While application is running
 			while(!quit) {
 				// NOTE(Zach): Wait for an event to occur

@@ -75,7 +75,7 @@ bool loadMedia() {
 	// NOTE(Zach): make all white pixels transparent
 	SDL_SetColorKey(gRedToken, SDL_TRUE, SDL_MapRGB(gRedToken->format, 255, 255, 255));
 
-	// NOTE(Zach): Load the red token
+	// NOTE(Zach): Load the blue token
 	gBlueToken = loadSurface("../misc/blue_token.bmp");
 	if (gBlueToken == NULL) {
 		printf("Failed to load blue token!\n");
@@ -158,16 +158,70 @@ SDL_Surface *loadSurface(std::string path)
 	return optimizedSurface;
 }
 
+// NOTE(Zach): blits the token to a cell in the grid
 void blitToken(SDL_Surface *token, int row, int col)
 {
 		// NOTE(Zach): determine the position for the token
 		SDL_Rect tokenRect;
-		tokenRect.x = GRID_OFFSET_Y + TOKEN_WIDTH * col;
-		tokenRect.y = GRID_OFFSET_X + TOKEN_HEIGHT * row;
+		tokenRect.x = GRID_OFFSET_X + TOKEN_WIDTH * col;
+		tokenRect.y = GRID_OFFSET_Y + TOKEN_HEIGHT * row;
 		tokenRect.w = TOKEN_WIDTH;
 		tokenRect.h = TOKEN_HEIGHT;
 
 		// Note(Zach): blit the token to the desired position
       SDL_BlitSurface(token, NULL, gScreenSurface, &tokenRect);  
 		return;
+}
+
+// NOTE(Zach): visually drops the token into a cell
+// TODO(Zach): This will need to be modified to blit all the other tokens to
+// the screen each frame (but not the token that is falling!) once we
+// store the state of the board
+void dropToken(SDL_Surface *token, int row, int col)
+{
+	// Destination rectangle to blit to
+	SDL_Rect DestR;
+
+	// Initial position of the token
+	DestR.x = GRID_OFFSET_X + TOKEN_WIDTH * col;
+	DestR.y = GRID_OFFSET_Y;
+	DestR.w = TOKEN_WIDTH;
+	DestR.h = TOKEN_HEIGHT;
+
+	// NOTE(Zach): Final height of the token
+	int minHeight = GRID_OFFSET_Y + row * TOKEN_HEIGHT;
+
+	// NOTE(Zach): Velocity of token
+	int v = 0;
+	for (;;) {
+		// NOTE(Zach): df = v*t + di
+		DestR.y += v;
+		// NOTE(Zach): vf = a*t + vi
+		v += 5;
+		// NOTE(Zach): Remove energy when token hits a surface and the token
+		// is moving down
+		if (DestR.y >= minHeight && v > 0) {
+			v = -v/3;
+			DestR.y = minHeight;
+		}
+		// NOTE(Zach): Eliminate small velocity noise to let the token settle
+		if (v <= 5 && v >= -5 && DestR.y >= minHeight) {
+			DestR.y = minHeight;
+			// NOTE(Zach): blit background, token and board; then update the window surface
+			SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
+			SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
+			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
+			SDL_UpdateWindowSurface(gWindow);
+			break;
+		}
+		// NOTE(Zach): blit background, token and board; then update the window surface
+		SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
+		SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
+		SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
+		SDL_UpdateWindowSurface(gWindow);
+		// NOTE(Zach): delay 32 milliseconds to produce ~30fps,
+		// using 32 instead of 33 to give some time for system delays
+      SDL_Delay(32);
+	}
+	return;
 }
