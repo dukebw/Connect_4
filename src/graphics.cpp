@@ -1,5 +1,4 @@
 #include "graphics.h"
-#include <string>
 #include "board.h"
 
 // NOTE(brendan): Global window/image declarations.

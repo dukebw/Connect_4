@@ -12,6 +12,8 @@
 #define GRID_HEIGHT 600
 
 // NOTE(brendan): Global window/image declarations.
+// NOTE(Zach): Eventually these will be local to the graphics module and will
+// be removed from here
 extern SDL_Window *gWindow;
 extern SDL_Surface *gScreenSurface;
 extern SDL_Surface *gConnect4Board;

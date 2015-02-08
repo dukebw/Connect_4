@@ -34,9 +34,10 @@ int main(int argc, char *argv[]) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
 				} else if (e.type == SDL_MOUSEBUTTONDOWN) {
-					//Get mouse position
+					// NOTE(Zach): Get mouse position when the mouse was pressed
 					int x, y;
-					SDL_GetMouseState( &x, &y );
+					x = e.button.x;
+					y = e.button.y;
 
 					// NOTE(Zach): We only want to place token on left mouse click
 					// For illustration, left click places red, right click places blue
