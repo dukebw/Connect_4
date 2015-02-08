@@ -54,6 +54,9 @@ int main(int argc, char *argv[]) {
 					// NOTE(Zach): Blit the board on the tokens
 					SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 				}
+				// NOTE(Zach): Remove any SLD_MOUSEBUTTONDOWN events that occured
+				// while the token was falling from the event queue.
+				SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 
 				// NOTE(brendan): Update the surface
 				SDL_UpdateWindowSurface(gWindow);
