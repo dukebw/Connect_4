@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include "board.h"
 
 #define SCREEN_WIDTH  702
 #define SCREEN_HEIGHT  602
@@ -30,14 +31,16 @@ bool loadMedia();
 // NOTE(brendan): Frees media and shuts down SDL
 void close_sdl();
 
+// TODO(Zach): Move this declaration into graphics.cpp
 // NOTE(Zach): Loads individual image
 SDL_Surface *loadSurface(std::string path);
 
+// TODO(Zach): Move this declaration into graphics.cpp
 // NOTE(Zach): blits the token to a cell in the grid
 void blitToken(SDL_Surface *token, int row, int col);
 
 // NOTE(Zach): visually drops the token into a cell and add it to the board
-void dropToken(SDL_Surface *token, int col);
+void dropToken(Token tokenColour, int col);
 
 // NOTE(Zach): blit all tokens currently on the board to the window surface
 void blitTokens(void);

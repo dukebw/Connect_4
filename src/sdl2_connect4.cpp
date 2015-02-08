@@ -2,7 +2,7 @@
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
-#include "board.h"
+//#include "board.h"
 //#include <stdio.h>
   
 int main(int argc, char *argv[]) {
@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
 					if (e.button.button == SDL_BUTTON_LEFT) {
 					// NOTE(Zach): Blit the token in cell that was clicked
 					//blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-					dropToken(gRedToken, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					} else if (e.button.button == SDL_BUTTON_RIGHT) {
 					//blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-					dropToken(gBlueToken, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					}
 
 					// NOTE(Zach): Blit the board on the tokens

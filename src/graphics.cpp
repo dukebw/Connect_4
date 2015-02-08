@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "board.h"
+//#include "board.h"
 
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
@@ -55,9 +55,7 @@ bool loadMedia() {
 	}
 
 	// NOTE(brendan): Load splash image
-	//gConnect4Board = loadSurface( "../misc/connect4_board.bmp" );
-	//gConnect4Board = loadSurface("../misc/simple_grid_on_white.bmp");
-	gConnect4Board = loadSurface("../misc/simple_grid.bmp");
+	gConnect4Board = loadSurface("../misc/board.bmp");
 	if (gConnect4Board == NULL) {
 		printf( "Failed to load board!\n" );
 		success = false;
@@ -174,8 +172,12 @@ void blitToken(SDL_Surface *token, int row, int col)
 }
 
 // NOTE(Zach): visually drops the token into a cell and add it to the board
-void dropToken(SDL_Surface *token, int col)
+void dropToken(Token tokenColour, int col)
 {
+	SDL_Surface *token;
+	if (tokenColour == RED) token = gRedToken;
+	else if (tokenColour == BLUE) token = gBlueToken;
+
 	// NOTE(Zach): Find the row where the token should land
 	int row = insertPosition(col);
 	// NOTE(Zach): Check if the column was full
