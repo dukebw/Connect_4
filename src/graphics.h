@@ -1,3 +1,6 @@
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
@@ -44,3 +47,5 @@ void dropToken(Token tokenColour, int col);
 
 // NOTE(Zach): blit all tokens currently on the board to the window surface
 void blitTokens(void);
+
+#endif // GRAPHICS_H

@@ -2,7 +2,7 @@
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
-//#include "board.h"
+#include "board.h"
 //#include <stdio.h>
   
 int main(int argc, char *argv[]) {

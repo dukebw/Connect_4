@@ -1,3 +1,6 @@
+#ifndef BOARD_H
+#define BOARD_H
+
 #define NUM_ROWS 6
 #define NUM_COLS 7
 
@@ -17,3 +20,5 @@ int insertPosition(int col);
 
 // NOTE(Zach): Empty the board
 void emptyBoard(void);
+
+#endif // BOARD_H

@@ -1,5 +1,5 @@
 #include "graphics.h"
-//#include "board.h"
+#include "board.h"
 
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
