@@ -14,3 +14,6 @@ int insertToken(Token token, int col);
 // NOTE(Zach): Return row where a token will land when dropped into the board.
 // Return -1 for failure.
 int insertPosition(int col);
+
+// NOTE(Zach): Empty the board
+void emptyBoard(void);

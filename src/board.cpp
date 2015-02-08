@@ -33,3 +33,15 @@ int insertPosition(int col)
 	for (row = 0; row + 1 < NUM_ROWS && board[row + 1][col] == EMPTY; row++);
 	return row;
 }
+
+// NOTE(Zach): Empty the board
+void emptyBoard(void)
+{
+	int row, col;
+
+	for (row = 0; row < NUM_ROWS; row++)
+		for (col = 0; col < NUM_COLS; col++)
+			board[row][col] = EMPTY;
+
+	return;
+}
