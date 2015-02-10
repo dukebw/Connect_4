@@ -1,6 +1,9 @@
 #include "graphics.h"
 #include "board.h"
 
+#define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
+									, __LINE__, __FILE__)
+
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
 SDL_Surface *gScreenSurface = NULL;
@@ -119,7 +122,7 @@ SDL_Surface *loadSurface(std::string path)
 		printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 	} else {
 		// NOTE(Zach): Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, NULL);
+		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
 		if(optimizedSurface == NULL) {
 			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 		}
@@ -144,7 +147,7 @@ SDL_Surface *loadSurface(std::string path)
 		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
 	} else {
 		// NOTE(Zach): Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, NULL);
+		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
 		if (optimizedSurface == NULL)	{
 			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 		}
@@ -171,15 +174,15 @@ void blitToken(SDL_Surface *token, int row, int col)
 		return;
 }
 
-// NOTE(Zach): visually drops the token into a cell and add it to the board
-void dropToken(Token tokenColour, int col)
+// NOTE(Zach): visually drops the token into a cell and add it to the Board, b
+void dropToken(Board b, Token tokenColour, int col)
 {
 	SDL_Surface *token;
 	if (tokenColour == RED) token = gRedToken;
 	else if (tokenColour == BLUE) token = gBlueToken;
 
 	// NOTE(Zach): Find the row where the token should land
-	int row = insertPosition(col);
+	int row = board_dropPosition(b, col);
 	// NOTE(Zach): Check if the column was full
 	if (row == -1) return;
 
@@ -214,7 +217,7 @@ void dropToken(Token tokenColour, int col)
 			// NOTE(Zach): blit background, tokens, falling token and board;
 			// then update the window surface
 			SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
-			blitTokens();
+			blitTokens(b);
 			SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
 			SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 			SDL_UpdateWindowSurface(gWindow);
@@ -223,7 +226,7 @@ void dropToken(Token tokenColour, int col)
 		// NOTE(Zach): blit background, tokens, falling token and board;
 		// then update the window surface
 		SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
-		blitTokens();
+		blitTokens(b);
 		SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
 		SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 		SDL_UpdateWindowSurface(gWindow);
@@ -232,16 +235,12 @@ void dropToken(Token tokenColour, int col)
 		SDL_Delay(32);
 	}
 	// NOTE(Zach): Insert the token into the board
-	if (token == gRedToken) {
-		insertToken(RED, col);
-	} else if (token == gBlueToken) {
-		insertToken(BLUE, col);
-	}
+	board_dropToken(b, tokenColour, col);
 	return;
 }
 
 // NOTE(Zach): blit all tokens currently on the board to the window surface
-void blitTokens(void)
+void blitTokens(Board b)
 {
 	int row, col;
 
@@ -249,9 +248,9 @@ void blitTokens(void)
 	// token present blit it to the window surface
 	for (row = 0; row < NUM_ROWS; row++) {
 		for (col = 0; col < NUM_COLS; col++) {
-			if (checkCell(row, col) == RED) {
+			if (board_checkCell(b, row, col) == RED) {
 				blitToken(gRedToken, row, col);
-			} else if (checkCell(row, col) == BLUE) {
+			} else if (board_checkCell(b, row, col) == BLUE) {
 				blitToken(gBlueToken, row, col);
 			}
 		}

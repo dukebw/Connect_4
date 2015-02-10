@@ -1,4 +1,4 @@
-#ifndef GRAPHICS_H
+#ifndef GRAPHICS_H // NOTE(Zach): This is an include guard
 #define GRAPHICS_H
 
 #include <SDL2/SDL.h>
@@ -38,14 +38,14 @@ void close_sdl();
 // NOTE(Zach): Loads individual image
 SDL_Surface *loadSurface(std::string path);
 
-// TODO(Zach): Move this declaration into graphics.cpp
+// TODO(Zach): Move this declaration into graphics.cpp (maybe not this one)
 // NOTE(Zach): blits the token to a cell in the grid
 void blitToken(SDL_Surface *token, int row, int col);
 
 // NOTE(Zach): visually drops the token into a cell and add it to the board
-void dropToken(Token tokenColour, int col);
+void dropToken(Board b, Token tokenColour, int col);
 
 // NOTE(Zach): blit all tokens currently on the board to the window surface
-void blitTokens(void);
+void blitTokens(Board b);
 
 #endif // GRAPHICS_H

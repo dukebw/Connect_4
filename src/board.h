@@ -1,4 +1,4 @@
-#ifndef BOARD_H
+#ifndef BOARD_H // NOTE(Zach): This is an include guard
 #define BOARD_H
 
 #define NUM_ROWS 6
@@ -7,18 +7,28 @@
 // NOTE(Zach): Create a new type called Token
 typedef enum {EMPTY, RED, BLUE} Token;
 
-// NOTE(Zach): Return the value of the board at (row, col)
-Token checkCell(int row, int col);
+// NOTE(Zach): Board is a pointer to the incomplete type board_type
+typedef struct board_type *Board;
 
-// NOTE(Zach): Insert a token into the board, only allow dropping tokens in
+// NOTE(Zach): Create an instance of Abstract Data Type board 
+Board board_create(void);
+
+// NOTE(Zach): Destroy (free the memory of) Board, b
+void board_destroy(Board b);
+
+// NOTE(Zach): Return the value of the Board, b, at (row, col)
+Token board_checkCell(Board b, int row, int col);
+
+// NOTE(Zach): Drop a token into the Board, b
 // Return 0 for success and -1 for failure
-int insertToken(Token token, int col);
+int board_dropToken(Board b, Token token, int col);
 
-// NOTE(Zach): Return row where a token will land when dropped into the board.
+// NOTE(Zach): Return row where a token will land when dropped into the
+// Board, b.
 // Return -1 for failure.
-int insertPosition(int col);
+int board_dropPosition(Board b, int col);
 
-// NOTE(Zach): Empty the board
-void emptyBoard(void);
+// NOTE(Zach): Empty the Board, b
+void board_empty(Board b);
 
 #endif // BOARD_H

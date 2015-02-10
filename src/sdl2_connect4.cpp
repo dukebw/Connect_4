@@ -1,11 +1,17 @@
 /* Source code by team struct by_lightning{}; */
+#define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
+									, __LINE__, __FILE__)
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
 #include "board.h"
-//#include <stdio.h>
+#include <stdio.h>
   
 int main(int argc, char *argv[]) {
+	// NOTE(Zach): Create a board
+	Board b;
+	b = board_create();
+
 	// NOTE(brendan): Start up SDL and create window.
 	if (!init()) {
 		// TODO(brendan): Diagnostics
@@ -45,10 +51,10 @@ int main(int argc, char *argv[]) {
 					if (e.button.button == SDL_BUTTON_LEFT) {
 					// NOTE(Zach): Blit the token in cell that was clicked
 					//blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-					dropToken(RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(b, RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					} else if (e.button.button == SDL_BUTTON_RIGHT) {
 					//blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-					dropToken(BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+					dropToken(b, BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 					}
 
 					// NOTE(Zach): Blit the board on the tokens
@@ -64,6 +70,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	board_destroy(b);
 	// NOTE(brendan): Free resources and close SDL.
 	close_sdl();
 

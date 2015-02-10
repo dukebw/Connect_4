@@ -27,8 +27,9 @@ OBJS = 	graphics.cpp\
 CC = g++
 
 # COMPILER_FLAGS specifies the additional compilation options we're using
-# -w suppresses all warnings
-COMPILER_FLAGS = -w
+# -w suppresses all warnings #Why did you have this set, especially during development? -- not cool
+# -Wall turns on lots of helpful compile flags 
+COMPILER_FLAGS = -Wall #-w
 
 # LINKER_FLAGS specifies the libraries we're linking against
 LINKER_FLAGS = -lSDL2 -lSDL2_image
