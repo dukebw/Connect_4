@@ -32,15 +32,8 @@ bool init() {
       printf("Window could not be created! SDL_Error: %s\n", 
 		SDL_GetError());
     } else {
-			//Initialize PNG loading
-			int imgFlags = IMG_INIT_PNG;
-			if( !( IMG_Init( imgFlags ) & imgFlags ) ) {
-				printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
-				success = false;
-			} else {
-				// NOTE(Zach): Get window surface
-				gScreenSurface = SDL_GetWindowSurface(gWindow);
-			}
+		// NOTE(Zach): Get window surface
+		gScreenSurface = SDL_GetWindowSurface(gWindow);
     }
   }
   return success;
@@ -105,11 +98,9 @@ void close_sdl() {
 	gWindow = NULL;
 
 	// NOTE(brendan): Quit SDL subsystems
-	IMG_Quit();
 	SDL_Quit();
 }
 
-/*
 // NOTE(Zach): Loads bitmaps
 SDL_Surface *loadSurface(std::string path)
 {
@@ -124,31 +115,6 @@ SDL_Surface *loadSurface(std::string path)
 		// NOTE(Zach): Convert surface to screen format
 		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
 		if(optimizedSurface == NULL) {
-			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-		}
-
-		// NOTE(Zach): Get rid of old loaded surface
-		SDL_FreeSurface(loadedSurface);
-	}
-
-	return optimizedSurface;
-}*/
-
-// NOTE(Zach): Loads more than just bitmaps
-// TODO(Zach): Look more into exactly what it can load -- atm loading png and bmp with it
-SDL_Surface *loadSurface(std::string path)
-{
-	// NOTE(Zach): The final optimized image
-	SDL_Surface *optimizedSurface = NULL;
-
-	// NOTE(Zach): Load image at specified path
-	SDL_Surface *loadedSurface = IMG_Load(path.c_str());
-	if (loadedSurface == NULL) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
-	} else {
-		// NOTE(Zach): Convert surface to screen format
-		optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
-		if (optimizedSurface == NULL)	{
 			printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
 		}
 

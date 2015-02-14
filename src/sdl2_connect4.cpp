@@ -33,8 +33,16 @@ int main(int argc, char *argv[]) {
 
 			// NOTE(Zach): While application is running
 			while(!quit) {
+			// These four lines are for testing purposes
+			SDL_PumpEvents();
+			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+			    SDL_Log("Mouse Button 1 (left) is pressed.");
+			 }
+
+			while( SDL_PollEvent( &e ) != 0 )
+			{
 				// NOTE(Zach): Wait for an event to occur
-				SDL_WaitEvent(&e);
+				//SDL_WaitEvent(&e);
 
 				// NOTE(Zach): User requests quit
 				if (e.type == SDL_QUIT) {
@@ -62,10 +70,14 @@ int main(int argc, char *argv[]) {
 				}
 				// NOTE(Zach): Remove any SLD_MOUSEBUTTONDOWN events that occured
 				// while the token was falling from the event queue.
-				SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
+				SDL_FlushEvent(SDL_MOUSEMOTION);
+				//SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 
+					SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
 				// NOTE(brendan): Update the surface
 				SDL_UpdateWindowSurface(gWindow);
+			}
+			SDL_Delay(32);
 			}
 		}
 	}

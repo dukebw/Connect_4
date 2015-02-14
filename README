@@ -4,7 +4,7 @@ Zachariah Levine and Pranesh Satish.
 SDL2 is required to compile and run this program, and can be installed with
 your package manager or compiled from source from https://www.libsdl.org/.
 
-To compile: cd to the Connect_4/src/ directory and type "make all".
+To compile: cd to the Connect_4/src/ directory and type "make".
 The ../build/ directory will be created automatically.
 
-To run: cd to the Connect_4/build/ directory and type "./sdl2_connect4".
+To run: cd to the Connect_4/build/ directory and type "./connect4".
