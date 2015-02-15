@@ -4,23 +4,32 @@
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
 
-// NOTE(brendan): Global window/image declarations.
-SDL_Window *gWindow = NULL;
-// TODO(brendan): Do we still need gScreenSurface?
-SDL_Texture *gConnect4Board = NULL;
-SDL_Texture *gRedToken = NULL;
-SDL_Texture *gBlueToken = NULL;
-SDL_Texture *gBackground = NULL;
-SDL_Renderer* gRenderer = NULL;
-
-
-typedef struct {
+struct TextureWrapper {
 	SDL_Texture *texture;
 	int width;
 	int height;
-} TextureWrapper;
+};
+
+// NOTE(brendan): Global window/image declarations.
+SDL_Window *gWindow = NULL;
+// TODO(brendan): Do we still need gScreenSurface?
+TextureWrapper *gConnect4Board = NULL;
+TextureWrapper *gRedToken = NULL;
+TextureWrapper *gBlueToken = NULL;
+TextureWrapper *gBackground = NULL;
+SDL_Renderer* gRenderer = NULL;
 
 static TextureWrapper *loadTexture(std::string path);
+
+static void freeTexture(TextureWrapper *myTexture) {
+  if(myTexture != NULL) {
+    if(myTexture->texture != NULL) {
+      SDL_DestroyTexture(myTexture->texture);
+      myTexture->texture = NULL;
+    }
+    free(myTexture); 
+  }
+}
 
 bool init() {
   // NOTE(brendan): Initialization flag.
@@ -75,11 +84,6 @@ bool loadMedia() {
     success = false;
   }
 
-  // TODO(brendan): Find texture version of this?
-  // NOTE(Zach): make all white pixels transparent
-  SDL_SetColorKey(gConnect4Board, SDL_TRUE, SDL_MapRGB(gBackground->format, 
-        255, 255, 255));
-
   // NOTE(Zach): Load the red token
   gRedToken = loadTexture("../misc/red_token.bmp");
   //gRedToken = loadTexture("../misc/red_token.png");
@@ -87,27 +91,22 @@ bool loadMedia() {
     printf("Failed to load red token!\n");
     success = false;
   }
-  // NOTE(Zach): make all white pixels transparent
-  SDL_SetColorKey(gRedToken, SDL_TRUE, SDL_MapRGB(gRedToken->format, 255, 255, 255));
-
   // NOTE(Zach): Load the blue token
   gBlueToken = loadTexture("../misc/blue_token.bmp");
   if (gBlueToken == NULL) {
     printf("Failed to load blue token!\n");
     success = false;
   }
-  // NOTE(Zach): make all white pixels transparent
-  SDL_SetColorKey(gBlueToken, SDL_TRUE, SDL_MapRGB(gBlueToken->format, 255, 255, 255));
 
   return success;
 }
 
 void close_sdl() {
   // NOTE(brendan): de-allocate surface
-  SDL_FreeSurface(gConnect4Board);
-  SDL_FreeSurface(gRedToken);
-  SDL_FreeSurface(gBlueToken);
-  SDL_FreeSurface(gBackground);
+  freeTexture(gConnect4Board);
+  freeTexture(gRedToken);
+  freeTexture(gBlueToken);
+  freeTexture(gBackground);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -132,19 +131,23 @@ static TextureWrapper *loadTexture(std::string path)
   // NOTE(Zach): Load image at specified path
   SDL_Surface *loadedSurface = SDL_LoadBMP(path.c_str()); //use a c string
   if(loadedSurface == NULL) {
-    printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+    printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), 
+        SDL_GetError());
   } else {
 		// Color key image
-		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0xFF, 0xFF, 0xFF));
+		SDL_SetColorKey( loadedSurface, SDL_TRUE, 
+        SDL_MapRGB( loadedSurface->format, 0xFF, 0xFF, 0xFF));
 
 		//Create texture from surface pixels
 		newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
 		if (newTexture == NULL) {
-			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(),SDL_GetError());
+			printf("Unable to create texture from %s! SDL Error: %s\n", 
+          path.c_str(),SDL_GetError());
 		} else {
-			loadedTexture = malloc(sizeof(TextureWrapper));
+			loadedTexture = (TextureWrapper *)malloc(sizeof(TextureWrapper));
 			if (loadedTexture == NULL) {
-				printf("Unable to allocate the TextureWrapper structure for %s!\n", path.c_str());
+				printf("Unable to allocate the TextureWrapper structure for %s!\n", 
+            path.c_str());
 			} else {
 				loadedTexture->texture = newTexture;
 				loadedTexture->width = loadedSurface->w;

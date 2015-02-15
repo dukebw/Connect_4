@@ -14,15 +14,19 @@
 #define GRID_WIDTH 700
 #define GRID_HEIGHT 600
 
+#if 0
+struct TextureWrapper;
+
 // NOTE(brendan): Global window/image declarations.
 // NOTE(Zach): Eventually these will be local to the graphics module and will
 // be removed from here
 extern SDL_Window *gWindow;
-extern SDL_Texture *gScreenSurface;
-extern SDL_Texture *gConnect4Board;
-extern SDL_Texture *gRedToken;
-extern SDL_Texture *gBlueToken;
-extern SDL_Texture *gBackground;
+extern TextureWrapper *gScreenSurface;
+extern TextureWrapper *gConnect4Board;
+extern TextureWrapper *gRedToken;
+extern TextureWrapper *gBlueToken;
+extern TextureWrapper *gBackground;
+#endif
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();
