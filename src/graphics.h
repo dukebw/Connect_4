@@ -18,11 +18,11 @@
 // NOTE(Zach): Eventually these will be local to the graphics module and will
 // be removed from here
 extern SDL_Window *gWindow;
-extern SDL_Surface *gScreenSurface;
-extern SDL_Surface *gConnect4Board;
-extern SDL_Surface *gRedToken;
-extern SDL_Surface *gBlueToken;
-extern SDL_Surface *gBackground;
+extern SDL_Texture *gScreenSurface;
+extern SDL_Texture *gConnect4Board;
+extern SDL_Texture *gRedToken;
+extern SDL_Texture *gBlueToken;
+extern SDL_Texture *gBackground;
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();
