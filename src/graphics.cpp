@@ -13,6 +13,15 @@ SDL_Texture *gBlueToken = NULL;
 SDL_Texture *gBackground = NULL;
 SDL_Renderer* gRenderer = NULL;
 
+
+typedef struct {
+	SDL_Texture *texture;
+	int width;
+	int height;
+} TextureWrapper;
+
+static TextureWrapper *loadTexture(std::string path);
+
 bool init() {
   // NOTE(brendan): Initialization flag.
   bool success = true;
@@ -114,27 +123,40 @@ void close_sdl() {
 }
 
 // NOTE(Zach): Loads bitmaps
-SDL_Texture *loadTexture(std::string path)
+static TextureWrapper *loadTexture(std::string path)
 {
+	TextureWrapper *loadedTexture;
   // NOTE(Zach): The final optimized image
-  SDL_Surface *optimizedSurface = NULL;
+  SDL_Texture *newTexture = NULL;
 
   // NOTE(Zach): Load image at specified path
   SDL_Surface *loadedSurface = SDL_LoadBMP(path.c_str()); //use a c string
   if(loadedSurface == NULL) {
     printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
   } else {
-    // NOTE(Zach): Convert surface to screen format
-    optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
-    if(optimizedSurface == NULL) {
-      printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
-    }
+		// Color key image
+		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0xFF, 0xFF, 0xFF));
+
+		//Create texture from surface pixels
+		newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+		if (newTexture == NULL) {
+			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(),SDL_GetError());
+		} else {
+			loadedTexture = malloc(sizeof(TextureWrapper));
+			if (loadedTexture == NULL) {
+				printf("Unable to allocate the TextureWrapper structure for %s!\n", path.c_str());
+			} else {
+				loadedTexture->texture = newTexture;
+				loadedTexture->width = loadedSurface->w;
+				loadedTexture->height = loadedSurface->h;
+			}
+		}
 
     // NOTE(Zach): Get rid of old loaded surface
     SDL_FreeSurface(loadedSurface);
   }
 
-  return optimizedSurface;
+  return loadedTexture;
 }
 
 // NOTE(Zach): blits the token to a cell in the grid
