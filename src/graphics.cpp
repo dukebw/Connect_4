@@ -314,9 +314,22 @@ void clearFallingToken(FallingToken *fallingToken) {
   return;
 }
 
+// TODO(Zach): make macros for constants
+// NOTE(Zach): update position/velocity of falling token
 void updateFallingToken(FallingToken *fallingToken, float dt) {
 	#define ACCEL 5
 	fallingToken->y += fallingToken->v * dt;
 	fallingToken->v += ACCEL * dt;
+	// NOTE(Zach): Remove energy when token hits a surface and the token
+	// is moving down
+	if (fallingToken->y >= fallingToken->yFinal && fallingToken->v > 0) {
+		fallingToken->v = -fallingToken->v/3;
+		fallingToken->y = fallingToken->yFinal;
+	}
+	// NOTE(Zach): Eliminate small velocity noise to let the token settle
+	if (fallingToken->v <= 5 && fallingToken->v >= -5 && fallingToken->y >= fallingToken->yFinal) {
+		fallingToken->y = fallingToken->yFinal;
+		fallingToken->isFalling = true;
+	}
 	#undef ACCEL
 }

@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
 			SDL_RenderPresent(gRenderer);
 
       /*********************************************************************/
-      FallingToken fallingTokens[] = {{100,1,1},
-        {200,2,2},
-        {300,3,3},
-        {400,4,4}};
+      FallingToken fallingTokens[] = {{100,1,1,500},
+        {200,2,2,500},
+        {300,3,3,500},
+        {400,4,4,500}};
       Node *list = addToList(&fallingTokens[0], NULL);
       list = addToList(&fallingTokens[1], list);
       list = addToList(&fallingTokens[2], list);
@@ -48,22 +48,30 @@ int main(int argc, char *argv[]) {
 		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 		SDL_RenderPresent(gRenderer);
       /*********************************************************************/
-      SDL_Delay(2000);
+      SDL_Delay(1000);
       traverseList(clearFallingToken, list);
 		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 		SDL_RenderPresent(gRenderer);
-      SDL_Delay(2000);
+      SDL_Delay(1000);
 		traverseList(updateFallingToken, 5, list);
 		traverseList(updateFallingToken, 5, list);
       traverseList(drawFallingToken, list);
 		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 		SDL_RenderPresent(gRenderer);
-      SDL_Delay(2000);
+      SDL_Delay(1000);
       traverseList(clearFallingToken, list);
 		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 		SDL_RenderPresent(gRenderer);
-      SDL_Delay(2000);
+      SDL_Delay(1000);
       /*********************************************************************/
+		for (int j=0; j < 100; j++) {
+			traverseList(clearFallingToken, list);
+			traverseList(updateFallingToken, 0.5, list);
+			traverseList(drawFallingToken, list);
+			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+			SDL_RenderPresent(gRenderer);
+			SDL_Delay(32);
+		}
 
 			// NOTE(Zach): While application is running
 			while(!quit) {
