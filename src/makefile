@@ -8,7 +8,8 @@ CC=g++
 
 SOURCES= graphics.cpp\
 			board.cpp\
-			sdl2_connect4.cpp
+			sdl2_connect4.cpp\
+			linkedList.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=connect4
 # Build directory
@@ -43,3 +44,4 @@ spotless:
 board.o: board.h
 graphics.o: graphics.h board.h
 sdl2_connect4.o: board.h graphics.h
+linkedList.o: linkedList.h

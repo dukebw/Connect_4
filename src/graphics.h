@@ -20,6 +20,15 @@ struct TextureWrapper {
 	int height;
 };
 
+struct FallingToken {
+  int x;
+  int y;
+  int v;
+  Token token;
+};
+
+void drawFallingToken(FallingToken *token);
+
 // NOTE(brendan): Global window/image declarations.
 // NOTE(Zach): Eventually these will be local to the graphics module and will
 // be removed from here

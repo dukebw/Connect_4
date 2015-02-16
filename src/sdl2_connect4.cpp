@@ -5,9 +5,23 @@
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
 #include "board.h"
+#include "linkedList.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
+	FallingToken falling = {2,7,5};
+	FallingToken fallingTokens[] = {{1,1,1},
+											  {2,2,2},
+											  {3,3,3},
+											  {4,4,4}};
+	drawFallingToken(&falling);
+	drawFallingToken(&fallingTokens[0]);
+	drawFallingToken(&fallingTokens[1]);
+	drawFallingToken(&fallingTokens[2]);
+	Node *list = addToList(&fallingTokens[0], NULL);
+	drawFallingToken(list->token);
+
+	/*********************************************************************/
 	// NOTE(Zach): Create a board
 	Board b;
 	b = board_create();
