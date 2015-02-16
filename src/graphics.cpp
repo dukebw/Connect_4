@@ -21,14 +21,6 @@ struct FallingToken {
 };
 #endif
 
-void drawFallingToken(FallingToken *token)
-{
-	printf("%d %d %d\n", token->x, token->y, token->v);
-}
-
-// -------------------------------------------------------------------------
-// -------------------------------------------------------------------------
-
 //Node *gFallingTokens = NULL;
 
 // NOTE(brendan): Global window/image declarations.
@@ -182,6 +174,7 @@ static TextureWrapper *loadTexture(std::string path)
   return loadedTexture;
 }
 
+// TODO(brendan): Do we still need this? (Due to drawFallingToken)
 // NOTE(Zach): blits the token to a cell in the grid
 void blitToken(TextureWrapper *token, int row, int col)
 {
@@ -202,8 +195,12 @@ void blitToken(TextureWrapper *token, int row, int col)
 void dropToken(Board b, Token tokenColour, int col)
 {
   TextureWrapper *token;
-  if (tokenColour == RED) token = gRedToken;
-  else if (tokenColour == BLUE) token = gBlueToken;
+  if (tokenColour == RED) {
+    token = gRedToken;
+  }
+  else if (tokenColour == BLUE) {
+    token = gBlueToken;
+  }
 
   // NOTE(Zach): Find the row where the token should land
   int row = board_dropPosition(b, col);
@@ -240,12 +237,12 @@ void dropToken(Board b, Token tokenColour, int col)
       DestR.y = minHeight;
       // NOTE(Zach): blit background, tokens, falling token and board;
       // then update the window surface
-		//Clear screen
-		SDL_RenderClear( gRenderer );
+      //Clear screen
+      SDL_RenderClear( gRenderer );
       blitTokens(b);
-		SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
-		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-		SDL_RenderPresent(gRenderer);
+      SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
+      SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+      SDL_RenderPresent(gRenderer);
       break;
     }
     // NOTE(Zach): blit background, tokens, falling token and board;
@@ -281,3 +278,28 @@ void blitTokens(Board b)
     }
   }
 }
+
+// NOTE(brendan): draw a falling token
+void drawFallingToken(FallingToken *fallingToken) {
+  TextureWrapper *tokenTexture;
+  if(fallingToken->token == RED) {
+    tokenTexture = gRedToken;
+  }
+  else {
+    tokenTexture = gBlueToken;
+  }
+
+  // NOTE(Zach): determine the position for the fallingToken
+  SDL_Rect tokenRect;
+  tokenRect.x = fallingToken->x;
+  tokenRect.y = fallingToken->y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+ 
+	//Render texture to screen
+	SDL_RenderCopy( gRenderer, tokenTexture->texture, NULL, &tokenRect ); 
+
+  return;
+}
+
+// NOTE(brendan):

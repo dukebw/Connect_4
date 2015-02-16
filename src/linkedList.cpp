@@ -46,4 +46,10 @@ Node *deleteFromList(FallingToken *toDeleteToken, Node *list) {
   }
 }
 
-
+void traverseList(void (*f)(FallingToken *token), Node *list) {
+  for(Node *current = list;
+      current != NULL;
+      current = current->next) {
+    (*f)(current->token);
+  }
+}

@@ -25,6 +25,8 @@ struct FallingToken {
   int y;
   int v;
   Token token;
+  // NOTE(brendan): final position of this token
+  int yFinal;
 };
 
 void drawFallingToken(FallingToken *token);

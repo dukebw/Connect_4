@@ -9,19 +9,6 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
-	FallingToken falling = {2,7,5};
-	FallingToken fallingTokens[] = {{1,1,1},
-											  {2,2,2},
-											  {3,3,3},
-											  {4,4,4}};
-	drawFallingToken(&falling);
-	drawFallingToken(&fallingTokens[0]);
-	drawFallingToken(&fallingTokens[1]);
-	drawFallingToken(&fallingTokens[2]);
-	Node *list = addToList(&fallingTokens[0], NULL);
-	drawFallingToken(list->token);
-
-	/*********************************************************************/
 	// NOTE(Zach): Create a board
 	Board b;
 	b = board_create();
@@ -44,6 +31,24 @@ int main(int argc, char *argv[]) {
 			SDL_RenderClear(gRenderer);
 			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 			SDL_RenderPresent(gRenderer);
+
+      /*********************************************************************/
+      FallingToken fallingTokens[] = {{100,1,1},
+        {200,2,2},
+        {300,3,3},
+        {400,4,4}};
+      Node *list = addToList(&fallingTokens[0], NULL);
+      list = addToList(&fallingTokens[1], list);
+      list = addToList(&fallingTokens[2], list);
+      list = addToList(&fallingTokens[3], list);
+      traverseList(drawFallingToken, list);
+      deleteFromList(&fallingTokens[2], list);
+      traverseList(drawFallingToken, list);
+
+			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+			SDL_RenderPresent(gRenderer);
+      /*********************************************************************/
+      SDL_Delay(10000);
 
 			// NOTE(Zach): While application is running
 			while(!quit) {
