@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 			SDL_RenderClear(gRenderer);
 			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 			SDL_RenderPresent(gRenderer);
-
+#if 0
       /*********************************************************************/
       FallingToken fallingTokens[] = {{100,1,1,500},
         {200,2,2,500},
@@ -64,15 +64,7 @@ int main(int argc, char *argv[]) {
 		SDL_RenderPresent(gRenderer);
       SDL_Delay(1000);
       /*********************************************************************/
-		for (int j=0; j < 100; j++) {
-			traverseList(clearFallingToken, list);
-			traverseList(updateFallingToken, 0.5, list);
-			traverseList(drawFallingToken, list);
-			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-			SDL_RenderPresent(gRenderer);
-			SDL_Delay(32);
-		}
-
+#endif
 			// NOTE(Zach): While application is running
 			while(!quit) {
 				// These four lines are for testing purposes
@@ -104,7 +96,6 @@ int main(int argc, char *argv[]) {
 							dropToken(b, RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 						} else if (e.button.button == SDL_BUTTON_RIGHT) {
 							//blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-							dropToken(b, BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 						}
 
 						// NOTE(Zach): Blit the board on the tokens
@@ -115,11 +106,14 @@ int main(int argc, char *argv[]) {
 					SDL_FlushEvent(SDL_MOUSEMOTION);
 					//SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 
-					SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+          traverseList(clearFallingToken, list);
+          traverseList(updateFallingToken, 0.5, list);
+          traverseList(drawFallingToken, list);
+          SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 					// NOTE(brendan): Update the surface
-					SDL_RenderPresent(gRenderer);
+          SDL_RenderPresent(gRenderer);
+          SDL_Delay(32);
 				}
-				SDL_Delay(32);
 			}
 		}
 	}

@@ -34,6 +34,7 @@ void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
 
+// TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.
 // NOTE(Zach): Eventually these will be local to the graphics module and will
 // be removed from here
@@ -43,6 +44,7 @@ extern TextureWrapper *gRedToken;
 extern TextureWrapper *gBlueToken;
 extern TextureWrapper *gBackground;
 extern SDL_Renderer* gRenderer;
+Node *gFallingTokens = NULL;
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();

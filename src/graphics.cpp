@@ -21,8 +21,6 @@ struct FallingToken {
 };
 #endif
 
-//Node *gFallingTokens = NULL;
-
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
 TextureWrapper *gConnect4Board = NULL;
@@ -192,8 +190,7 @@ void blitToken(TextureWrapper *token, int row, int col)
 }
 
 // NOTE(Zach): visually drops the token into a cell and add it to the Board, b
-void dropToken(Board b, Token tokenColour, int col)
-{
+void dropToken(Board b, Token tokenColour, int col) {
   TextureWrapper *token;
   if (tokenColour == RED) {
     token = gRedToken;
@@ -205,65 +202,31 @@ void dropToken(Board b, Token tokenColour, int col)
   // NOTE(Zach): Find the row where the token should land
   int row = board_dropPosition(b, col);
   // NOTE(Zach): Check if the column was full
-  if (row == -1) return;
+  if (row == -1) {
+    return;
+  }
 
-  // NOTE(Zach): Destination rectangle to blit to
-  SDL_Rect DestR;
+  FallingToken *newToken = (FallingToken *)malloc(sizeof(FallingToken));
 
   // NOTE(Zach): Initial position of the token
-  DestR.x = GRID_OFFSET_X + TOKEN_WIDTH * col;
-  DestR.y = GRID_OFFSET_Y;
-  DestR.w = TOKEN_WIDTH;
-  DestR.h = TOKEN_HEIGHT;
+  newToken->x = GRID_OFFSET_X + TOKEN_WIDTH * col;
+  newToken->y = GRID_OFFSET_Y;
 
   // NOTE(Zach): Final height of the token
-  int minHeight = GRID_OFFSET_Y + row * TOKEN_HEIGHT;
+  newToken->yFinal = GRID_OFFSET_Y + row * TOKEN_HEIGHT;
 
   // NOTE(Zach): Velocity of token
-  int v = 0;
-  for (;;) {
-    // NOTE(Zach): df = v*t + di
-    DestR.y += v;
-    // NOTE(Zach): vf = a*t + vi
-    v += 5;
-    // NOTE(Zach): Remove energy when token hits a surface and the token
-    // is moving down
-    if (DestR.y >= minHeight && v > 0) {
-      v = -v/3;
-      DestR.y = minHeight;
-    }
-    // NOTE(Zach): Eliminate small velocity noise to let the token settle
-    if (v <= 5 && v >= -5 && DestR.y >= minHeight) {
-      DestR.y = minHeight;
-      // NOTE(Zach): blit background, tokens, falling token and board;
-      // then update the window surface
-      //Clear screen
-      SDL_RenderClear( gRenderer );
-      blitTokens(b);
-      SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
-      SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-      SDL_RenderPresent(gRenderer);
-      break;
-    }
-    // NOTE(Zach): blit background, tokens, falling token and board;
-	 // then update the window surface
-	 SDL_RenderClear( gRenderer );
-	 blitTokens(b);
-	 SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
-	 SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-	 SDL_RenderPresent(gRenderer);
-    // NOTE(Zach): delay 32 milliseconds to produce ~30fps,
-    // using 32 instead of 33 to give some time for system delays
-    //SDL_Delay(32);
-  }
+  newToken->v = 0;
+
+  gFallingTokens = addToList(newToken, gFallingTokens);
+
   // NOTE(Zach): Insert the token into the board
   board_dropToken(b, tokenColour, col);
   return;
 }
 
 // NOTE(Zach): blit all tokens currently on the board to the window surface
-void blitTokens(Board b)
-{
+void blitTokens(Board b) {
   int row, col;
 
   // NOTE(Zach): Loop through all the cells of the board and if there is a
