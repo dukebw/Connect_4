@@ -4,15 +4,16 @@
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
 
+#if 0
 struct TextureWrapper {
 	SDL_Texture *texture;
 	int width;
 	int height;
 };
+#endif
 
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
-// TODO(brendan): Do we still need gScreenSurface?
 TextureWrapper *gConnect4Board = NULL;
 TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
@@ -163,7 +164,7 @@ static TextureWrapper *loadTexture(std::string path)
 }
 
 // NOTE(Zach): blits the token to a cell in the grid
-void blitToken(SDL_Surface *token, int row, int col)
+void blitToken(TextureWrapper *token, int row, int col)
 {
   // NOTE(Zach): determine the position for the token
   SDL_Rect tokenRect;
@@ -171,16 +172,17 @@ void blitToken(SDL_Surface *token, int row, int col)
   tokenRect.y = GRID_OFFSET_Y + TOKEN_HEIGHT * row;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
+ 
+	//Render texture to screen
+	SDL_RenderCopy( gRenderer, token->texture, NULL, &tokenRect ); 
 
-  // Note(Zach): blit the token to the desired position
-  SDL_BlitSurface(token, NULL, gScreenSurface, &tokenRect);  
   return;
 }
 
 // NOTE(Zach): visually drops the token into a cell and add it to the Board, b
 void dropToken(Board b, Token tokenColour, int col)
 {
-  SDL_Surface *token;
+  TextureWrapper *token;
   if (tokenColour == RED) token = gRedToken;
   else if (tokenColour == BLUE) token = gBlueToken;
 
@@ -219,23 +221,24 @@ void dropToken(Board b, Token tokenColour, int col)
       DestR.y = minHeight;
       // NOTE(Zach): blit background, tokens, falling token and board;
       // then update the window surface
-      SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
+		//Clear screen
+		SDL_RenderClear( gRenderer );
       blitTokens(b);
-      SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
-      SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
-      SDL_UpdateWindowSurface(gWindow);
+		SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
+		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+		SDL_RenderPresent(gRenderer);
       break;
     }
     // NOTE(Zach): blit background, tokens, falling token and board;
-    // then update the window surface
-    SDL_BlitSurface(gBackground, NULL, gScreenSurface, NULL);
-    blitTokens(b);
-    SDL_BlitSurface(token, NULL, gScreenSurface, &DestR);
-    SDL_BlitSurface(gConnect4Board, NULL, gScreenSurface, NULL);
-    SDL_UpdateWindowSurface(gWindow);
+	 // then update the window surface
+	 SDL_RenderClear( gRenderer );
+	 blitTokens(b);
+	 SDL_RenderCopy( gRenderer, token->texture, NULL, &DestR );
+	 SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+	 SDL_RenderPresent(gRenderer);
     // NOTE(Zach): delay 32 milliseconds to produce ~30fps,
     // using 32 instead of 33 to give some time for system delays
-    SDL_Delay(32);
+    //SDL_Delay(32);
   }
   // NOTE(Zach): Insert the token into the board
   board_dropToken(b, tokenColour, col);
