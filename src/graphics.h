@@ -30,6 +30,8 @@ struct FallingToken {
 };
 
 void drawFallingToken(FallingToken *token);
+void clearFallingToken(FallingToken *fallingToken);
+void updateFallingToken(FallingToken *fallingToken, float dt);
 
 // NOTE(brendan): Global window/image declarations.
 // NOTE(Zach): Eventually these will be local to the graphics module and will

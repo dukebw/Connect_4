@@ -53,3 +53,11 @@ void traverseList(void (*f)(FallingToken *token), Node *list) {
     (*f)(current->token);
   }
 }
+
+void traverseList(void (*f)(FallingToken *token, float dt), float dt, Node *list) {
+  for(Node *current = list;
+      current != NULL;
+      current = current->next) {
+    (*f)(current->token, dt);
+  }
+}

@@ -302,4 +302,21 @@ void drawFallingToken(FallingToken *fallingToken) {
   return;
 }
 
-// NOTE(brendan):
+void clearFallingToken(FallingToken *fallingToken) {
+  // NOTE(Zach): determine the position for the fallingToken
+  SDL_Rect tokenRect;
+  tokenRect.x = fallingToken->x;
+  tokenRect.y = fallingToken->y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+
+  SDL_RenderFillRect(gRenderer, &tokenRect);
+  return;
+}
+
+void updateFallingToken(FallingToken *fallingToken, float dt) {
+	#define ACCEL 5
+	fallingToken->y += fallingToken->v * dt;
+	fallingToken->v += ACCEL * dt;
+	#undef ACCEL
+}
