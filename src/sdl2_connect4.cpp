@@ -45,15 +45,19 @@ int main(int argc, char *argv[]) {
       //deleteFromList(&fallingTokens[2], list);
       //traverseList(drawFallingToken, list);
 
-			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-			SDL_RenderPresent(gRenderer);
+		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+		SDL_RenderPresent(gRenderer);
       /*********************************************************************/
+      SDL_Delay(2000);
+      traverseList(clearFallingToken, list);
+		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+		SDL_RenderPresent(gRenderer);
       SDL_Delay(2000);
 		traverseList(updateFallingToken, 5, list);
 		traverseList(updateFallingToken, 5, list);
       traverseList(drawFallingToken, list);
-			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-			SDL_RenderPresent(gRenderer);
+		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+		SDL_RenderPresent(gRenderer);
       SDL_Delay(2000);
       traverseList(clearFallingToken, list);
 		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
