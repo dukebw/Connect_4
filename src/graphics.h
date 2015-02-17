@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include "board.h"
+#include "linkedList.h"
 
 #define SCREEN_WIDTH  702
 #define SCREEN_HEIGHT  602
@@ -44,7 +45,7 @@ extern TextureWrapper *gRedToken;
 extern TextureWrapper *gBlueToken;
 extern TextureWrapper *gBackground;
 extern SDL_Renderer* gRenderer;
-Node *gFallingTokens = NULL;
+Node<FallingToken> *gFallingTokens = NULL;
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();

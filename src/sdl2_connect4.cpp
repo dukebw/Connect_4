@@ -106,9 +106,9 @@ int main(int argc, char *argv[]) {
 					SDL_FlushEvent(SDL_MOUSEMOTION);
 					//SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 
-          traverseList(clearFallingToken, list);
-          traverseList(updateFallingToken, 0.5, list);
-          traverseList(drawFallingToken, list);
+          traverseList(clearFallingToken, gFallingTokens);
+          traverseList(updateFallingToken, 0.5, gFallingTokens);
+          traverseList(drawFallingToken, gFallingTokens);
           SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 					// NOTE(brendan): Update the surface
           SDL_RenderPresent(gRenderer);

@@ -42,6 +42,6 @@ spotless:
 	rm -f *.o $(BUILD)$(EXECUTABLE)
 
 board.o: board.h
-graphics.o: graphics.h board.h
-sdl2_connect4.o: board.h graphics.h
+graphics.o: graphics.h board.h linkedList.h
+sdl2_connect4.o: board.h graphics.h linkedList.h
 linkedList.o: linkedList.h

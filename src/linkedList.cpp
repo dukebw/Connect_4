@@ -1,4 +1,5 @@
 #include "linkedList.h"
+#include <stdlib.h>
 
 // TODO(brendan): Move these to a data structures module
 #if 0
@@ -8,12 +9,14 @@ struct Node {
 };
 #endif
 
+#if 0
 // TODO(brendan): pass the address of list?
 // NOTE(brendan): add the token to the list
-Node *addToList(FallingToken *newToken, Node *list) {
-  if(newToken != NULL) {
-    Node *resultNode = (Node *)malloc(sizeof(Node));
-    resultNode->token = newToken;
+template<typename T> Node<T> *
+addToList(T *newItem, Node<T> *list) {
+  if(newItem != NULL) {
+    Node<T> *resultNode = (Node<T> *)malloc(sizeof(Node<T>));
+    resultNode->item = newItem;
     resultNode->next = list;
     return resultNode;
   }
@@ -23,12 +26,13 @@ Node *addToList(FallingToken *newToken, Node *list) {
 }
 
 // NOTE(brendan): delete the first one of this token; returns the list
-Node *deleteFromList(FallingToken *toDeleteToken, Node *list) {
+template<typename T> Node<T> *
+deleteFromList(T *toDeleteItem, Node<T> *list) {
   if(list != NULL) {
-    Node *current;
-    Node *previous;
+    Node<T> *current;
+    Node<T> *previous;
     for(current = list, previous = NULL; 
-        current != NULL && current->token != toDeleteToken; 
+        current != NULL && current->item != toDeleteItem; 
         previous = current, current = current->next);
     if(current != NULL) {
       if(previous != NULL) {
@@ -46,18 +50,21 @@ Node *deleteFromList(FallingToken *toDeleteToken, Node *list) {
   }
 }
 
-void traverseList(void (*f)(FallingToken *token), Node *list) {
-  for(Node *current = list;
+template<typename T>
+void traverseList(void (*f)(T *item), Node<T> *list) {
+  for(Node<T> *current = list;
       current != NULL;
       current = current->next) {
-    (*f)(current->token);
+    (*f)(current->item);
   }
 }
 
-void traverseList(void (*f)(FallingToken *token, float dt), float dt, Node *list) {
-  for(Node *current = list;
+template<typename T>
+void traverseList(void (*f)(T *item, float dt), float dt, Node<T> *list) {
+  for(Node<T> *current = list;
       current != NULL;
       current = current->next) {
-    (*f)(current->token, dt);
+    (*f)(current->item, dt);
   }
 }
+#endif
