@@ -30,6 +30,7 @@ SDL_Renderer* gRenderer = NULL;
 Node<FallingToken> *gFallingTokens = NULL;
 
 static TextureWrapper *loadTexture(std::string path);
+bool compareXPosition(FallingToken *listItem, FallingToken *item);
 
 static void freeTexture(TextureWrapper *myTexture) {
   if(myTexture != NULL) {
@@ -211,6 +212,14 @@ void dropToken(Board b, Token tokenColour, int col) {
   // NOTE(Zach): Initial position of the token
   newToken->x = GRID_OFFSET_X + TOKEN_WIDTH * col;
   newToken->y = GRID_OFFSET_Y;
+  FallingToken *currentHighest = reduceList(compareXPosition, newToken, gFallingTokens);
+  if (currentHighest != NULL) { 
+  		if (newToken->y + TOKEN_HEIGHT > currentHighest->y) {
+			newToken->y = currentHighest->y - TOKEN_HEIGHT;
+		}
+  }
+
+
   // NOTE(Zach): Velocity of token
   newToken->v = 0;
   // NOTE(Zach): Final height of the token
@@ -305,4 +314,8 @@ void deleteStillToken(FallingToken *fallingToken) {
   if(fallingToken->isFalling == false) {
     gFallingTokens = deleteFromList(fallingToken, gFallingTokens);
   }
+}
+
+bool compareXPosition(FallingToken *listItem, FallingToken *item) {
+	return listItem->x == item->x;
 }

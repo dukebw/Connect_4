@@ -83,4 +83,13 @@ void traverseList(void (*f)(T *item, float dt), float dt, Node<T> *list) {
     (*f)(current->item, dt);
   }
 }
+
+template<typename T>
+T *reduceList(bool (*f)(T *listItem, T *item), T *newest, Node<T> *list) {
+	for(; list != NULL; list = list->next) {
+		if ( (*f)(list->item, newest) == true ) return list->item;	
+	}
+	return NULL;
+}
+
 #endif
