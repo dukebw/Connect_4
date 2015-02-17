@@ -1,3 +1,23 @@
+//TODO
+// Go through and clean out commented out code
+// Fix the template forward declaration
+// Take everything that doesn't use SDL out of the sdl layer
+// Decide which modules we need and split existing code into them
+// Decide on the game/menu states we want
+
+/*****/
+// Add the main menu
+// Add a checkWin function
+// Add a way to highlight tokens
+// Add the function to check if the SETUP is valid: i.e. checkWin == FALSE, check number of red and blue tokens
+// Add the actual connect4 game fuction
+// Add the AI
+// Add token-token collisions
+
+
+/******************************************************************************************/
+
+
 /* Source code by team struct by_lightning{}; */
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
 		, __LINE__, __FILE__)
