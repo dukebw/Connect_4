@@ -1,5 +1,4 @@
 #include "graphics.h"
-#include "board.h"
 
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
@@ -28,6 +27,7 @@ TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
 TextureWrapper *gBackground = NULL;
 SDL_Renderer* gRenderer = NULL;
+Node<FallingToken> *gFallingTokens = NULL;
 
 static TextureWrapper *loadTexture(std::string path);
 
@@ -211,12 +211,12 @@ void dropToken(Board b, Token tokenColour, int col) {
   // NOTE(Zach): Initial position of the token
   newToken->x = GRID_OFFSET_X + TOKEN_WIDTH * col;
   newToken->y = GRID_OFFSET_Y;
-
-  // NOTE(Zach): Final height of the token
-  newToken->yFinal = GRID_OFFSET_Y + row * TOKEN_HEIGHT;
-
   // NOTE(Zach): Velocity of token
   newToken->v = 0;
+  // NOTE(Zach): Final height of the token
+  newToken->yFinal = GRID_OFFSET_Y + row * TOKEN_HEIGHT;
+  newToken->isFalling = true;
+  newToken->token = tokenColour;
 
   gFallingTokens = addToList(newToken, gFallingTokens);
 
@@ -261,8 +261,6 @@ void drawFallingToken(FallingToken *fallingToken) {
  
 	//Render texture to screen
 	SDL_RenderCopy( gRenderer, tokenTexture->texture, NULL, &tokenRect ); 
-
-  return;
 }
 
 void clearFallingToken(FallingToken *fallingToken) {
@@ -285,14 +283,26 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 	fallingToken->v += ACCEL * dt;
 	// NOTE(Zach): Remove energy when token hits a surface and the token
 	// is moving down
-	if (fallingToken->y >= fallingToken->yFinal && fallingToken->v > 0) {
-		fallingToken->v = -fallingToken->v/3;
-		fallingToken->y = fallingToken->yFinal;
+  if((fallingToken->y >= fallingToken->yFinal) && 
+      (fallingToken->v > 0)) {
+    fallingToken->v = -fallingToken->v/3;
+    fallingToken->y = fallingToken->yFinal;
 	}
 	// NOTE(Zach): Eliminate small velocity noise to let the token settle
-	if (fallingToken->v <= 5 && fallingToken->v >= -5 && fallingToken->y >= fallingToken->yFinal) {
+	if((fallingToken->v <= 5) && 
+      (fallingToken->v >= -5) && 
+      (fallingToken->y >= fallingToken->yFinal)) {
 		fallingToken->y = fallingToken->yFinal;
-		fallingToken->isFalling = true;
+    fallingToken->v = 0;
+		fallingToken->isFalling = false;
 	}
 	#undef ACCEL
+}
+
+// NOTE(brendan): delete stationary tokens from gFallingTokens
+// TODO(brendan): pass list as parameter?
+void deleteStillToken(FallingToken *fallingToken) {
+  if(fallingToken->isFalling == false) {
+    gFallingTokens = deleteFromList(fallingToken, gFallingTokens);
+  }
 }

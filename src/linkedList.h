@@ -3,13 +3,16 @@
 
 #include <stdlib.h>
 
+// TODO(brendan): Figure out a way to declare these template functions here,
+// define them in linkedList.cpp, and not get a whackload of linker errors
+
 template<typename T> struct Node {
   T *item;
   Node<T> *next;
 };
 //struct Node;
 
-
+#if 0
 template<typename T> Node<T> *
 addToList(T *newitem, Node<T> *list);
 
@@ -21,6 +24,7 @@ void traverseList(void (*f)(T *item), Node<T> *list);
 
 template<typename T>
 void traverseList(void (*f)(T *item, float dt), float dt, Node<T> *list);
+#endif
 
 // TODO(brendan): pass the address of list?
 // NOTE(brendan): add the token to the list

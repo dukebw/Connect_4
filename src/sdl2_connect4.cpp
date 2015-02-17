@@ -73,8 +73,7 @@ int main(int argc, char *argv[]) {
 					SDL_Log("Mouse Button 1 (left) is pressed.");
 				}
 
-				while( SDL_PollEvent( &e ) != 0 )
-				{
+				while( SDL_PollEvent( &e ) != 0 ) {
 					// NOTE(Zach): Wait for an event to occur
 					//SDL_WaitEvent(&e);
 
@@ -92,10 +91,9 @@ int main(int argc, char *argv[]) {
 						// TODO(Zach): Keep trying to figure out why just e.button doesn't work here
 						if (e.button.button == SDL_BUTTON_LEFT) {
 							// NOTE(Zach): Blit the token in cell that was clicked
-							//blitToken(gRedToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 							dropToken(b, RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 						} else if (e.button.button == SDL_BUTTON_RIGHT) {
-							//blitToken(gBlueToken, (y - GRID_OFFSET_Y)/TOKEN_HEIGHT, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+							dropToken(b, BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
 						}
 
 						// NOTE(Zach): Blit the board on the tokens
@@ -103,17 +101,18 @@ int main(int argc, char *argv[]) {
 					}
 					// NOTE(Zach): Remove any SLD_MOUSEBUTTONDOWN events that occured
 					// while the token was falling from the event queue.
-					SDL_FlushEvent(SDL_MOUSEMOTION);
+					/* SDL_FlushEvent(SDL_MOUSEMOTION); */
 					//SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
 
-          traverseList(clearFallingToken, gFallingTokens);
-          traverseList(updateFallingToken, 0.5, gFallingTokens);
-          traverseList(drawFallingToken, gFallingTokens);
-          SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-					// NOTE(brendan): Update the surface
-          SDL_RenderPresent(gRenderer);
-          SDL_Delay(32);
 				}
+        traverseList(clearFallingToken, gFallingTokens);
+        traverseList(updateFallingToken, 0.5, gFallingTokens);
+        traverseList(drawFallingToken, gFallingTokens);
+        traverseList(deleteStillToken, gFallingTokens);
+        SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+        // NOTE(brendan): Update the surface
+        SDL_RenderPresent(gRenderer);
+        SDL_Delay(32);
 			}
 		}
 	}

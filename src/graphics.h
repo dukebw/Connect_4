@@ -45,7 +45,7 @@ extern TextureWrapper *gRedToken;
 extern TextureWrapper *gBlueToken;
 extern TextureWrapper *gBackground;
 extern SDL_Renderer* gRenderer;
-Node<FallingToken> *gFallingTokens = NULL;
+extern Node<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();
@@ -70,4 +70,6 @@ void dropToken(Board b, Token tokenColour, int col);
 // NOTE(Zach): blit all tokens currently on the board to the window surface
 void blitTokens(Board b);
 
+// NOTE(brendan): delete stationary tokens from gFallingTokens
+void deleteStillToken(FallingToken *fallingToken);
 #endif // GRAPHICS_H
