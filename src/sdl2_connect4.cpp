@@ -27,8 +27,11 @@
 #include "board.h"
 #include "linkedList.h"
 #include <stdio.h>
+#include "gameMenus.h"
 
 int main(int argc, char *argv[]) {
+connect4();
+#if 0
 	// NOTE(Zach): Create a board
 	Board b;
 	b = board_create();
@@ -49,7 +52,9 @@ int main(int argc, char *argv[]) {
 
 			// NOTE(Zach): blit the background and the board; and update the window surface
 			SDL_RenderClear(gRenderer);
-			SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+			//SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+			displayBoard();
+			displaySetupTokens();
 			SDL_RenderPresent(gRenderer);
 #if 0
       /*********************************************************************/
@@ -106,6 +111,10 @@ int main(int argc, char *argv[]) {
 						x = e.button.x;
 						y = e.button.y;
 
+			// NOTE(Zach): If the click was outside the board
+			if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
+			if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
+
 						// NOTE(Zach): We only want to place token on left mouse click
 						// For illustration, left click places red, right click places blue
 						// TODO(Zach): Keep trying to figure out why just e.button doesn't work here
@@ -117,7 +126,8 @@ int main(int argc, char *argv[]) {
 						}
 
 						// NOTE(Zach): Blit the board on the tokens
-						SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+						displayBoard();
+						//SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
 					}
 					// NOTE(Zach): Remove any SLD_MOUSEBUTTONDOWN events that occured
 					// while the token was falling from the event queue.
@@ -129,7 +139,8 @@ int main(int argc, char *argv[]) {
         traverseList(updateFallingToken, 0.5, gFallingTokens);
         traverseList(drawFallingToken, gFallingTokens);
         traverseList(deleteStillToken, gFallingTokens);
-        SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
+		  displayBoard();
+        //SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
         // NOTE(brendan): Update the surface
         SDL_RenderPresent(gRenderer);
         SDL_Delay(32);
@@ -141,5 +152,6 @@ int main(int argc, char *argv[]) {
 	// NOTE(brendan): Free resources and close SDL.
 	close_sdl();
 
+#endif
 	return 0;
 }

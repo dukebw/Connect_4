@@ -70,7 +70,7 @@ bool init() {
       }
       else {
         //Initialize renderer color
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+        SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
       }
     }
   }
@@ -318,4 +318,45 @@ void deleteStillToken(FallingToken *fallingToken) {
 
 bool compareXPosition(FallingToken *listItem, FallingToken *item) {
 	return listItem->x == item->x;
+}
+
+void displayBoard(void)
+{
+	// NOTE(Zach): determine the position for the board
+	SDL_Rect DestR;
+	DestR.x = GRID_OFFSET_X - 1;
+	DestR.y = GRID_OFFSET_Y - 1;
+	DestR.w = gConnect4Board->width;
+	DestR.h = gConnect4Board->height;
+	SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, &DestR );
+}
+
+void displaySetupTokens(void)
+{
+  // NOTE(Zach): determine the position for the setup tokens
+  SDL_Rect tokenRect;
+  tokenRect.x = 25;
+  tokenRect.y = GRID_OFFSET_Y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+ 
+	//Render texture to screen
+	SDL_RenderCopy( gRenderer, gRedToken->texture, NULL, &tokenRect ); 
+
+  tokenRect.x = SCREEN_WIDTH - 125;
+  tokenRect.y = GRID_OFFSET_Y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+ 
+	//Render texture to screen
+	SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
+}
+
+void displayMainMenu(void) {
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
+}
+void displayCreditsMenu(void) {
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
 }

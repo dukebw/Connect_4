@@ -6,12 +6,12 @@
 #include "board.h"
 #include "linkedList.h"
 
-#define SCREEN_WIDTH  702
-#define SCREEN_HEIGHT  602
+#define SCREEN_WIDTH  1002
+#define SCREEN_HEIGHT  902
 #define TOKEN_WIDTH  100
 #define TOKEN_HEIGHT  100
-#define GRID_OFFSET_Y  1
-#define GRID_OFFSET_X  1
+#define GRID_OFFSET_Y  151
+#define GRID_OFFSET_X  151
 #define GRID_WIDTH 700
 #define GRID_HEIGHT 600
 
@@ -34,6 +34,10 @@ struct FallingToken {
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
+void displayBoard(void);
+void displaySetupTokens(void);
+void displayMainMenu(void);
+void displayCreditsMenu(void);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.
