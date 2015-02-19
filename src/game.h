@@ -4,7 +4,16 @@
 #include "board.h"
 #include "gameMenus.h"
 
-MenuState setupGame(Board b);
-MenuState connect4Game(Board b, int numPlayers);
+typedef enum {PLAYERONE, PLAYERTWO} Player; 
+
+// NOTE(brendan): contains the "model" of the game
+struct GameState {
+  MenuState currentState;
+  Token currentToken;
+  Player currentPlayer;
+  Board board;
+};
+
+void setupLogic();
 
 #endif // GAME_H

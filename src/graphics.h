@@ -15,21 +15,9 @@
 #define GRID_WIDTH 700
 #define GRID_HEIGHT 600
 
-struct TextureWrapper {
-	SDL_Texture *texture;
-	int width;
-	int height;
-};
-
-struct FallingToken {
-  int x;
-  int y;
-  int v;
-  // NOTE(brendan): final position of this token
-  int yFinal;
-  bool isFalling;
-  Token token;
-};
+// NOTE(brendan): defined in graphics.cpp; implementation details not leaked
+struct FallingToken;
+struct TextureWrapper;
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
@@ -49,7 +37,7 @@ extern TextureWrapper *gRedToken;
 extern TextureWrapper *gBlueToken;
 extern TextureWrapper *gBackground;
 extern SDL_Renderer* gRenderer;
-extern Node<FallingToken> *gFallingTokens;
+extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();

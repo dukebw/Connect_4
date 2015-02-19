@@ -1,157 +1,229 @@
-//TODO
+/* Source code by team struct by_lightning{}; */
+
+// TODO
 // Go through and clean out commented out code
-// Fix the template forward declaration
 // Take everything that doesn't use SDL out of the sdl layer
 // Decide which modules we need and split existing code into them
 // Decide on the game/menu states we want
+// Fixed update time-step/variable rendering
 
 /*****/
 // Add the main menu
 // Add a checkWin function
 // Add a way to highlight tokens
-// Add the function to check if the SETUP is valid: i.e. checkWin == FALSE, check number of red and blue tokens
+// Add the function to check if the SETUP is valid: 
+// i.e. checkWin == FALSE, check number of red and blue tokens
 // Add the actual connect4 game fuction
 // Add the AI
 // Add token-token collisions
 
+/****************************************************************************/
 
-/******************************************************************************************/
-
-
-/* Source code by team struct by_lightning{}; */
+// TODO(brendan): for debugging; marked for deletion
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
-		, __LINE__, __FILE__)
+    , __LINE__, __FILE__)
 
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
 #include "board.h"
-#include "linkedList.h"
 #include <stdio.h>
 #include "gameMenus.h"
+#include "game.h"
+#include "sdl2_connect4.h"
+
+// TODO(brendan): example; marked for deletion
+/* 
+   int (* state[])(void) = { entry_state, foo_state, bar_state, exit_state}; 
+   */
+
+#if 0
+// TODO(brendan): populate these arrays with their correct functions
+void (*logic[NUMBER_OF_STATES])() = {0};
+void (*render[NUMBER_OF_STATES])() = {0};
+void (*handleEvents[NUMBER_OF_STATES])() = {0};
+#endif
+
+// NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
+void mainMenuHandleEvents(GameState *gameState) {
+  // NOTE(Zach): Event handler
+  SDL_Event e;
+
+  int x, y;
+
+  while(SDL_PollEvent(&e) != 0) {
+    // NOTE(Zach): User requests quit
+    if (e.type == SDL_QUIT) {
+      gameState->currentState = QUIT;
+    } 
+    else if(e.type == SDL_MOUSEBUTTONDOWN &&
+        e.button.button == SDL_BUTTON_LEFT) {
+
+      x = e.button.x;
+      y = e.button.y;
+
+      gameState->currentState = handleMainMenuMouseClick(x, y);
+    } 
+    else {
+      //handleMainMenuMouseMotion();
+    }
+  }
+
+  if(gameState->currentState == SETUP) {
+    gameState->currentToken = RED;
+    gameState->currentState = SETUP;
+    SDL_RenderClear(gRenderer);
+    displaySetupTokens();
+    SDL_RenderPresent(gRenderer);
+  }
+}
+
+// NOTE(brendan): stub
+void mainMenuLogic() {
+}
+
+// NOTE(brendan): does rendering for main menu
+void mainMenuRender() {
+  SDL_RenderClear(gRenderer);
+  SDL_RenderPresent(gRenderer);
+}
+
+// NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
+void creditsMenuHandleEvents(GameState *gameState) {
+  // NOTE(Zach): Event handler
+  SDL_Event e;
+
+  int x, y;
+
+  while(SDL_PollEvent(&e) != 0) {
+    // NOTE(Zach): User requests quit
+    if (e.type == SDL_QUIT) {
+      gameState->currentState = QUIT;
+    } else if (e.type == SDL_MOUSEBUTTONDOWN &&
+        e.button.button == SDL_BUTTON_LEFT) {
+
+      x = e.button.x;
+      y = e.button.y;
+      gameState->currentState = handleCreditsMenuMouseClick(x, y);
+    } else {
+      //handleCreditsMenuMouseMotion();
+    }
+  }
+}
+
+void creditsMenuRender() {
+  SDL_RenderClear(gRenderer);
+  SDL_RenderPresent(gRenderer);
+
+}
+void setupHandleEvents(GameState *gameState) {
+	// Event handler
+	SDL_Event e;
+
+  while( SDL_PollEvent( &e ) != 0 ) {
+    // User requests quit
+    if (e.type == SDL_QUIT) {
+      gameState->currentState = QUIT;
+    } else if (e.type == SDL_MOUSEBUTTONDOWN &&
+        e.button.button == SDL_BUTTON_LEFT) {
+      int x, y;
+      x = e.button.x;
+      y = e.button.y;
+      // NOTE(Zach): We will need these lines
+#if 0
+      // If the menu button was clicked
+      if (x >= 426 && y >= GRID_OFFSET_Y + GRID_HEIGHT + 70) {
+        currentState = MAINMENU;
+        // If the ONEPLAYER button was clicked
+      } else if (x <= 40 && y >= GRID_OFFSET_Y + GRID_HEIGHT + 60) {
+        currentState = ONEPLAYER;
+        // If the TWOPLAYER button was clicked
+      } else if (x <= 40 && y >= GRID_OFFSET_Y + GRID_HEIGHT + 60) {
+        currentState = TWOPLAYER;
+      }
+#endif
+
+      if(50*50 >= 
+          (x-75)*(x-75) + 
+          (y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) { 
+        gameState->currentToken = RED;
+      }
+      else if(50*50 >= 
+          (x-(SCREEN_WIDTH-75))*(x-(SCREEN_WIDTH-75)) + 
+          (y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) {
+        gameState->currentToken = BLUE;
+      }
+
+      // NOTE(Zach): If the click was outside the GRID
+      if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) {
+        continue;
+      }
+      if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) {
+        continue;
+      }
+      dropToken(gameState->board, gameState->currentToken, 
+          (x - GRID_OFFSET_X)/TOKEN_WIDTH);
+    } else {
+    }
+  }
+}
+
+void setupRender() {
+  displayBoard();
+  SDL_RenderPresent(gRenderer);
+  SDL_Delay(32);
+}
 
 int main(int argc, char *argv[]) {
-connect4();
-#if 0
-	// NOTE(Zach): Create a board
-	Board b;
-	b = board_create();
+  // NOTE(brendan): Start up SDL and create window.
+  if (!init()) {
+    // TODO(brendan): Diagnostics
+    printf("Failed to initialize!\n");
+  } else {
+    if (!loadMedia()) {
+      printf("Failed to load media!\n");
+    } else {
+      // NOTE(brendan): initialize our game state to 0
+      GameState gameState = {};
 
-	// NOTE(brendan): Start up SDL and create window.
-	if (!init()) {
-		// TODO(brendan): Diagnostics
-		printf("Failed to initialize!\n");
-	} else {
-		if (!loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			// NOTE(Zach): Main loop flag
-			bool quit = false;
+      // NOTE(Zach): State of the menu
+      gameState.currentState = MAINMENU;
 
-			// NOTE(Zach): Event handler
-			SDL_Event e;
+      if ((gameState.board = board_create()) == NULL) {
+        gameState.currentState = QUIT;
+      }
 
-			// NOTE(Zach): blit the background and the board; and update the window surface
-			SDL_RenderClear(gRenderer);
-			//SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-			displayBoard();
-			displaySetupTokens();
-			SDL_RenderPresent(gRenderer);
-#if 0
-      /*********************************************************************/
-      FallingToken fallingTokens[] = {{100,1,1,500},
-        {200,2,2,500},
-        {300,3,3,500},
-        {400,4,4,500}};
-      Node *list = addToList(&fallingTokens[0], NULL);
-      list = addToList(&fallingTokens[1], list);
-      list = addToList(&fallingTokens[2], list);
-      list = addToList(&fallingTokens[3], list);
-      traverseList(drawFallingToken, list);
-      //deleteFromList(&fallingTokens[2], list);
-      //traverseList(drawFallingToken, list);
-
-		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-		SDL_RenderPresent(gRenderer);
-      /*********************************************************************/
-      SDL_Delay(1000);
-      traverseList(clearFallingToken, list);
-		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-		SDL_RenderPresent(gRenderer);
-      SDL_Delay(1000);
-		traverseList(updateFallingToken, 5, list);
-		traverseList(updateFallingToken, 5, list);
-      traverseList(drawFallingToken, list);
-		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-		SDL_RenderPresent(gRenderer);
-      SDL_Delay(1000);
-      traverseList(clearFallingToken, list);
-		SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-		SDL_RenderPresent(gRenderer);
-      SDL_Delay(1000);
-      /*********************************************************************/
-#endif
-			// NOTE(Zach): While application is running
-			while(!quit) {
-				// These four lines are for testing purposes
-				SDL_PumpEvents();
-				if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-					SDL_Log("Mouse Button 1 (left) is pressed.");
-				}
-
-				while( SDL_PollEvent( &e ) != 0 ) {
-					// NOTE(Zach): Wait for an event to occur
-					//SDL_WaitEvent(&e);
-
-					// NOTE(Zach): User requests quit
-					if (e.type == SDL_QUIT) {
-						quit = true;
-					} else if (e.type == SDL_MOUSEBUTTONDOWN) {
-						// NOTE(Zach): Get mouse position when the mouse was pressed
-						int x, y;
-						x = e.button.x;
-						y = e.button.y;
-
-			// NOTE(Zach): If the click was outside the board
-			if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
-			if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
-
-						// NOTE(Zach): We only want to place token on left mouse click
-						// For illustration, left click places red, right click places blue
-						// TODO(Zach): Keep trying to figure out why just e.button doesn't work here
-						if (e.button.button == SDL_BUTTON_LEFT) {
-							// NOTE(Zach): Blit the token in cell that was clicked
-							dropToken(b, RED, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-						} else if (e.button.button == SDL_BUTTON_RIGHT) {
-							dropToken(b, BLUE, (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-						}
-
-						// NOTE(Zach): Blit the board on the tokens
-						displayBoard();
-						//SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-					}
-					// NOTE(Zach): Remove any SLD_MOUSEBUTTONDOWN events that occured
-					// while the token was falling from the event queue.
-					/* SDL_FlushEvent(SDL_MOUSEMOTION); */
-					//SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
-
-				}
-        traverseList(clearFallingToken, gFallingTokens);
-        traverseList(updateFallingToken, 0.5, gFallingTokens);
-        traverseList(drawFallingToken, gFallingTokens);
-        traverseList(deleteStillToken, gFallingTokens);
-		  displayBoard();
-        //SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, NULL );
-        // NOTE(brendan): Update the surface
-        SDL_RenderPresent(gRenderer);
-        SDL_Delay(32);
-			}
-		}
-	}
-
-	board_destroy(b);
-	// NOTE(brendan): Free resources and close SDL.
-	close_sdl();
-
-#endif
-	return 0;
+      while(gameState.currentState != QUIT) {
+        switch(gameState.currentState) {
+          case MAINMENU:
+          {
+            mainMenuLogic();
+            mainMenuRender();
+            mainMenuHandleEvents(&gameState);
+          } break;
+          case ONEPLAYER:
+          {
+          } break;
+          case TWOPLAYER:
+          {
+          } break;
+          case SETUP:
+          {
+            setupLogic();
+            setupRender();
+            setupHandleEvents(&gameState);
+          } break;
+          case CREDITS:
+          {
+          } break;
+          default:
+          {
+            printf("Error: Bad state in game loop\n");
+          } break;
+        }
+      }
+      board_destroy(gameState.board);
+    }
+  }
+  close_sdl();
+  return 0;
 }

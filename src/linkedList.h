@@ -3,38 +3,46 @@
 
 #include <stdlib.h>
 
-// TODO(brendan): Figure out a way to declare these template functions here,
-// define them in linkedList.cpp, and not get a whackload of linker errors
-
-template<typename T> struct Node {
+template<typename T>
+class List {
   T *item;
-  Node<T> *next;
+  List<T> *next;
+
+  // NOTE(brendan): private constructor so that clients can't make a LIst
+  // object except by using addToList(item, null);
+  List() {}
+
+public:
+  // NOTE(brendan): add the token to the list
+  static List<T> *
+  addToList(T *newitem, List<T> *list);
+
+  // NOTE(brendan): delete the first one of this token; returns the list
+  static List<T> *
+  deleteFromList(T *toDeleteItem, List<T> *list);
+
+  // NOTE(brendan): iterate over list, executing function f() on each node
+  static void 
+  traverseList(void (*f)(T *item), List<T> *list);
+
+  // NOTE(brendan): iterate over list, executing function f() on each node
+  static void 
+  traverseList(void (*f)(T *item, float dt), float dt, List<T> *list);
+
+  // NOTE(brendan): iterate over list, returning the item of the first node
+  // that satisfies function f
+  static T *
+  reduceList(bool (*f)(T *listItem, T *item), T *newest, List<T> *list);
 };
-//struct Node;
 
-#if 0
-template<typename T> Node<T> *
-addToList(T *newitem, Node<T> *list);
-
-template<typename T> Node<T> *
-*deleteFromList(T *toDeleteItem, Node<T> *list);
-
-template<typename T>
-void traverseList(void (*f)(T *item), Node<T> *list);
-
-template<typename T>
-void traverseList(void (*f)(T *item, float dt), float dt, Node<T> *list);
-#endif
-
-// TODO(brendan): pass the address of list?
 // NOTE(brendan): add the token to the list
-template<typename T> Node<T> *
-addToList(T *newItem, Node<T> *list) {
+template<typename T> List<T> *
+List<T>::addToList(T *newItem, List<T> *list) {
   if(newItem != NULL) {
-    Node<T> *resultNode = (Node<T> *)malloc(sizeof(Node<T>));
-    resultNode->item = newItem;
-    resultNode->next = list;
-    return resultNode;
+    List<T> *resultList = (List<T> *)malloc(sizeof(List<T>));
+    resultList->item = newItem;
+    resultList->next = list;
+    return resultList;
   }
   else {
     return list;
@@ -42,11 +50,11 @@ addToList(T *newItem, Node<T> *list) {
 }
 
 // NOTE(brendan): delete the first one of this token; returns the list
-template<typename T> Node<T> *
-deleteFromList(T *toDeleteItem, Node<T> *list) {
+template<typename T> List<T> *
+List<T>::deleteFromList(T *toDeleteItem, List<T> *list) {
   if(list != NULL) {
-    Node<T> *current;
-    Node<T> *previous;
+    List<T> *current;
+    List<T> *previous;
     for(current = list, previous = NULL; 
         current != NULL && current->item != toDeleteItem; 
         previous = current, current = current->next);
@@ -66,30 +74,35 @@ deleteFromList(T *toDeleteItem, Node<T> *list) {
   }
 }
 
-template<typename T>
-void traverseList(void (*f)(T *item), Node<T> *list) {
-  for(Node<T> *current = list;
+// NOTE(brendan): iterate over list, executing function f() on each node
+template<typename T> void 
+List<T>::traverseList(void (*f)(T *item), List<T> *list) {
+  for(List<T> *current = list;
       current != NULL;
       current = current->next) {
     (*f)(current->item);
   }
 }
 
-template<typename T>
-void traverseList(void (*f)(T *item, float dt), float dt, Node<T> *list) {
-  for(Node<T> *current = list;
+// NOTE(brendan): iterate over list, executing function f() on each node
+template<typename T> void 
+List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) {
+  for(List<T> *current = list;
       current != NULL;
       current = current->next) {
     (*f)(current->item, dt);
   }
 }
 
-template<typename T>
-T *reduceList(bool (*f)(T *listItem, T *item), T *newest, Node<T> *list) {
+// NOTE(brendan): iterate over list, returning the item of the first node
+// that satisfies function f
+template<typename T> T *
+List<T>::reduceList(bool (*f)(T *listItem, T *item), T *newest, List<T> *list) {
 	for(; list != NULL; list = list->next) {
-		if ( (*f)(list->item, newest) == true ) return list->item;	
+		if((*f)(list->item, newest) == true ) {
+      return list->item;	
+    }
 	}
 	return NULL;
 }
-
 #endif

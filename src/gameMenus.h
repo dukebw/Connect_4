@@ -1,10 +1,11 @@
 #ifndef GAMEMENUS_H
 #define GAMEMENUS_H
 
-typedef enum {MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING} MenuState;
+#define NUMBER_OF_STATES 7
 
-// NOTE(Zach): The main connect4 application
-int connect4(void);
+typedef enum {
+  MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
+} MenuState;
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 MenuState mainMenu(void);

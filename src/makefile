@@ -6,10 +6,10 @@ LDFLAGS=$(SDL_LDFLAGS)
 
 CC=g++
 
-SOURCES= graphics.cpp\
+SOURCES=connect4.cpp\
+			graphics.cpp\
 			board.cpp\
 			sdl2_connect4.cpp\
-			linkedList.cpp\
 			gameMenus.cpp\
 			game.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -24,7 +24,6 @@ $(BUILD)$(EXECUTABLE): $(OBJECTS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
-
 
 MKDIR_P = mkdir -p
 
@@ -41,11 +40,11 @@ clean:
 	rm -f *.o
 
 spotless:
-	rm -f *.o $(BUILD)$(EXECUTABLE)
+	rm -f *.o *~ .*~ $(BUILD)$(EXECUTABLE)
 
 board.o: board.h
+connect4.o: sdl_connect4.h
 graphics.o: graphics.h board.h linkedList.h
-sdl2_connect4.o: board.h graphics.h linkedList.h gameMenus.h
-linkedList.o: linkedList.h
+sdl2_connect4.o: sdl_connect4.h game.h board.h graphics.h gameMenus.h
 gameMenus.o: gameMenus.h game.h graphics.h
-game.o: game.h gameMenus.h graphics.h
+game.o: game.h gameMenus.h graphics.h linkedList.h board.h
