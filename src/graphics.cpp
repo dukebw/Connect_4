@@ -177,7 +177,7 @@ bool compareXPosition(FallingToken *listItem, FallingToken *item) {
   return listItem->x == item->x;
 }
 
-// NOTE(Zach): visually drops the token into a cell and add it to the Board, b
+// NOTE(Zach): visually drops the token into a cell if drop is valid
 void dropToken(Board b, Token tokenColour, int col) {
   TextureWrapper *token;
   if (tokenColour == RED) {
@@ -199,10 +199,12 @@ void dropToken(Board b, Token tokenColour, int col) {
   // NOTE(Zach): Initial position of the token
   newToken->x = GRID_OFFSET_X + TOKEN_WIDTH * col;
   newToken->y = GRID_OFFSET_Y;
+  // NOTE(brendan): check if there is another falling token that is above
+  // the top of the board; if so drop this next token ABOVE that token
   FallingToken *currentHighest = 
     List<FallingToken>::reduceList(compareXPosition, newToken, gFallingTokens);
-  if (currentHighest != NULL) { 
-    if (newToken->y + TOKEN_HEIGHT > currentHighest->y) {
+  if(currentHighest != NULL) { 
+    if(newToken->y + TOKEN_HEIGHT > currentHighest->y) {
       newToken->y = currentHighest->y - TOKEN_HEIGHT;
     }
   }
@@ -215,10 +217,6 @@ void dropToken(Board b, Token tokenColour, int col) {
   newToken->token = tokenColour;
 
   gFallingTokens = List<FallingToken>::addToList(newToken, gFallingTokens);
-
-  // NOTE(Zach): Insert the token into the board
-  board_dropToken(b, tokenColour, col);
-  return;
 }
 
 // NOTE(brendan): draw a falling token

@@ -1,13 +1,16 @@
 /* Source code by team struct by_lightning{}; */
 
 // TODO
-// Go through and clean out commented out code
-// Take everything that doesn't use SDL out of the sdl layer
 // Decide which modules we need and split existing code into them
-// Decide on the game/menu states we want
+// Specifically: re-organize game/event loop (sdl_connect4.cpp), graphics,
+// and logic modules so that each module performs only one function
+// (this is partially done).
 // Fixed update time-step/variable rendering
+// Move from switch statement to array-of-function-pointer based
+// finite state machine (handleEvents[], logic[] and render[])
 
 /*****/
+// Add token-token collisions
 // Add the main menu
 // Add a checkWin function
 // Add a way to highlight tokens
@@ -15,7 +18,6 @@
 // i.e. checkWin == FALSE, check number of red and blue tokens
 // Add the actual connect4 game fuction
 // Add the AI
-// Add token-token collisions
 
 /****************************************************************************/
 
@@ -160,10 +162,13 @@ void setupHandleEvents(GameState *gameState) {
       if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) {
         continue;
       }
-      dropToken(gameState->board, gameState->currentToken, 
-          (x - GRID_OFFSET_X)/TOKEN_WIDTH);
-    } else {
-    }
+      int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+      // NOTE(brendan): add token to list of falling tokens if valid drop
+      dropToken(gameState->board, gameState->currentToken, dropColumn);
+
+      // NOTE(Zach): Insert the token into the board
+      board_dropToken(gameState->board, gameState->currentToken, dropColumn);
+    }   
   }
 }
 
@@ -173,7 +178,7 @@ void setupRender() {
   SDL_Delay(32);
 }
 
-int main(int argc, char *argv[]) {
+int connect4() {
   // NOTE(brendan): Start up SDL and create window.
   if (!init()) {
     // TODO(brendan): Diagnostics
@@ -185,6 +190,9 @@ int main(int argc, char *argv[]) {
       // NOTE(brendan): initialize our game state to 0
       GameState gameState = {};
 
+      unsigned int currentTime;
+      unsigned int elapsedTime;
+
       // NOTE(Zach): State of the menu
       gameState.currentState = MAINMENU;
 
@@ -192,6 +200,7 @@ int main(int argc, char *argv[]) {
         gameState.currentState = QUIT;
       }
 
+      // NOTE(brendan): game loop: event handling -> logic -> rendering
       while(gameState.currentState != QUIT) {
         switch(gameState.currentState) {
           case MAINMENU:
