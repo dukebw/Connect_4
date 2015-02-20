@@ -178,7 +178,7 @@ bool compareXPosition(FallingToken *listItem, FallingToken *item) {
 }
 
 // NOTE(Zach): visually drops the token into a cell if drop is valid
-void dropToken(Board b, Token tokenColour, int col) {
+bool dropToken(Board b, Token tokenColour, int col) {
   TextureWrapper *token;
   if (tokenColour == RED) {
     token = gRedToken;
@@ -191,7 +191,7 @@ void dropToken(Board b, Token tokenColour, int col) {
   int row = board_dropPosition(b, col);
   // NOTE(Zach): Check if the column was full
   if (row == -1) {
-    return;
+    return false;
   }
 
   FallingToken *newToken = (FallingToken *)malloc(sizeof(FallingToken));
@@ -217,6 +217,7 @@ void dropToken(Board b, Token tokenColour, int col) {
   newToken->token = tokenColour;
 
   gFallingTokens = List<FallingToken>::addToList(newToken, gFallingTokens);
+  return true;
 }
 
 // NOTE(brendan): draw a falling token
