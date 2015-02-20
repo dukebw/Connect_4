@@ -35,8 +35,10 @@
 
 #define MS_PER_UPDATE 13
 
+void logicStub();
+void handleEventsStub(GameState *gameState);
+void renderStub();
 void mainMenuHandleEvents(GameState *gameState);
-void mainMenuLogic();
 void mainMenuRender();
 void creditsMenuHandleEvents(GameState *gameState);
 void creditsMenuRender();
@@ -51,12 +53,18 @@ void setupRender();
 // NOTE(Zach): Arrays of function pointers.
 // NOTE(Zach): The order of the array elements MUST be synchronized with
 // NOTE(Zach): the enumeration MenuState!
-void (*logic[NUMBER_OF_STATES])() = 
-  {mainMenuLogic, NULL, NULL, setupLogic};
-void (*render[NUMBER_OF_STATES])() = 
-  {mainMenuRender, NULL, NULL, setupRender};
+void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
+  setupLogic, logicStub, logicStub, logicStub};
+void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, renderStub, 
+  setupRender, renderStub, renderStub, renderStub};
 void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
-  {mainMenuHandleEvents, NULL, NULL, setupHandleEvents};
+  {mainMenuHandleEvents, handleEventsStub, handleEventsStub, 
+    setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
+
+// NOTE(brendan): Stub functions so we don't have to test for NULL functions
+void logicStub() {}
+void handleEventsStub(GameState *gameState) {}
+void renderStub() {}
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 void mainMenuHandleEvents(GameState *gameState) {
@@ -92,10 +100,6 @@ void mainMenuHandleEvents(GameState *gameState) {
 	}
 }
 
-// NOTE(brendan): stub
-void mainMenuLogic() {
-}
-
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
 	SDL_RenderClear(gRenderer);
@@ -128,8 +132,8 @@ void creditsMenuHandleEvents(GameState *gameState) {
 void creditsMenuRender() {
 	SDL_RenderClear(gRenderer);
 	SDL_RenderPresent(gRenderer);
-
 }
+
 void setupHandleEvents(GameState *gameState) {
 	// Event handler
 	SDL_Event e;
@@ -188,7 +192,6 @@ void setupHandleEvents(GameState *gameState) {
 void setupRender() {
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
-	//SDL_Delay(32);
 }
 
 int connect4() {
@@ -231,13 +234,6 @@ int connect4() {
 
 				// NOTE(Zach): handle events that occur in gameState.currentState
 				handleEvents[gameState.currentState](&gameState);
-
-        // TODO(brendan): temporary fix; find more elegant solution?
-        // e.g. can handleEvents[state]() at the bottom of the loop
-        // NOTE(brendan): don't do logic or render if user quit
-        if(gameState.currentState == QUIT) {
-          break;
-        }
 
 				// NOTE(Zach): loop until the game time is up-to-date with
 				// the real time
