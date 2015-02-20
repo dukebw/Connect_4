@@ -43,23 +43,20 @@ void creditsMenuRender();
 void setupHandleEvents(GameState *gameState);
 void setupRender();
 
-// TODO(brendan): example; marked for deletion
-/* 
-	int (* state[])(void) = { entry_state, foo_state, bar_state, exit_state}; 
- */
-
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
 //  MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
 //} MenuState;
 
-// TODO(brendan): populate these arrays with their correct functions
 // NOTE(Zach): Arrays of function pointers.
 // NOTE(Zach): The order of the array elements MUST be synchronized with
 // NOTE(Zach): the enumeration MenuState!
-void (*logic[NUMBER_OF_STATES])() = {mainMenuLogic, NULL, NULL, setupLogic};
-void (*render[NUMBER_OF_STATES])() = {mainMenuRender, NULL, NULL, setupRender};
-void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = {mainMenuHandleEvents, NULL, NULL, setupHandleEvents};
+void (*logic[NUMBER_OF_STATES])() = 
+  {mainMenuLogic, NULL, NULL, setupLogic};
+void (*render[NUMBER_OF_STATES])() = 
+  {mainMenuRender, NULL, NULL, setupRender};
+void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
+  {mainMenuHandleEvents, NULL, NULL, setupHandleEvents};
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 void mainMenuHandleEvents(GameState *gameState) {
@@ -206,6 +203,7 @@ int connect4() {
 			// NOTE(brendan): initialize our game state to 0
 			GameState gameState = {};
 
+      // TODO(brendan): Put these all in one struct for clarity?
 			// NOTE(Zach): timing variables used to run the game loop
 			unsigned int currentTime;
 			unsigned int elapsedTime;
@@ -233,6 +231,12 @@ int connect4() {
 
 				// NOTE(Zach): handle events that occur in gameState.currentState
 				handleEvents[gameState.currentState](&gameState);
+
+        // TODO(brendan): temporary fix; find more elegant solution?
+        // NOTE(brendan): don't do logic or render if user quit
+        if(gameState.currentState == QUIT) {
+          break;
+        }
 
 				// NOTE(Zach): loop until the game time is up-to-date with
 				// the real time
