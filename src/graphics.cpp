@@ -27,6 +27,7 @@ TextureWrapper *gConnect4Board = NULL;
 TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
 TextureWrapper *gBackground = NULL;
+TextureWrapper *gMainMenu = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
@@ -148,6 +149,13 @@ bool loadMedia() {
     success = false;
   }
 
+  // NOTE(Zach): Load the main menu
+  gMainMenu = loadTexture("../misc/gameTitlePage.bmp");
+  if (gBlueToken == NULL) {
+    printf("Failed to load the main menu!\n");
+    success = false;
+  }
+
   return success;
 }
 
@@ -157,11 +165,13 @@ void close_sdl() {
   freeTexture(gRedToken);
   freeTexture(gBlueToken);
   freeTexture(gBackground);
+  freeTexture(gMainMenu);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
   gBackground = NULL;
+  gMainMenu = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
@@ -315,3 +325,8 @@ void displaySetupTokens() {
   SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
 }
 
+// NOTE(Zach): display the main menu
+void displayMainMenu(void)
+{
+  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
+}

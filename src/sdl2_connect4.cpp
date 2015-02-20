@@ -102,7 +102,7 @@ void mainMenuHandleEvents(GameState *gameState) {
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
-	SDL_RenderClear(gRenderer);
+	displayMainMenu();
 	SDL_RenderPresent(gRenderer);
 }
 
