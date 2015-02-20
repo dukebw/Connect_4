@@ -233,6 +233,7 @@ int connect4() {
 				handleEvents[gameState.currentState](&gameState);
 
         // TODO(brendan): temporary fix; find more elegant solution?
+        // e.g. can handleEvents[state]() at the bottom of the loop
         // NOTE(brendan): don't do logic or render if user quit
         if(gameState.currentState == QUIT) {
           break;
