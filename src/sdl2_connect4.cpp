@@ -40,15 +40,15 @@ void setupHandleEvents(GameState *gameState);
 // NOTE(Zach): Arrays of function pointers.
 // NOTE(Zach): The order of the array elements MUST be synchronized with
 // NOTE(Zach): the enumeration MenuState!
+void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
+  {mainMenuHandleEvents, handleEventsStub, handleEventsStub, 
+    setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
+
 void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
   setupLogic, logicStub, logicStub, logicStub};
 
 void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, renderStub, 
   setupRender, renderStub, renderStub, renderStub};
-
-void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
-  {mainMenuHandleEvents, handleEventsStub, handleEventsStub, 
-    setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
 void logicStub() {}
@@ -82,7 +82,6 @@ void mainMenuHandleEvents(GameState *gameState) {
 
 	if(gameState->currentState == SETUP) {
 		gameState->currentToken = RED;
-		gameState->currentState = SETUP;
 		SDL_RenderClear(gRenderer);
 		displaySetupTokens();
 		SDL_RenderPresent(gRenderer);
