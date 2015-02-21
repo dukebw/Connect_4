@@ -31,6 +31,24 @@ TextureWrapper *gMainMenu = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
+// NOTE(brendan): does rendering for credits menu
+void creditsMenuRender() {
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
+}
+
+// NOTE(brendan): does rendering for main menu
+void mainMenuRender() {
+	displayMainMenu();
+	SDL_RenderPresent(gRenderer);
+}
+
+// NOTE(brendan): does rendering for setup
+void setupRender() {
+	displayBoard();
+	SDL_RenderPresent(gRenderer);
+}
+
 // NOTE(brendan): free myTexture's memory
 static void freeTexture(TextureWrapper *myTexture) {
   if(myTexture != NULL) {

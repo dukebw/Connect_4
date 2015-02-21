@@ -39,6 +39,15 @@ extern TextureWrapper *gBackground;
 extern SDL_Renderer* gRenderer;
 extern List<FallingToken> *gFallingTokens;
 
+// NOTE(brendan): does rendering for credits menu
+void creditsMenuRender();
+
+// NOTE(brendan): does rendering for main menu
+void mainMenuRender();
+
+// NOTE(brendan): does rendering for setup
+void setupRender();
+
 // NOTE(brendan): Starts up SDL and creates window
 bool init();
 

@@ -38,11 +38,8 @@ void logicStub();
 void handleEventsStub(GameState *gameState);
 void renderStub();
 void mainMenuHandleEvents(GameState *gameState);
-void mainMenuRender();
 void creditsMenuHandleEvents(GameState *gameState);
-void creditsMenuRender();
 void setupHandleEvents(GameState *gameState);
-void setupRender();
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
@@ -99,12 +96,6 @@ void mainMenuHandleEvents(GameState *gameState) {
 	}
 }
 
-// NOTE(brendan): does rendering for main menu
-void mainMenuRender() {
-	displayMainMenu();
-	SDL_RenderPresent(gRenderer);
-}
-
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
 void creditsMenuHandleEvents(GameState *gameState) {
 	// NOTE(Zach): Event handler
@@ -126,11 +117,6 @@ void creditsMenuHandleEvents(GameState *gameState) {
 			//handleCreditsMenuMouseMotion();
 		}
 	}
-}
-
-void creditsMenuRender() {
-	SDL_RenderClear(gRenderer);
-	SDL_RenderPresent(gRenderer);
 }
 
 void setupHandleEvents(GameState *gameState) {
@@ -186,11 +172,6 @@ void setupHandleEvents(GameState *gameState) {
 			}
 		}   
 	}
-}
-
-void setupRender() {
-	displayBoard();
-	SDL_RenderPresent(gRenderer);
 }
 
 int connect4() {
