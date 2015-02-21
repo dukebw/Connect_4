@@ -18,12 +18,13 @@ Board board_create(void)
 }
 
 // NOTE(Zach): Destroy (free the memory of) Board, b.
+// NOTE(brendan): the client is responsible for setting dangling pointers to
+// null.
 void board_destroy(Board b)
 {
 	// don't need to check if b is NULL here
 	// free can accept NULL pointers too
 	free(b);
-	return;
 }
 
 // NOTE(Zach): Return the value of the Board, b, at (row, col)

@@ -29,8 +29,7 @@
 #include "graphics.h"
 #include "board.h"
 #include <stdio.h>
-#include "gameMenus.h"
-#include "game.h"
+#include "gameLogic.h"
 #include "sdl2_connect4.h"
 
 #define MS_PER_UPDATE 13

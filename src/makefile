@@ -10,8 +10,7 @@ SOURCES=connect4.cpp\
 			graphics.cpp\
 			board.cpp\
 			sdl2_connect4.cpp\
-			gameMenus.cpp\
-			game.cpp
+			gameLogic.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=connect4
 # Build directory
@@ -45,6 +44,5 @@ spotless:
 board.o: board.h
 connect4.o: sdl2_connect4.h
 graphics.o: graphics.h board.h linkedList.h
-sdl2_connect4.o: sdl2_connect4.h game.h board.h graphics.h gameMenus.h
-gameMenus.o: gameMenus.h game.h graphics.h
-game.o: game.h gameMenus.h graphics.h linkedList.h board.h
+sdl2_connect4.o: sdl2_connect4.h gameLogic.h board.h graphics.h
+gameLogic.o: gameLogic.h graphics.h linkedList.h board.h
