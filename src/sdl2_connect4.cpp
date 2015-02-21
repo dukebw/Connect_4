@@ -1,22 +1,13 @@
 /* Source code by team struct by_lightning{}; */
 
-// TODO
-// Decide which modules we need and split existing code into them
-// Specifically: re-organize game/event loop (sdl_connect4.cpp), graphics,
-// and logic modules so that each module performs only one function
-// (this is partially done).
-// Fixed update time-step/variable rendering
-// Move from switch statement to array-of-function-pointer based
-// finite state machine (handleEvents[], logic[] and render[])
-
 /*****/
+// TODO
+// Add resizable window
 // Add token-token collisions
-// Add the main menu
 // Add a checkWin function
 // Add a way to highlight tokens
 // Add the function to check if the SETUP is valid: 
 // i.e. checkWin == FALSE, check number of red and blue tokens
-// Add the actual connect4 game fuction
 // Add the AI
 
 /****************************************************************************/
@@ -51,8 +42,10 @@ void setupHandleEvents(GameState *gameState);
 // NOTE(Zach): the enumeration MenuState!
 void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
   setupLogic, logicStub, logicStub, logicStub};
+
 void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, renderStub, 
   setupRender, renderStub, renderStub, renderStub};
+
 void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
   {mainMenuHandleEvents, handleEventsStub, handleEventsStub, 
     setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
@@ -199,7 +192,6 @@ int connect4() {
 			if ((gameState.board = board_create()) == NULL) {
 				gameState.currentState = QUIT;
 			}
-
 
 			previousTime = SDL_GetTicks();
 			lag = 0;
