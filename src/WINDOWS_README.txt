@@ -11,10 +11,12 @@ Steps to compile this project on Windows:
    http://libsdl.org/download-2.0.php
 4. Unzip the above zip file into some folder (on my computer it's in
    w:\vs_dev_lib).
-5. Go through the build.bat file and fix up the library and include paths
+5. Copy SDL2.dll (from the SDL2-devel zip file) into the Connect_4/build
+   directory.
+6. Go through the build.bat file and fix up the library and include paths
    to match those absolute paths on your system.
-6. At the top of graphics.h change #include "SDL2/SDL.h" to just 
+7. At the top of graphics.h change #include "SDL2/SDL.h" to just 
    #include "SDL.h"
-7. Actually run ..\misc\shell.bat
-8. Type "build"
-9. phew...
+8. Actually run ..\misc\shell.bat
+9. Type "build"
+10. phew...
