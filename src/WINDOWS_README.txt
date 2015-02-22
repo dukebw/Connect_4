@@ -15,4 +15,6 @@ Steps to compile this project on Windows:
    to match those absolute paths on your system.
 6. At the top of graphics.h change #include "SDL2/SDL.h" to just 
    #include "SDL.h"
-7. phew...
+7. Actually run ..\misc\shell.bat
+8. Type "build"
+9. phew...
