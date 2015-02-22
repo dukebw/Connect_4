@@ -57,19 +57,8 @@ bool loadMedia();
 // NOTE(brendan): Frees media and shuts down SDL
 void close_sdl();
 
-// TODO(Zach): Move this declaration into graphics.cpp
-// NOTE(Zach): Loads individual image
-SDL_Surface *loadSurface(std::string path);
-
-// TODO(Zach): Move this declaration into graphics.cpp (maybe not this one)
-// NOTE(Zach): blits the token to a cell in the grid
-void blitToken(SDL_Surface *token, int row, int col);
-
 // NOTE(Zach): visually drops the token into a cell and add it to the board
 bool dropToken(Board b, Token tokenColour, int col);
-
-// NOTE(Zach): blit all tokens currently on the board to the window surface
-void blitTokens(Board b);
 
 // NOTE(brendan): delete stationary tokens from gFallingTokens
 void deleteStillToken(FallingToken *fallingToken);
