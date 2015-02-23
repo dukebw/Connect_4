@@ -43,6 +43,13 @@ void mainMenuRender() {
 	SDL_RenderPresent(gRenderer);
 }
 
+void transitionSetupRender(void)
+{
+	SDL_RenderClear(gRenderer);
+	displaySetupTokens();
+	SDL_RenderPresent(gRenderer);
+}
+
 // NOTE(brendan): does rendering for setup
 void setupRender() {
 	displayBoard();

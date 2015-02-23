@@ -80,11 +80,9 @@ void mainMenuHandleEvents(GameState *gameState) {
 		}
 	}
 
-	if(gameState->currentState == SETUP) {
+	if (gameState->currentState == SETUP) {
 		gameState->currentToken = RED;
-		SDL_RenderClear(gRenderer);
-		displaySetupTokens();
-		SDL_RenderPresent(gRenderer);
+		transitionSetupRender();
 	}
 }
 

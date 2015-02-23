@@ -31,12 +31,6 @@ void displayCreditsMenu(void);
 // NOTE(brendan): Global window/image declarations.
 // NOTE(Zach): Eventually these will be local to the graphics module and will
 // be removed from here
-extern SDL_Window *gWindow;
-extern TextureWrapper *gConnect4Board;
-extern TextureWrapper *gRedToken;
-extern TextureWrapper *gBlueToken;
-extern TextureWrapper *gBackground;
-extern SDL_Renderer* gRenderer;
 extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): does rendering for credits menu
@@ -44,6 +38,10 @@ void creditsMenuRender();
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender();
+
+// NOTE(Zach): performs the rendering that needs to be done when transitioning
+// to setup from another state
+void transitionSetupRender(void);
 
 // NOTE(brendan): does rendering for setup
 void setupRender();
