@@ -10,6 +10,13 @@ struct TextureWrapper {
 	int height;
 };
 
+// NOTE(brendan): a window that knows its dimensions
+struct WindowWrapper {
+  SDL_Window *window;
+  int width;
+  int height;
+};
+
 // NOTE(brendan): tokens that are still in motion
 struct FallingToken {
   int x;
@@ -21,8 +28,9 @@ struct FallingToken {
   Token token;
 };
 
+// TODO(brendan): Put all this stuff in a GraphicsState struct
 // NOTE(brendan): Global window/image declarations.
-SDL_Window *gWindow = NULL;
+WindowWrapper *gWindow = NULL;
 TextureWrapper *gConnect4Board = NULL;
 TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
@@ -39,12 +47,24 @@ void creditsMenuRender() {
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
-	displayMainMenu();
+  SDL_Rect destRect;
+  destRect.x = (gWindow->height > gMainMenu->height) ? 
+    (gWindow->height - gMainMenu->height)/2 : 0;
+  destRect.x = (gWindow->height > gMainMenu->height) ? 
+    (gMainMenu->height - gWindow->height )/2 : 0;
+  destRect.w = gMainMenu->width;
+  destRect.h = gMainMenu->height;
+
+  // NOTE(brendan): fill in the menu background colour
+  SDL_SetRenderDrawColor( gRenderer, 0, 102, 136, 0xFF );
+  SDL_RenderClear(gRenderer);
+  // NOTE(brendan): reset background to gray
+  SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
+  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, &destRect); 
 	SDL_RenderPresent(gRenderer);
 }
 
-void transitionSetupRender(void)
-{
+void transitionSetupRender() {
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 	SDL_RenderPresent(gRenderer);
@@ -54,6 +74,16 @@ void transitionSetupRender(void)
 void setupRender() {
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
+}
+static void freeWindow(WindowWrapper *myWindow) {
+  if(myWindow != NULL) {
+    if(myWindow->window != NULL) {
+      // NOTE(brendan): Destroy window
+      SDL_DestroyWindow(gWindow->window);
+      myWindow->window = NULL;
+    }
+    free(myWindow);
+  }
 }
 
 // NOTE(brendan): free myTexture's memory
@@ -77,16 +107,20 @@ bool init() {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
   } 
   else {
-    // NOTE(brendan): Create window
-    gWindow = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_UNDEFINED, 
-        SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    gWindow = (WindowWrapper *)malloc(sizeof(WindowWrapper));
+    // NOTE(brendan): Create resizable window
+    gWindow->window = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_UNDEFINED, 
+        SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 
+        SDL_WINDOW_RESIZABLE);
+    gWindow->width = SCREEN_WIDTH;
+    gWindow->height = SCREEN_HEIGHT;
     if(gWindow == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", 
           SDL_GetError());
     } 
     else {
       //Create renderer for window
-      gRenderer = SDL_CreateRenderer( gWindow, -1, 
+      gRenderer = SDL_CreateRenderer( gWindow->window, -1, 
           SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
       if( gRenderer == NULL ) {
         printf( "Renderer could not be created! SDL Error: %s\n", 
@@ -191,15 +225,13 @@ void close_sdl() {
   freeTexture(gBlueToken);
   freeTexture(gBackground);
   freeTexture(gMainMenu);
+  freeWindow(gWindow);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
   gBackground = NULL;
   gMainMenu = NULL;
-
-  // NOTE(brendan): Destroy window
-  SDL_DestroyWindow(gWindow);
   gWindow = NULL;
 
   // NOTE(brendan): Quit SDL subsystems
@@ -348,10 +380,4 @@ void displaySetupTokens() {
 
   //Render texture to screen
   SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
-}
-
-// NOTE(Zach): display the main menu
-void displayMainMenu(void)
-{
-  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
 }
