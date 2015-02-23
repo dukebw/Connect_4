@@ -54,6 +54,8 @@ int getMarginX() {
     (gWindow->width - gMainMenu->width)/2 : 0;
 }
 int getMarginY() {
+  // NOTE(brendan): temporary fix to get game to display properly on 768
+  // pixel height monitors
   return 100;
 #if 0
   return (gWindow->height > gMainMenu->height) ? 

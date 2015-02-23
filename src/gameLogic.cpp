@@ -16,6 +16,8 @@ MenuState handleMainMenuMouseClick(int x, int y) {
   int setupTop = 545 - marginY;
   int setupBottom = 610 - marginY;
 #endif
+  // NOTE(brendan): temporary fix to get game to display properly on 768
+  // pixel height monitors
   int setupTop = 545;
   int setupBottom = 610;
   int setupLeft = 430 + marginX;
