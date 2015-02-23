@@ -12,8 +12,12 @@ MenuState handleMainMenuMouseClick(int x, int y) {
   // concise
   int marginX = getMarginX();
   int marginY = getMarginY();
+#if 0
   int setupTop = 545 - marginY;
   int setupBottom = 610 - marginY;
+#endif
+  int setupTop = 545;
+  int setupBottom = 610;
   int setupLeft = 430 + marginX;
   int setupRight = 602 + marginX;
   int quitTop = 700 - marginY;

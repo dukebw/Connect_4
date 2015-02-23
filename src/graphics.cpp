@@ -54,8 +54,11 @@ int getMarginX() {
     (gWindow->width - gMainMenu->width)/2 : 0;
 }
 int getMarginY() {
+  return 100;
+#if 0
   return (gWindow->height > gMainMenu->height) ? 
     (gWindow->height - gMainMenu->height)/2 : 0;
+#endif
 }
 
 // NOTE(brendan): updating gWindow's dimensions

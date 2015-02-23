@@ -2,7 +2,9 @@
 
 /*****/
 // TODO
-// Add resizable window
+// Figure out how to make the board just scaled and fit on someone's screen
+// from the start
+// Add screen scrolling
 // Add token-token collisions
 // Add a checkWin function
 // Add a way to highlight tokens
