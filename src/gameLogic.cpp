@@ -8,13 +8,27 @@
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 MenuState handleMainMenuMouseClick(int x, int y) {
-
+  // TODO(brendan): add rect struct to make these offset calculations more
+  // concise
+  int marginX = getMarginX();
+  int marginY = getMarginY();
+  int setupTop = 545 - marginY;
+  int setupBottom = 610 - marginY;
+  int setupLeft = 430 + marginX;
+  int setupRight = 602 + marginX;
+  int quitTop = 700 - marginY;
+  int quitBottom = 760 - marginY;
+  int quitLeft = 452 + marginX;
+  int quitRight = 575 + marginX;
   //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
   //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
-  if (x >= 430 && y>= 545 && x <= 602 && y <= 610) return SETUP; 
-  if (x >= 452 && y>=700 && x <= 575 && y <= 760) return QUIT;
+  if (x >= setupLeft && y >= setupTop && x <= setupRight && y <= setupBottom) {
+    return SETUP; 
+  }
+  if (x >= quitLeft && y >= quitTop && x <= quitRight && y <= quitBottom) {
+    return QUIT;
+  }
   //if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
-
   return MAINMENU;
 }
 

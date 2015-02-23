@@ -75,6 +75,11 @@ void mainMenuHandleEvents(GameState *gameState) {
 
 			gameState->currentState = handleMainMenuMouseClick(x, y);
 		} 
+    else if(e.type == SDL_WINDOWEVENT) {
+      if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+        updateWindowDimensions(e.window.data1, e.window.data2);
+      }
+    }
 		else {
 			//handleMainMenuMouseMotion();
 		}
@@ -136,31 +141,51 @@ void setupHandleEvents(GameState *gameState) {
 			}
 #endif
 
-			if(50*50 >= 
-					(x-75)*(x-75) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) { 
+      int redTokenX = 25 + getMarginX();
+      int redTokenY = GRID_OFFSET_Y - getMarginY();
+      int blueTokenX = SCREEN_WIDTH - 125 + getMarginX();
+      int blueTokenY = GRID_OFFSET_Y - getMarginY();
+      int tokenRadius = 50;
+      // NOTE(brendan): radii from center of selector-token
+      int redRadiusSquared = 
+        (x - (redTokenX + tokenRadius))*(x - (redTokenX + tokenRadius)) + 
+        (y - (GRID_OFFSET_Y + tokenRadius))*(y - (redTokenY + tokenRadius));
+      int blueRadiusSquared = 
+        (x - (blueTokenX + tokenRadius))*(x-(blueTokenX + tokenRadius)) + 
+        (y - (blueTokenY + tokenRadius)) *
+        (y - (blueTokenY + tokenRadius));
+
+			if(tokenRadius*tokenRadius >= redRadiusSquared) { 
 				gameState->currentToken = RED;
 			}
-			else if(50*50 >= 
-					(x-(SCREEN_WIDTH-75))*(x-(SCREEN_WIDTH-75)) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) {
+			else if(tokenRadius*tokenRadius >= blueRadiusSquared) {
 				gameState->currentToken = BLUE;
 			}
 
 			// NOTE(Zach): If the click was outside the GRID
-			if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) {
+			if (x <= GRID_OFFSET_X + getMarginX() || 
+          x >= GRID_OFFSET_X + GRID_WIDTH + getMarginX()) {
 				continue;
 			}
-			if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) {
+			if (y <= GRID_OFFSET_Y - getMarginY() || 
+          y >= GRID_OFFSET_Y + GRID_HEIGHT - getMarginY()) {
 				continue;
 			}
-			int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+
+			int dropColumn = (x - GRID_OFFSET_X - getMarginX())/TOKEN_WIDTH;
 			// NOTE(brendan): add token to list of falling tokens if valid drop
 			if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
-				// NOTE(Zach): Insert the token into the board
-				board_dropToken(gameState->board, gameState->currentToken, dropColumn);
+        // NOTE(Zach): Insert the token into the board
+        board_dropToken(gameState->board, gameState->currentToken, 
+            dropColumn);
 			}
 		}   
+    else if(e.type == SDL_WINDOWEVENT) {
+      if(e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+        updateWindowDimensions(e.window.data1, e.window.data2);
+        redrawWindow(gameState->board);
+      }
+    }
 	}
 }
 
