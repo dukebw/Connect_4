@@ -77,16 +77,20 @@ List<T>::deleteFromList(T *toDeleteItem, List<T> *list) {
 // NOTE(brendan): iterate over list, executing function f() on each node
 template<typename T> void 
 List<T>::traverseList(void (*f)(T *item), List<T> *list) {
-  for(; list != NULL; list = list->next) {
-    (*f)(list->item);
+  for(List<T> *current = list;
+      current != NULL;
+      current = current->next) {
+    (*f)(current->item);
   }
 }
 
 // NOTE(brendan): iterate over list, executing function f() on each node
 template<typename T> void 
 List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) {
-  for(; list != NULL; list = list->next) {
-    (*f)(list->item, dt);
+  for(List<T> *current = list;
+      current != NULL;
+      current = current->next) {
+    (*f)(current->item, dt);
   }
 }
 

@@ -17,11 +17,8 @@
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
+struct TextureWrapper;
 
-void redrawWindow(Board board);
-int getMarginX();
-int getMarginY();
-void updateWindowDimensions(int width, int height);
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
@@ -63,7 +60,4 @@ bool dropToken(Board b, Token tokenColour, int col);
 
 // NOTE(brendan): delete stationary tokens from gFallingTokens
 void deleteStillToken(FallingToken *fallingToken);
-
-// NOTE(brendan): render all the tokens in the board on the screen
-void renderTokens(Board board);
 #endif // GRAPHICS_H

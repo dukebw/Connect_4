@@ -10,15 +10,7 @@ struct TextureWrapper {
 	int height;
 };
 
-// NOTE(brendan): a window that knows its dimensions
-struct WindowWrapper {
-  SDL_Window *window;
-  int width;
-  int height;
-};
-
 // NOTE(brendan): tokens that are still in motion
-// TODO(brendan): make x, y and v floats and cast to int when drawing
 struct FallingToken {
   int x;
   int y;
@@ -29,9 +21,8 @@ struct FallingToken {
   Token token;
 };
 
-// TODO(brendan): Put all this stuff in a GraphicsState struct
 // NOTE(brendan): Global window/image declarations.
-WindowWrapper *gWindow = NULL;
+SDL_Window *gWindow = NULL;
 TextureWrapper *gConnect4Board = NULL;
 TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
@@ -39,35 +30,6 @@ TextureWrapper *gBackground = NULL;
 TextureWrapper *gMainMenu = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
-
-// NOTE(brendan): redraws everything that won't get redrawn in setupRender
-void redrawWindow(Board board) {
-  SDL_RenderClear(gRenderer);
-  displaySetupTokens();
-  renderTokens(board);
-}
-
-// NOTE(brendan): Returns margin offset to implement proper co-ordinates
-// for button pushes etc.
-int getMarginX() {
-  return (gWindow->width > gMainMenu->width) ? 
-    (gWindow->width - gMainMenu->width)/2 : 0;
-}
-int getMarginY() {
-  // NOTE(brendan): temporary fix to get game to display properly on 768
-  // pixel height monitors
-  return 100;
-#if 0
-  return (gWindow->height > gMainMenu->height) ? 
-    (gWindow->height - gMainMenu->height)/2 : 0;
-#endif
-}
-
-// NOTE(brendan): updating gWindow's dimensions
-void updateWindowDimensions(int width, int height) {
-  gWindow->width = width;
-  gWindow->height = height;
-}
 
 // NOTE(brendan): does rendering for credits menu
 void creditsMenuRender() {
@@ -77,24 +39,12 @@ void creditsMenuRender() {
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
-  SDL_Rect destRect;
-  destRect.x = (gWindow->width > gMainMenu->width) ? 
-    (gWindow->width - gMainMenu->width)/2 : 0;
-  destRect.y = (gWindow->height > gMainMenu->height) ? 
-    (gMainMenu->height - gWindow->height )/2 : 0;
-  destRect.w = gMainMenu->width;
-  destRect.h = gMainMenu->height;
-
-  // NOTE(brendan): fill in the menu background colour
-  SDL_SetRenderDrawColor( gRenderer, 0, 102, 136, 0xFF );
-  SDL_RenderClear(gRenderer);
-  // NOTE(brendan): reset background to gray
-  SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
-  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, &destRect); 
+	displayMainMenu();
 	SDL_RenderPresent(gRenderer);
 }
 
-void transitionSetupRender() {
+void transitionSetupRender(void)
+{
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 	SDL_RenderPresent(gRenderer);
@@ -104,16 +54,6 @@ void transitionSetupRender() {
 void setupRender() {
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
-}
-static void freeWindow(WindowWrapper *myWindow) {
-  if(myWindow != NULL) {
-    if(myWindow->window != NULL) {
-      // NOTE(brendan): Destroy window
-      SDL_DestroyWindow(gWindow->window);
-      myWindow->window = NULL;
-    }
-    free(myWindow);
-  }
 }
 
 // NOTE(brendan): free myTexture's memory
@@ -137,20 +77,16 @@ bool init() {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
   } 
   else {
-    gWindow = (WindowWrapper *)malloc(sizeof(WindowWrapper));
-    // NOTE(brendan): Create resizable window
-    gWindow->window = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_UNDEFINED, 
-        SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 
-        SDL_WINDOW_RESIZABLE);
-    gWindow->width = SCREEN_WIDTH;
-    gWindow->height = SCREEN_HEIGHT;
+    // NOTE(brendan): Create window
+    gWindow = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_UNDEFINED, 
+        SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if(gWindow == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", 
           SDL_GetError());
     } 
     else {
       //Create renderer for window
-      gRenderer = SDL_CreateRenderer( gWindow->window, -1, 
+      gRenderer = SDL_CreateRenderer( gWindow, -1, 
           SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
       if( gRenderer == NULL ) {
         printf( "Renderer could not be created! SDL Error: %s\n", 
@@ -255,13 +191,15 @@ void close_sdl() {
   freeTexture(gBlueToken);
   freeTexture(gBackground);
   freeTexture(gMainMenu);
-  freeWindow(gWindow);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
   gBackground = NULL;
   gMainMenu = NULL;
+
+  // NOTE(brendan): Destroy window
+  SDL_DestroyWindow(gWindow);
   gWindow = NULL;
 
   // NOTE(brendan): Quit SDL subsystems
@@ -300,7 +238,6 @@ bool dropToken(Board b, Token tokenColour, int col) {
   // the top of the board; if so drop this next token ABOVE that token
   FallingToken *currentHighest = 
     List<FallingToken>::reduceList(compareXPosition, newToken, gFallingTokens);
-
   if(currentHighest != NULL) { 
     if(newToken->y + TOKEN_HEIGHT > currentHighest->y) {
       newToken->y = currentHighest->y - TOKEN_HEIGHT;
@@ -330,8 +267,8 @@ void drawFallingToken(FallingToken *fallingToken) {
 
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;
-  tokenRect.x = getMarginX() + fallingToken->x;
-  tokenRect.y = fallingToken->y - getMarginY();
+  tokenRect.x = fallingToken->x;
+  tokenRect.y = fallingToken->y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
 
@@ -342,8 +279,8 @@ void drawFallingToken(FallingToken *fallingToken) {
 void clearFallingToken(FallingToken *fallingToken) {
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;
-  tokenRect.x = getMarginX() + fallingToken->x;
-  tokenRect.y = fallingToken->y - getMarginY();
+  tokenRect.x = fallingToken->x;
+  tokenRect.y = fallingToken->y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
 
@@ -354,7 +291,7 @@ void clearFallingToken(FallingToken *fallingToken) {
 // TODO(Zach): make macros for constants
 // NOTE(Zach): update position/velocity of falling token
 void updateFallingToken(FallingToken *fallingToken, float dt) {
-#define ACCEL 3.0f
+#define ACCEL 5
   fallingToken->y += fallingToken->v * dt;
   fallingToken->v += ACCEL * dt;
   // NOTE(Zach): Remove energy when token hits a surface and the token
@@ -386,8 +323,8 @@ void deleteStillToken(FallingToken *fallingToken) {
 void displayBoard() {
   // NOTE(Zach): determine the position for the board
   SDL_Rect DestR;
-  DestR.x = getMarginX() + GRID_OFFSET_X - 1;
-  DestR.y = GRID_OFFSET_Y - 1 - getMarginY();
+  DestR.x = GRID_OFFSET_X - 1;
+  DestR.y = GRID_OFFSET_Y - 1;
   DestR.w = gConnect4Board->width;
   DestR.h = gConnect4Board->height;
   SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, &DestR );
@@ -396,16 +333,16 @@ void displayBoard() {
 void displaySetupTokens() {
   // NOTE(Zach): determine the position for the setup tokens
   SDL_Rect tokenRect;
-  tokenRect.x = 25 + getMarginX();
-  tokenRect.y = GRID_OFFSET_Y - getMarginY();
+  tokenRect.x = 25;
+  tokenRect.y = GRID_OFFSET_Y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
 
   //Render texture to screen
   SDL_RenderCopy( gRenderer, gRedToken->texture, NULL, &tokenRect ); 
 
-  tokenRect.x = SCREEN_WIDTH - 125 + getMarginX();
-  tokenRect.y = GRID_OFFSET_Y - getMarginY();
+  tokenRect.x = SCREEN_WIDTH - 125;
+  tokenRect.y = GRID_OFFSET_Y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
 
@@ -413,28 +350,8 @@ void displaySetupTokens() {
   SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
 }
 
-void renderToken(TextureWrapper *token, int row, int col) {
-  // NOTE(Zach): determine the position for the token
-  SDL_Rect tokenRect;
-  tokenRect.x = getMarginX() + GRID_OFFSET_X + TOKEN_WIDTH * col;
-  tokenRect.y = GRID_OFFSET_Y + TOKEN_HEIGHT * row - getMarginY();
-  tokenRect.w = TOKEN_WIDTH;
-  tokenRect.h = TOKEN_HEIGHT;
-
-  //Render texture to screen
-  SDL_RenderCopy( gRenderer, token->texture, NULL, &tokenRect );
-}
-
-void renderTokens(Board board) {
-  SDL_Rect tokenRect;
-  for(int row = 0; row < NUM_ROWS; ++row) {
-    for(int col = 0; col < NUM_COLS; ++col) {
-      if(board_checkCell(board, row, col) == RED) {
-        renderToken(gRedToken, row, col);
-      }
-      else if(board_checkCell(board, row, col) == BLUE) {
-        renderToken(gBlueToken, row, col);
-      }
-    }
-  }
+// NOTE(Zach): display the main menu
+void displayMainMenu(void)
+{
+  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
 }
