@@ -10,7 +10,7 @@
 #define SCREEN_HEIGHT  902
 #define TOKEN_WIDTH  100
 #define TOKEN_HEIGHT  100
-#define GRID_OFFSET_Y  151
+#define GRID_OFFSET_Y  51
 #define GRID_OFFSET_X  151
 #define GRID_WIDTH 700
 #define GRID_HEIGHT 600
