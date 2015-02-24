@@ -28,6 +28,9 @@ TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
 TextureWrapper *gBackground = NULL;
 TextureWrapper *gMainMenu = NULL;
+TextureWrapper *gOnePlayerButton = NULL;
+TextureWrapper *gTwoPlayerButton = NULL;
+TextureWrapper *gMenuButton = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
@@ -45,8 +48,32 @@ void mainMenuRender() {
 
 void transitionSetupRender(void)
 {
+	SDL_Rect destRect;
+
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
+
+	// NOTE(Zach): Place the Menu Button
+	destRect.x = SCREEN_WIDTH - gMenuButton->width - 10;
+	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 10;
+	destRect.w = gMenuButton->width;
+	destRect.h = gMenuButton->height;
+	SDL_RenderCopy( gRenderer, gMenuButton->texture, NULL, &destRect ); 
+
+	// NOTE(Zach): Place the One Player Button
+	destRect.x = 10;
+	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 10;
+	destRect.w = gOnePlayerButton->width;
+	destRect.h = gOnePlayerButton->height;
+	SDL_RenderCopy( gRenderer, gOnePlayerButton->texture, NULL, &destRect ); 
+
+	// NOTE(Zach): Place the Two Player Button
+	destRect.x = 20 + gOnePlayerButton->width;
+	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 10;
+	destRect.w = gTwoPlayerButton->width;
+	destRect.h = gTwoPlayerButton->height;
+	SDL_RenderCopy( gRenderer, gTwoPlayerButton->texture, NULL, &destRect ); 
+
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -180,6 +207,26 @@ bool loadMedia() {
     printf("Failed to load the main menu!\n");
     success = false;
   }
+  // NOTE(Zach): Load the One Player button graphic
+  gOnePlayerButton = loadTexture("../misc/1PlayerSetup.bmp");
+  if (gOnePlayerButton == NULL) {
+    printf("Failed to load the One Player button graphic!\n");
+    success = false;
+  }
+
+  // NOTE(Zach): Load the Two Player button graphic
+  gTwoPlayerButton = loadTexture("../misc/2PlayerSetup.bmp");
+  if (gTwoPlayerButton == NULL) {
+    printf("Failed to load the Two Player button graphic!\n");
+    success = false;
+  }
+
+  // NOTE(Zach): Load the Menu button graphic
+  gMenuButton = loadTexture("../misc/menuSetup.bmp");
+  if (gMenuButton == NULL) {
+    printf("Failed to load the Menu button graphic!\n");
+    success = false;
+  }
 
   return success;
 }
@@ -191,12 +238,19 @@ void close_sdl() {
   freeTexture(gBlueToken);
   freeTexture(gBackground);
   freeTexture(gMainMenu);
+  freeTexture(gOnePlayerButton);
+  freeTexture(gTwoPlayerButton);
+  freeTexture(gMenuButton);
+
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
   gBackground = NULL;
   gMainMenu = NULL;
+   gOnePlayerButton = NULL;
+   gTwoPlayerButton = NULL;
+   gMenuButton = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
