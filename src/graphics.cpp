@@ -31,6 +31,7 @@ TextureWrapper *gMainMenu = NULL;
 TextureWrapper *gOnePlayerButton = NULL;
 TextureWrapper *gTwoPlayerButton = NULL;
 TextureWrapper *gMenuButton = NULL;
+TextureWrapper *gGlow = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
@@ -50,6 +51,11 @@ void mainMenuRender() {
 // NOTE(Zach): highlight a token at (row, col)
 void highlightToken(int row, int col)
 {
+	// NOTE(Zach): do not delete
+	// un-condition this out to add highlighting instead or in addition
+	// to the glow
+	// NOTE(Zach): highlight
+	#if 0
 	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH * col,
 								GRID_OFFSET_Y + TOKEN_HEIGHT * row,
 								TOKEN_WIDTH,
@@ -61,7 +67,16 @@ void highlightToken(int row, int col)
 	SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
 	displayBoard();
-	SDL_RenderPresent(gRenderer);
+//	SDL_RenderPresent(gRenderer);
+	#endif
+
+	// NOTE(Zach): glow
+	SDL_Rect destRect = {(GRID_OFFSET_X + TOKEN_WIDTH * col),
+								(GRID_OFFSET_Y + TOKEN_HEIGHT * row),
+								TOKEN_WIDTH,
+								TOKEN_HEIGHT};
+	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &destRect);
+	//SDL_RenderPresent(gRenderer);
 }
 
 // Positions and renders the buttons to be used 
@@ -248,6 +263,13 @@ bool loadMedia() {
     success = false;
   }
 
+  // NOTE(Zach): Load the glow graphic
+  gGlow = loadTexture("../misc/glow.bmp");
+  if (gGlow == NULL) {
+    printf("Failed to load the glow graphic!\n");
+    success = false;
+  }
+
   return success;
 }
 
@@ -261,7 +283,7 @@ void close_sdl() {
   freeTexture(gOnePlayerButton);
   freeTexture(gTwoPlayerButton);
   freeTexture(gMenuButton);
-
+	freeTexture(gGlow);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -271,6 +293,7 @@ void close_sdl() {
   gOnePlayerButton = NULL;
   gTwoPlayerButton = NULL;
   gMenuButton = NULL;
+  gGlow = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
