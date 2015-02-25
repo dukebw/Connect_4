@@ -209,6 +209,14 @@ int connect4() {
 				while (lag >= MS_PER_UPDATE) {
 					// NOTE(Zach): update the game logic of gameState.currentState
 					logic[gameState.currentState]();
+          if(gameState.currentState == SETUP) {
+            if(checkBoardStatus(gameState.board) == RED_WON) {
+              printf("Red won.\n");
+            }
+            else if(checkBoardStatus(gameState.board) == BLUE_WON) {
+              printf("Blue won.\n");
+            }
+          }
 					lag -= MS_PER_UPDATE;
 				}
 

@@ -11,6 +11,10 @@ typedef enum {
   MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
 } MenuState;
 
+typedef enum {
+  RED_WON, BLUE_WON, DRAW, IN_PROGRESS, INVALID_BOARD
+} BoardStatus;
+
 // TODO(brendan): Move this "model" to its own module?
 // NOTE(brendan): contains the "model" of the game
 struct GameState {
@@ -27,5 +31,8 @@ MenuState handleMainMenuMouseClick(int x, int y);
 MenuState handleCreditsMenuMouseClick(int x, int y);
 
 void setupLogic();
+
+// NOTE(brendan): checks if the board is in progress, won, drawn or an error
+BoardStatus checkBoardStatus(Board b);
 
 #endif // GAMELOGIC_H

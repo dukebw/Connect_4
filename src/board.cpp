@@ -37,8 +37,7 @@ Token board_checkCell(Board b, int row, int col)
 
 // NOTE(Zach): Insert a token into the board, only allow dropping tokens in
 // Return 0 for success and -1 for failure
-int board_dropToken(Board b, Token token, int col)
-{
+int board_dropToken(Board b, Token token, int col) {
 	assert(0 <= col && col < NUM_COLS);
 	if (b == NULL) return -1;
 	int row;
