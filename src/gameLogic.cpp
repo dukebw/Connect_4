@@ -11,8 +11,18 @@ MenuState handleMainMenuMouseClick(int x, int y) {
 
   //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
   //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
-  if (x >= 430 && y>= 545 && x <= 602 && y <= 610) return SETUP; 
-  if (x >= 452 && y>=700 && x <= 575 && y <= 760) return QUIT;
+  if ((x >= MAINMENU_SETUP_BUTTON_LEFT) && 
+      (y >= MAINMENU_SETUP_BUTTON_TOP) && 
+      (x <= MAINMENU_SETUP_BUTTON_RIGHT) && 
+      (y <= MAINMENU_SETUP_BUTTON_BOTTOM)) {
+    return SETUP; 
+  }
+  if ((x >= MAINMENU_QUIT_BUTTON_LEFT) && 
+      (y >= MAINMENU_QUIT_BUTTON_TOP) && 
+      (x <= MAINMENU_QUIT_BUTTON_RIGHT) && 
+      (y <= MAINMENU_QUIT_BUTTON_BOTTOM)) {
+    return QUIT;
+  }
   //if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
 
   return MAINMENU;
@@ -69,11 +79,6 @@ countTokens(Board board, Token colour) {
     }
   }
   return numberOfTokens;
-}
-
-static inline int
-square(int x) {
-  return x*x;
 }
 
 // NOTE(brendan): checks if the board is in progress, won, drawn or an error
