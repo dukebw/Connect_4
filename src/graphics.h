@@ -26,6 +26,7 @@ void displayBoard(void);
 void displaySetupTokens(void);
 void displayMainMenu(void);
 void displayCreditsMenu(void);
+void highlightToken(int row, int col);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.

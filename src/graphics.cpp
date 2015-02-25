@@ -46,6 +46,23 @@ void mainMenuRender() {
 	SDL_RenderPresent(gRenderer);
 }
 
+// NOTE(Zach): highlight a token at (row, col)
+void highlightToken(int row, int col)
+{
+	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH * col,
+								GRID_OFFSET_Y + TOKEN_HEIGHT * row,
+								TOKEN_WIDTH,
+								TOKEN_HEIGHT};
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x66);
+	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+
+	SDL_RenderFillRect(gRenderer, &fillRect);
+	SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
+	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
+	displayBoard();
+	SDL_RenderPresent(gRenderer);
+}
+
 void transitionSetupRender(void)
 {
 	SDL_Rect destRect;
@@ -369,6 +386,9 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 // NOTE(brendan): delete stationary tokens from gFallingTokens
 void deleteStillToken(FallingToken *fallingToken) {
   if(fallingToken->isFalling == false) {
+  		// NOTE(Zach): This call is for testing highlighting only
+		//highlightToken((fallingToken->y - GRID_OFFSET_Y)/TOKEN_HEIGHT,
+		//					(fallingToken->x - GRID_OFFSET_X)/TOKEN_WIDTH);
     gFallingTokens = List<FallingToken>::deleteFromList(fallingToken, 
         gFallingTokens);
   }
