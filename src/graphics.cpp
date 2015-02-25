@@ -35,10 +35,11 @@ SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
 // NOTE(brendan): does rendering for credits menu
-void creditsMenuRender() {
-	SDL_RenderClear(gRenderer);
-	SDL_RenderPresent(gRenderer);
-}
+// NOTE(Jean): wait until image for credit menu is complete
+// void creditsMenuRender() {
+// 	SDL_RenderClear(gRenderer);
+// 	SDL_RenderPresent(gRenderer);
+// }
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
@@ -63,6 +64,8 @@ void highlightToken(int row, int col)
 	SDL_RenderPresent(gRenderer);
 }
 
+// Positions and renders the buttons to be used 
+// in the setup game mode
 void transitionSetupRender(void)
 {
 	SDL_Rect destRect;
@@ -265,9 +268,9 @@ void close_sdl() {
   gBlueToken = NULL;
   gBackground = NULL;
   gMainMenu = NULL;
-   gOnePlayerButton = NULL;
-   gTwoPlayerButton = NULL;
-   gMenuButton = NULL;
+  gOnePlayerButton = NULL;
+  gTwoPlayerButton = NULL;
+  gMenuButton = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
@@ -347,6 +350,8 @@ void drawFallingToken(FallingToken *fallingToken) {
   SDL_RenderCopy( gRenderer, tokenTexture->texture, NULL, &tokenRect ); 
 }
 
+
+// Should this be renamed to fallingTokenPosition()? or something similar ?
 void clearFallingToken(FallingToken *fallingToken) {
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;

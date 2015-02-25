@@ -25,7 +25,8 @@ void updateFallingToken(FallingToken *fallingToken, float dt);
 void displayBoard(void);
 void displaySetupTokens(void);
 void displayMainMenu(void);
-void displayCreditsMenu(void);
+// TODO(Jean): create credit menu image
+// void displayCreditsMenu(void);
 void highlightToken(int row, int col);
 
 // TODO(brendan): Make these local at some point
@@ -35,7 +36,7 @@ void highlightToken(int row, int col);
 extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): does rendering for credits menu
-void creditsMenuRender();
+//void creditsMenuRender();
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender();
