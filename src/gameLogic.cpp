@@ -82,7 +82,8 @@ BoardStatus checkBoardStatus(Board board) {
     for(int col = 0; col < NUM_COLS; ++col) {
       Token firstColour = board_checkCell(board, row, col);
       if(firstColour != EMPTY) {
-        // NOTE(brendan): Check for 4-in-a-row in a row
+        // NOTE(brendan): Check for 4-in-a-row in a row starting at the
+        // (row, col) token
         for(int currentCol = col, currentRow = row;
             (currentCol >= 0) && 
             (board_checkCell(board, currentRow, currentCol)) == firstColour;
@@ -130,6 +131,7 @@ BoardStatus checkBoardStatus(Board board) {
   if(numberRedTokens + numberBlueTokens == NUM_ROWS*NUM_COLS) {
     return DRAW;
   }
+  // NOTE(brendan): difference between number of each type of token is >1
   else if(square(numberRedTokens - numberBlueTokens) > 1) {
     return INVALID_BOARD;
   }
