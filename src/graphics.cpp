@@ -374,7 +374,7 @@ void drawFallingToken(FallingToken *fallingToken) {
 }
 
 
-// Should this be renamed to fallingTokenPosition()? or something similar ?
+
 void clearFallingToken(FallingToken *fallingToken) {
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;
