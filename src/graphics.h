@@ -6,14 +6,25 @@
 #include "board.h"
 #include "linkedList.h"
 
-#define SCREEN_WIDTH  1002
-#define SCREEN_HEIGHT  902
-#define TOKEN_WIDTH  100
-#define TOKEN_HEIGHT  100
-#define GRID_OFFSET_Y  51
-#define GRID_OFFSET_X  151
-#define GRID_WIDTH 700
-#define GRID_HEIGHT 600
+constexpr float SCALE  = 0.85;
+constexpr int SCREEN_WIDTH = (1002*(SCALE));
+constexpr int SCREEN_HEIGHT = (902*(SCALE));
+constexpr int TOKEN_WIDTH = (100*(SCALE));
+constexpr int TOKEN_HEIGHT = (100*(SCALE));
+constexpr int GRID_OFFSET_Y = (51*(SCALE));
+constexpr int GRID_OFFSET_X = (151*(SCALE));
+constexpr int GRID_WIDTH = (700*(SCALE));
+constexpr int GRID_HEIGHT = (600*(SCALE));
+constexpr int MAINMENU_SETUP_BUTTON_LEFT = (430*(SCALE));
+constexpr int MAINMENU_SETUP_BUTTON_RIGHT = (602*(SCALE));
+constexpr int MAINMENU_SETUP_BUTTON_TOP = (545*(SCALE));
+constexpr int MAINMENU_SETUP_BUTTON_BOTTOM = (610*(SCALE));
+constexpr int MAINMENU_QUIT_BUTTON_LEFT = (452*(SCALE));
+constexpr int MAINMENU_QUIT_BUTTON_RIGHT = (575*(SCALE));
+constexpr int MAINMENU_QUIT_BUTTON_TOP = (700*(SCALE));
+constexpr int MAINMENU_QUIT_BUTTON_BOTTOM = (760*(SCALE));
+constexpr int SETUP_BOTTOM_BUTTONS_OFFSET = (10*(SCALE));
+constexpr int SETUP_CLICKY_TOKENS_OFFSET = (25*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;

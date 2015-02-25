@@ -24,6 +24,11 @@ struct GameState {
   Board board;
 };
 
+inline int
+square(int x) {
+  return x*x;
+}
+
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 MenuState handleMainMenuMouseClick(int x, int y);
 

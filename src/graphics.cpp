@@ -26,7 +26,6 @@ SDL_Window *gWindow = NULL;
 TextureWrapper *gConnect4Board = NULL;
 TextureWrapper *gRedToken = NULL;
 TextureWrapper *gBlueToken = NULL;
-TextureWrapper *gBackground = NULL;
 TextureWrapper *gMainMenu = NULL;
 TextureWrapper *gOnePlayerButton = NULL;
 TextureWrapper *gTwoPlayerButton = NULL;
@@ -89,22 +88,25 @@ void transitionSetupRender(void)
 	displaySetupTokens();
 
 	// NOTE(Zach): Place the Menu Button
-	destRect.x = SCREEN_WIDTH - gMenuButton->width - 10;
-	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 10;
+	destRect.x = SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET;
+	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gMenuButton->width;
 	destRect.h = gMenuButton->height;
 	SDL_RenderCopy( gRenderer, gMenuButton->texture, NULL, &destRect ); 
 
 	// NOTE(Zach): Place the One Player Button
-	destRect.x = 10;
-	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 10;
+	destRect.x = SETUP_BOTTOM_BUTTONS_OFFSET;
+	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gOnePlayerButton->width;
 	destRect.h = gOnePlayerButton->height;
 	SDL_RenderCopy( gRenderer, gOnePlayerButton->texture, NULL, &destRect ); 
 
 	// NOTE(Zach): Place the Two Player Button
-	destRect.x = 20 + gOnePlayerButton->width;
-	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 10;
+	destRect.x = 2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width;
+	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gTwoPlayerButton->width;
 	destRect.h = gTwoPlayerButton->height;
 	SDL_RenderCopy( gRenderer, gTwoPlayerButton->texture, NULL, &destRect ); 
@@ -172,16 +174,26 @@ static TextureWrapper *loadTexture(std::string path) {
 
   // NOTE(Zach): Load image at specified path
   SDL_Surface *loadedSurface = SDL_LoadBMP(path.c_str()); //use a c string
-  if(loadedSurface == NULL) {
+
+  SDL_Rect scaleRect;
+  scaleRect.x = 0;
+  scaleRect.y = 0;
+  scaleRect.w = loadedSurface->w*(SCALE);
+  scaleRect.h = loadedSurface->h*(SCALE);
+  SDL_Surface *scaledSurface = 
+    SDL_CreateRGBSurface(0, scaleRect.w, scaleRect.h, 32, 0, 0, 0, 0);
+  SDL_BlitScaled(loadedSurface, NULL, scaledSurface, &scaleRect);
+  /* SDL_BlitScaled(gStretchedSurface, NULL, gScreenSurface, &stretchRect); */
+  if(scaledSurface == NULL) {
     printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), 
         SDL_GetError());
   } else {
     // Color key image
-    SDL_SetColorKey( loadedSurface, SDL_TRUE, 
-        SDL_MapRGB( loadedSurface->format, 0xFF, 0xFF, 0xFF));
+    SDL_SetColorKey( scaledSurface, SDL_TRUE, 
+        SDL_MapRGB( scaledSurface->format, 0xFF, 0xFF, 0xFF));
 
     //Create texture from surface pixels
-    newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+    newTexture = SDL_CreateTextureFromSurface(gRenderer, scaledSurface);
     if (newTexture == NULL) {
       printf("Unable to create texture from %s! SDL Error: %s\n", 
           path.c_str(),SDL_GetError());
@@ -192,13 +204,13 @@ static TextureWrapper *loadTexture(std::string path) {
             path.c_str());
       } else {
         loadedTexture->texture = newTexture;
-        loadedTexture->width = loadedSurface->w;
-        loadedTexture->height = loadedSurface->h;
+        loadedTexture->width = scaledSurface->w;
+        loadedTexture->height = scaledSurface->h;
       }
     }
 
     // NOTE(Zach): Get rid of old loaded surface
-    SDL_FreeSurface(loadedSurface);
+    SDL_FreeSurface(scaledSurface);
   }
 
   return loadedTexture;
@@ -207,13 +219,6 @@ static TextureWrapper *loadTexture(std::string path) {
 bool loadMedia() {
   // NOTE(brendan): Loading success flag
   bool success = true;
-
-  // NOTE(Zach): Load the background
-  gBackground = loadTexture("../misc/white_background.bmp");
-  if (gBackground == NULL) {
-    printf("Failed to load background!\n");
-    success = false;
-  }
 
   // NOTE(brendan): Load splash image
   gConnect4Board = loadTexture("../misc/board.bmp");
@@ -278,7 +283,6 @@ void close_sdl() {
   freeTexture(gConnect4Board);
   freeTexture(gRedToken);
   freeTexture(gBlueToken);
-  freeTexture(gBackground);
   freeTexture(gMainMenu);
   freeTexture(gOnePlayerButton);
   freeTexture(gTwoPlayerButton);
@@ -288,7 +292,6 @@ void close_sdl() {
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
-  gBackground = NULL;
   gMainMenu = NULL;
   gOnePlayerButton = NULL;
   gTwoPlayerButton = NULL;
@@ -435,7 +438,7 @@ void displayBoard() {
 void displaySetupTokens() {
   // NOTE(Zach): determine the position for the setup tokens
   SDL_Rect tokenRect;
-  tokenRect.x = 25;
+  tokenRect.x = SETUP_CLICKY_TOKENS_OFFSET;
   tokenRect.y = GRID_OFFSET_Y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;
@@ -443,7 +446,7 @@ void displaySetupTokens() {
   //Render texture to screen
   SDL_RenderCopy( gRenderer, gRedToken->texture, NULL, &tokenRect ); 
 
-  tokenRect.x = SCREEN_WIDTH - 125;
+  tokenRect.x = SCREEN_WIDTH - SETUP_BOTTOM_BUTTONS_OFFSET - TOKEN_WIDTH;
   tokenRect.y = GRID_OFFSET_Y;
   tokenRect.w = TOKEN_WIDTH;
   tokenRect.h = TOKEN_HEIGHT;

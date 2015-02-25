@@ -136,14 +136,18 @@ void setupHandleEvents(GameState *gameState) {
 			}
 #endif
 
-			if(50*50 >= 
-					(x-75)*(x-75) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) { 
+      constexpr int TOKEN_RADIUS = TOKEN_WIDTH/2;
+      int fromRedTokenCenterX = x - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS;
+      int fromRedTokenCenterY = y - (GRID_OFFSET_Y + TOKEN_RADIUS);
+      int fromBlueTokenCenterX = x - (SCREEN_WIDTH - 
+          SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS);
+      int fromBlueTokenCenterY = fromRedTokenCenterY;
+			if(square(TOKEN_RADIUS) >= 
+					square(fromRedTokenCenterX) + square(fromRedTokenCenterY)) { 
 				gameState->currentToken = RED;
 			}
-			else if(50*50 >= 
-					(x-(SCREEN_WIDTH-75))*(x-(SCREEN_WIDTH-75)) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) {
+			else if(square(TOKEN_RADIUS) >= 
+					square(fromBlueTokenCenterX) + square(fromBlueTokenCenterY)) {
 				gameState->currentToken = BLUE;
 			}
 
