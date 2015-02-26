@@ -37,8 +37,8 @@ TextureWrapper *gGlow = NULL;
 TextureWrapper *gInvalidMessage = NULL;
 TextureWrapper *gInvalidTokenMessage = NULL;
 SDL_Renderer* gRenderer = NULL;
-List<FallingToken> *gFallingTokens = NULL;
 List<TokenLocation> *gHighlightedTokens = NULL;
+List<FallingToken> *gFallingTokens = NULL;
 
 // NOTE(brendan): does rendering for credits menu
 // NOTE(Jean): wait until image for credit menu is complete
@@ -212,51 +212,54 @@ bool init() {
 
 // NOTE(Zach): Loads bitmaps
 static TextureWrapper *loadTexture(std::string path) {
-  TextureWrapper *loadedTexture;
+  TextureWrapper *loadedTexture = NULL;
   // NOTE(Zach): The final optimized image
   SDL_Texture *newTexture = NULL;
 
   // NOTE(Zach): Load image at specified path
   SDL_Surface *loadedSurface = SDL_LoadBMP(path.c_str()); //use a c string
-
-  SDL_Rect scaleRect;
-  scaleRect.x = 0;
-  scaleRect.y = 0;
-  scaleRect.w = loadedSurface->w*(SCALE);
-  scaleRect.h = loadedSurface->h*(SCALE);
-  SDL_Surface *scaledSurface = 
-    SDL_CreateRGBSurface(0, scaleRect.w, scaleRect.h, 32, 0, 0, 0, 0);
-  SDL_BlitScaled(loadedSurface, NULL, scaledSurface, &scaleRect);
-  /* SDL_BlitScaled(gStretchedSurface, NULL, gScreenSurface, &stretchRect); */
-  if(scaledSurface == NULL) {
+  if(loadedSurface == NULL) {
     printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), 
         SDL_GetError());
-  } else {
-    // Color key image
-    SDL_SetColorKey( scaledSurface, SDL_TRUE, 
-        SDL_MapRGB( scaledSurface->format, 0xFF, 0xFF, 0xFF));
-
-    //Create texture from surface pixels
-    newTexture = SDL_CreateTextureFromSurface(gRenderer, scaledSurface);
-    if (newTexture == NULL) {
-      printf("Unable to create texture from %s! SDL Error: %s\n", 
-          path.c_str(),SDL_GetError());
-    } else {
-      loadedTexture = (TextureWrapper *)malloc(sizeof(TextureWrapper));
-      if (loadedTexture == NULL) {
-        printf("Unable to allocate the TextureWrapper structure for %s!\n", 
-            path.c_str());
-      } else {
-        loadedTexture->texture = newTexture;
-        loadedTexture->width = scaledSurface->w;
-        loadedTexture->height = scaledSurface->h;
-      }
-    }
-
-    // NOTE(Zach): Get rid of old loaded surface
-    SDL_FreeSurface(scaledSurface);
   }
+  else {
+    SDL_Rect scaleRect;
+    scaleRect.x = 0;
+    scaleRect.y = 0;
+    scaleRect.w = loadedSurface->w*(SCALE);
+    scaleRect.h = loadedSurface->h*(SCALE);
+    SDL_Surface *scaledSurface = 
+      SDL_CreateRGBSurface(0, scaleRect.w, scaleRect.h, 32, 0, 0, 0, 0);
+    if(scaledSurface == NULL) {
+      printf("Couldn't create surface scaledSurface");
+    } else {
+      SDL_BlitScaled(loadedSurface, NULL, scaledSurface, &scaleRect);
 
+      // Color key image
+      SDL_SetColorKey( scaledSurface, SDL_TRUE, 
+          SDL_MapRGB( scaledSurface->format, 0xFF, 0xFF, 0xFF));
+
+      //Create texture from surface pixels
+      newTexture = SDL_CreateTextureFromSurface(gRenderer, scaledSurface);
+      if (newTexture == NULL) {
+        printf("Unable to create texture from %s! SDL Error: %s\n", 
+            path.c_str(),SDL_GetError());
+      } else {
+        loadedTexture = (TextureWrapper *)malloc(sizeof(TextureWrapper));
+        if (loadedTexture == NULL) {
+          printf("Unable to allocate the TextureWrapper structure for %s!\n", 
+              path.c_str());
+        } else {
+          loadedTexture->texture = newTexture;
+          loadedTexture->width = scaledSurface->w;
+          loadedTexture->height = scaledSurface->h;
+        }
+      }
+
+      // NOTE(Zach): Get rid of old loaded surface
+      SDL_FreeSurface(scaledSurface);
+    }
+  }
   return loadedTexture;
 }
 
@@ -320,7 +323,7 @@ bool loadMedia() {
   }
 
   // NOTE(Jean): Invalid Board error message, for setup game mode
-  gInvalidMessage = loadTexture("../misc/invalidMsg.bmp");
+  gInvalidMessage = loadTexture("../misc/InvalidMsg.bmp");
   if (gInvalidMessage == NULL) {
     printf("Failed to load the \"invalid board\" graphic!\n");
     success = false;
