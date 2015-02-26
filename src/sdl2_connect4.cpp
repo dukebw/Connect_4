@@ -25,12 +25,12 @@
 
 #define MS_PER_UPDATE 13
 
-void logicStub();
-void handleEventsStub(GameState *gameState);
-void renderStub();
-void mainMenuHandleEvents(GameState *gameState);
-void creditsMenuHandleEvents(GameState *gameState);
-void setupHandleEvents(GameState *gameState);
+static void logicStub();
+static void handleEventsStub(GameState *gameState);
+static void renderStub();
+static void mainMenuHandleEvents(GameState *gameState);
+static void creditsMenuHandleEvents(GameState *gameState);
+static void setupHandleEvents(GameState *gameState);
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
@@ -40,25 +40,24 @@ void setupHandleEvents(GameState *gameState);
 // NOTE(Zach): Arrays of function pointers.
 // NOTE(Zach): The order of the array elements MUST be synchronized with
 // NOTE(Zach): the enumeration MenuState!
-void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
+static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
   {mainMenuHandleEvents, handleEventsStub, handleEventsStub, 
     setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
 
-void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
+static void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
   setupLogic, logicStub, logicStub, logicStub};
 
-void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, renderStub, 
-  setupRender, renderStub, renderStub, renderStub};
+static void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, 
+  renderStub, setupRender, renderStub, renderStub, renderStub}; 
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
-void logicStub() {}
-void handleEventsStub(GameState *gameState) {}
-void renderStub() {}
+static void logicStub() {}
+static void handleEventsStub(GameState *gameState) {}
+static void renderStub() {}
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
-MenuState handleMainMenuMouseClick(int x, int y) {
-
+static MenuState handleMainMenuMouseClick(int x, int y) {
   //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
   //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
   if ((x >= MAINMENU_SETUP_BUTTON_LEFT) && 
@@ -79,13 +78,13 @@ MenuState handleMainMenuMouseClick(int x, int y) {
 }
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
-MenuState handleCreditsMenuMouseClick(int x, int y) {
+static MenuState handleCreditsMenuMouseClick(int x, int y) {
   //if (x >= 48 && y>= 413 && x <= 454 && y <= 465) return MAINMENU;
   return MAINMENU;
 }
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
-void mainMenuHandleEvents(GameState *gameState) {
+static void mainMenuHandleEvents(GameState *gameState) {
 	// NOTE(Zach): Event handler
 	SDL_Event e;
 
@@ -116,7 +115,7 @@ void mainMenuHandleEvents(GameState *gameState) {
 }
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
-void creditsMenuHandleEvents(GameState *gameState) {
+static void creditsMenuHandleEvents(GameState *gameState) {
 	// NOTE(Zach): Event handler
 	SDL_Event e;
 
@@ -139,7 +138,7 @@ void creditsMenuHandleEvents(GameState *gameState) {
 }
 
 // NOTE(brendan): handles mouse clicks in the SETUP state
-void setupHandleEvents(GameState *gameState) {
+static void setupHandleEvents(GameState *gameState) {
 	// Event handler
 	SDL_Event e;
 
