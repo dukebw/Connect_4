@@ -171,14 +171,6 @@ addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column,
   return tokenList;
 }
 
-// TODO(brendan): debugging function; marked for deletion
-static void
-printTokenLocation(TokenLocation *tokenLocation) {
-  printf((tokenLocation->colour) == RED ? 
-      "row: %d col: %d colour: red\n" : "row: %d col: %d colour: blue\n",
-      tokenLocation->row, tokenLocation->column);
-}
-
 // NOTE(brendan): returns a list of all tokens of the given colour that
 // are part of four-or-more in-a-row sequences
 // Yes I realize this is brutally inefficient

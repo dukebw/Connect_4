@@ -109,6 +109,7 @@ void creditsMenuHandleEvents(GameState *gameState) {
 	}
 }
 
+// NOTE(brendan): handles mouse clicks in the SETUP state
 void setupHandleEvents(GameState *gameState) {
 	// Event handler
 	SDL_Event e;

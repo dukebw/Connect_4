@@ -46,12 +46,6 @@ struct TokenLocation {
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
-void displayBoard(void);
-void displaySetupTokens(void);
-void displayMainMenu(void);
-// TODO(Jean): create credit menu image
-// void displayCreditsMenu(void);
-void highlightToken(int row, int col);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.
