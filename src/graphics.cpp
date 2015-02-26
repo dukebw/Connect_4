@@ -21,18 +21,23 @@ struct FallingToken {
   Token token;
 };
 
+// NOTE(brendan): flag for tracking whether we need to render highlighted
+// tokens or not
+static bool gRenderHighlighted = false;
 // NOTE(brendan): Global window/image declarations.
-SDL_Window *gWindow = NULL;
-TextureWrapper *gConnect4Board = NULL;
-TextureWrapper *gRedToken = NULL;
-TextureWrapper *gBlueToken = NULL;
-TextureWrapper *gBackground = NULL;
-TextureWrapper *gMainMenu = NULL;
-TextureWrapper *gOnePlayerButton = NULL;
-TextureWrapper *gTwoPlayerButton = NULL;
-TextureWrapper *gMenuButton = NULL;
-TextureWrapper *gGlow = NULL;
-SDL_Renderer* gRenderer = NULL;
+static SDL_Window *gWindow = NULL;
+static TextureWrapper *gConnect4Board = NULL;
+static TextureWrapper *gRedToken = NULL;
+static TextureWrapper *gBlueToken = NULL;
+static TextureWrapper *gMainMenu = NULL;
+static TextureWrapper *gOnePlayerButton = NULL;
+static TextureWrapper *gTwoPlayerButton = NULL;
+static TextureWrapper *gMenuButton = NULL;
+static TextureWrapper *gGlow = NULL;
+static TextureWrapper *gInvalidMessage = NULL;
+static TextureWrapper *gInvalidTokenMessage = NULL;
+static SDL_Renderer* gRenderer = NULL;
+static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
 // NOTE(brendan): does rendering for credits menu
@@ -42,6 +47,42 @@ List<FallingToken> *gFallingTokens = NULL;
 // 	SDL_RenderPresent(gRenderer);
 // }
 
+void displayBoard() {
+  // NOTE(Zach): determine the position for the board
+  SDL_Rect DestR;
+  DestR.x = GRID_OFFSET_X - 1;
+  DestR.y = GRID_OFFSET_Y - 1;
+  DestR.w = gConnect4Board->width;
+  DestR.h = gConnect4Board->height;
+  SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, &DestR );
+}
+
+void displaySetupTokens() {
+  // NOTE(Zach): determine the position for the setup tokens
+  SDL_Rect tokenRect;
+  tokenRect.x = SETUP_CLICKY_TOKENS_OFFSET;
+  tokenRect.y = GRID_OFFSET_Y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+
+  //Render texture to screen
+  SDL_RenderCopy( gRenderer, gRedToken->texture, NULL, &tokenRect ); 
+
+  tokenRect.x = SCREEN_WIDTH - SETUP_BOTTOM_BUTTONS_OFFSET - TOKEN_WIDTH;
+  tokenRect.y = GRID_OFFSET_Y;
+  tokenRect.w = TOKEN_WIDTH;
+  tokenRect.h = TOKEN_HEIGHT;
+
+  //Render texture to screen
+  SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
+}
+
+// NOTE(Zach): display the main menu
+void displayMainMenu(void)
+{
+  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
+}
+
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender() {
 	displayMainMenu();
@@ -49,17 +90,21 @@ void mainMenuRender() {
 }
 
 // NOTE(Zach): highlight a token at (row, col)
-void highlightToken(int row, int col)
-{
+static void highlightToken(TokenLocation *tokenToHighlight) {
 	// NOTE(Zach): do not delete
 	// un-condition this out to add highlighting instead or in addition
 	// to the glow
 	// NOTE(Zach): highlight
-	#if 0
-	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH * col,
-								GRID_OFFSET_Y + TOKEN_HEIGHT * row,
+	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH*tokenToHighlight->column,
+								GRID_OFFSET_Y + TOKEN_HEIGHT * tokenToHighlight->row,
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
+  // NOTE(brendan): redraw token first -- so blending doesn't become whiter
+  // and whiter if we highlight the same token repeatedly.
+  TextureWrapper *tokenColour = 
+    (tokenToHighlight->colour == RED) ?  gRedToken : gBlueToken;
+  SDL_RenderCopy(gRenderer, tokenColour->texture, NULL, &fillRect);
+
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x66);
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
 
@@ -68,14 +113,8 @@ void highlightToken(int row, int col)
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
 	displayBoard();
 //	SDL_RenderPresent(gRenderer);
-	#endif
 
-	// NOTE(Zach): glow
-	SDL_Rect destRect = {(GRID_OFFSET_X + TOKEN_WIDTH * col),
-								(GRID_OFFSET_Y + TOKEN_HEIGHT * row),
-								TOKEN_WIDTH,
-								TOKEN_HEIGHT};
-	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &destRect);
+	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &fillRect);
 	//SDL_RenderPresent(gRenderer);
 }
 
@@ -89,32 +128,39 @@ void transitionSetupRender(void)
 	displaySetupTokens();
 
 	// NOTE(Zach): Place the Menu Button
-	destRect.x = SCREEN_WIDTH - gMenuButton->width - 10;
-	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 10;
+	destRect.x = SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET;
+	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gMenuButton->width;
 	destRect.h = gMenuButton->height;
 	SDL_RenderCopy( gRenderer, gMenuButton->texture, NULL, &destRect ); 
 
 	// NOTE(Zach): Place the One Player Button
-	destRect.x = 10;
-	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 10;
+	destRect.x = SETUP_BOTTOM_BUTTONS_OFFSET;
+	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gOnePlayerButton->width;
 	destRect.h = gOnePlayerButton->height;
 	SDL_RenderCopy( gRenderer, gOnePlayerButton->texture, NULL, &destRect ); 
 
 	// NOTE(Zach): Place the Two Player Button
-	destRect.x = 20 + gOnePlayerButton->width;
-	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 10;
+	destRect.x = 2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width;
+	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 
+    SETUP_BOTTOM_BUTTONS_OFFSET;
 	destRect.w = gTwoPlayerButton->width;
 	destRect.h = gTwoPlayerButton->height;
 	SDL_RenderCopy( gRenderer, gTwoPlayerButton->texture, NULL, &destRect ); 
-
-	SDL_RenderPresent(gRenderer);
 }
 
 // NOTE(brendan): does rendering for setup
 void setupRender() {
 	displayBoard();
+  // NOTE(brendan): only render highlighted when we need to 
+  // TODO(brendan): (bug: board hides the aura)
+  if(gRenderHighlighted) {
+    List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
+    gRenderHighlighted = false;
+  }
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -141,7 +187,7 @@ bool init() {
   else {
     // NOTE(brendan): Create window
     gWindow = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+        CONNECT4_WINDOW_OFFSET_Y, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if(gWindow == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", 
           SDL_GetError());
@@ -166,7 +212,7 @@ bool init() {
 
 // NOTE(Zach): Loads bitmaps
 static TextureWrapper *loadTexture(std::string path) {
-  TextureWrapper *loadedTexture;
+  TextureWrapper *loadedTexture = NULL;
   // NOTE(Zach): The final optimized image
   SDL_Texture *newTexture = NULL;
 
@@ -175,45 +221,51 @@ static TextureWrapper *loadTexture(std::string path) {
   if(loadedSurface == NULL) {
     printf("Unable to load image %s! SDL Error: %s\n", path.c_str(), 
         SDL_GetError());
-  } else {
-    // Color key image
-    SDL_SetColorKey( loadedSurface, SDL_TRUE, 
-        SDL_MapRGB( loadedSurface->format, 0xFF, 0xFF, 0xFF));
-
-    //Create texture from surface pixels
-    newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
-    if (newTexture == NULL) {
-      printf("Unable to create texture from %s! SDL Error: %s\n", 
-          path.c_str(),SDL_GetError());
-    } else {
-      loadedTexture = (TextureWrapper *)malloc(sizeof(TextureWrapper));
-      if (loadedTexture == NULL) {
-        printf("Unable to allocate the TextureWrapper structure for %s!\n", 
-            path.c_str());
-      } else {
-        loadedTexture->texture = newTexture;
-        loadedTexture->width = loadedSurface->w;
-        loadedTexture->height = loadedSurface->h;
-      }
-    }
-
-    // NOTE(Zach): Get rid of old loaded surface
-    SDL_FreeSurface(loadedSurface);
   }
+  else {
+    SDL_Rect scaleRect;
+    scaleRect.x = 0;
+    scaleRect.y = 0;
+    scaleRect.w = loadedSurface->w*(SCALE);
+    scaleRect.h = loadedSurface->h*(SCALE);
+    SDL_Surface *scaledSurface = 
+      SDL_CreateRGBSurface(0, scaleRect.w, scaleRect.h, 32, 0, 0, 0, 0);
+    if(scaledSurface == NULL) {
+      printf("Couldn't create surface scaledSurface");
+    } else {
+      SDL_BlitScaled(loadedSurface, NULL, scaledSurface, &scaleRect);
 
+      // Color key image
+      SDL_SetColorKey( scaledSurface, SDL_TRUE, 
+          SDL_MapRGB( scaledSurface->format, 0xFF, 0xFF, 0xFF));
+
+      //Create texture from surface pixels
+      newTexture = SDL_CreateTextureFromSurface(gRenderer, scaledSurface);
+      if (newTexture == NULL) {
+        printf("Unable to create texture from %s! SDL Error: %s\n", 
+            path.c_str(),SDL_GetError());
+      } else {
+        loadedTexture = (TextureWrapper *)malloc(sizeof(TextureWrapper));
+        if (loadedTexture == NULL) {
+          printf("Unable to allocate the TextureWrapper structure for %s!\n", 
+              path.c_str());
+        } else {
+          loadedTexture->texture = newTexture;
+          loadedTexture->width = scaledSurface->w;
+          loadedTexture->height = scaledSurface->h;
+        }
+      }
+
+      // NOTE(Zach): Get rid of old loaded surface
+      SDL_FreeSurface(scaledSurface);
+    }
+  }
   return loadedTexture;
 }
 
 bool loadMedia() {
   // NOTE(brendan): Loading success flag
   bool success = true;
-
-  // NOTE(Zach): Load the background
-  gBackground = loadTexture("../misc/white_background.bmp");
-  if (gBackground == NULL) {
-    printf("Failed to load background!\n");
-    success = false;
-  }
 
   // NOTE(brendan): Load splash image
   gConnect4Board = loadTexture("../misc/board.bmp");
@@ -270,6 +322,20 @@ bool loadMedia() {
     success = false;
   }
 
+  // NOTE(Jean): Invalid Board error message, for setup game mode
+  gInvalidMessage = loadTexture("../misc/InvalidMsg.bmp");
+  if (gInvalidMessage == NULL) {
+    printf("Failed to load the \"invalid board\" graphic!\n");
+    success = false;
+  }
+
+    // NOTE(Jean): Invalid token number message, for setup game mode
+  gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
+  if (gInvalidTokenMessage == NULL) {
+    printf("Failed to load the \"invalid number of tokens\" graphic!\n");
+    success = false;
+  }
+
   return success;
 }
 
@@ -278,22 +344,24 @@ void close_sdl() {
   freeTexture(gConnect4Board);
   freeTexture(gRedToken);
   freeTexture(gBlueToken);
-  freeTexture(gBackground);
   freeTexture(gMainMenu);
   freeTexture(gOnePlayerButton);
   freeTexture(gTwoPlayerButton);
   freeTexture(gMenuButton);
 	freeTexture(gGlow);
+  freeTexture(gInvalidMessage);
+  freeTexture(gInvalidTokenMessage);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
-  gBackground = NULL;
   gMainMenu = NULL;
   gOnePlayerButton = NULL;
   gTwoPlayerButton = NULL;
   gMenuButton = NULL;
   gGlow = NULL;
+  gInvalidMessage = NULL;
+  gInvalidTokenMessage = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
@@ -305,7 +373,8 @@ void close_sdl() {
 
 // NOTE(brendan): returns true if the two tokens are in the same column,
 // false otherwise
-bool compareXPosition(FallingToken *listItem, FallingToken *item) {
+static bool 
+compareXPosition(FallingToken *listItem, FallingToken *item) {
   return listItem->x == item->x;
 }
 
@@ -373,8 +442,6 @@ void drawFallingToken(FallingToken *fallingToken) {
   SDL_RenderCopy( gRenderer, tokenTexture->texture, NULL, &tokenRect ); 
 }
 
-
-// Should this be renamed to fallingTokenPosition()? or something similar ?
 void clearFallingToken(FallingToken *fallingToken) {
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;
@@ -415,45 +482,20 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 void deleteStillToken(FallingToken *fallingToken) {
   if(fallingToken->isFalling == false) {
   		// NOTE(Zach): This call is for testing highlighting only
-		//highlightToken((fallingToken->y - GRID_OFFSET_Y)/TOKEN_HEIGHT,
-		//					(fallingToken->x - GRID_OFFSET_X)/TOKEN_WIDTH);
     gFallingTokens = List<FallingToken>::deleteFromList(fallingToken, 
         gFallingTokens);
   }
 }
 
-void displayBoard() {
-  // NOTE(Zach): determine the position for the board
-  SDL_Rect DestR;
-  DestR.x = GRID_OFFSET_X - 1;
-  DestR.y = GRID_OFFSET_Y - 1;
-  DestR.w = gConnect4Board->width;
-  DestR.h = gConnect4Board->height;
-  SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, &DestR );
+// NOTE(brendan): free token
+static void freeTokenLocation(TokenLocation *tokenLocation) {
+  free(tokenLocation);
 }
 
-void displaySetupTokens() {
-  // NOTE(Zach): determine the position for the setup tokens
-  SDL_Rect tokenRect;
-  tokenRect.x = 25;
-  tokenRect.y = GRID_OFFSET_Y;
-  tokenRect.w = TOKEN_WIDTH;
-  tokenRect.h = TOKEN_HEIGHT;
-
-  //Render texture to screen
-  SDL_RenderCopy( gRenderer, gRedToken->texture, NULL, &tokenRect ); 
-
-  tokenRect.x = SCREEN_WIDTH - 125;
-  tokenRect.y = GRID_OFFSET_Y;
-  tokenRect.w = TOKEN_WIDTH;
-  tokenRect.h = TOKEN_HEIGHT;
-
-  //Render texture to screen
-  SDL_RenderCopy( gRenderer, gBlueToken->texture, NULL, &tokenRect ); 
-}
-
-// NOTE(Zach): display the main menu
-void displayMainMenu(void)
-{
-  SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
+// NOTE(brendan): sets the list of highlighted tokens, freeing the old one
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList) {
+  // NOTE(brendan): get rid of old list
+  List<TokenLocation>::traverseList(freeTokenLocation, gHighlightedTokens);
+  gHighlightedTokens = highlightedTokenList;
+  gRenderHighlighted = true;
 }

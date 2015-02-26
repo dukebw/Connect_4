@@ -55,6 +55,35 @@ void logicStub() {}
 void handleEventsStub(GameState *gameState) {}
 void renderStub() {}
 
+// NOTE(Zach): Determine next MenuState based on where the user clicked
+// NOTE(Jean): Values fixed for the new modified and re-scaled image
+MenuState handleMainMenuMouseClick(int x, int y) {
+
+  //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
+  //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
+  if ((x >= MAINMENU_SETUP_BUTTON_LEFT) && 
+      (y >= MAINMENU_SETUP_BUTTON_TOP) && 
+      (x <= MAINMENU_SETUP_BUTTON_RIGHT) && 
+      (y <= MAINMENU_SETUP_BUTTON_BOTTOM)) {
+    return SETUP; 
+  }
+  if ((x >= MAINMENU_QUIT_BUTTON_LEFT) && 
+      (y >= MAINMENU_QUIT_BUTTON_TOP) && 
+      (x <= MAINMENU_QUIT_BUTTON_RIGHT) && 
+      (y <= MAINMENU_QUIT_BUTTON_BOTTOM)) {
+    return QUIT;
+  }
+  //if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
+
+  return MAINMENU;
+}
+
+// NOTE(Zach): Determine next MenuState based on where the user clicked
+MenuState handleCreditsMenuMouseClick(int x, int y) {
+  //if (x >= 48 && y>= 413 && x <= 454 && y <= 465) return MAINMENU;
+  return MAINMENU;
+}
+
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 void mainMenuHandleEvents(GameState *gameState) {
 	// NOTE(Zach): Event handler
@@ -109,6 +138,7 @@ void creditsMenuHandleEvents(GameState *gameState) {
 	}
 }
 
+// NOTE(brendan): handles mouse clicks in the SETUP state
 void setupHandleEvents(GameState *gameState) {
 	// Event handler
 	SDL_Event e;
@@ -135,15 +165,37 @@ void setupHandleEvents(GameState *gameState) {
 				currentState = TWOPLAYER;
 			}
 #endif
+      int setup2PlayerButtonRight = 
+        2*SETUP_BOTTOM_BUTTONS_OFFSET + SETUP_1PLAYER_BUTTON_WIDTH + 
+        SETUP_2PLAYER_BUTTON_WIDTH;
+      int setup2PlayerButtonLeft = 
+        setup2PlayerButtonRight - SETUP_2PLAYER_BUTTON_WIDTH;
+      int setup2PlayerButtonTop = SCREEN_HEIGHT - 
+        (SETUP_2PLAYER_BUTTON_HEIGHT + SETUP_BOTTOM_BUTTONS_OFFSET);
+      int setup2PlayerButtonBottom = 
+        SCREEN_HEIGHT - SETUP_BOTTOM_BUTTONS_OFFSET;
+      if (x >= setup2PlayerButtonLeft && 
+          x <= setup2PlayerButtonRight &&
+          y >= setup2PlayerButtonTop &&
+          y <= setup2PlayerButtonBottom) {
+        if(transitionSetupTwoPlayer(gameState)) {
+          /* gameState->currentState = TWOPLAYER; */
+          printf("Successfully entered TWOPLAYER from SETUP\n");
+        }
+			}
 
-			if(50*50 >= 
-					(x-75)*(x-75) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) { 
+      const int TOKEN_RADIUS = TOKEN_WIDTH/2;
+      int fromRedTokenCenterX = x - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS;
+      int fromRedTokenCenterY = y - (GRID_OFFSET_Y + TOKEN_RADIUS);
+      int fromBlueTokenCenterX = x - (SCREEN_WIDTH - 
+          SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS);
+      int fromBlueTokenCenterY = fromRedTokenCenterY;
+			if(square(TOKEN_RADIUS) >= 
+					square(fromRedTokenCenterX) + square(fromRedTokenCenterY)) { 
 				gameState->currentToken = RED;
 			}
-			else if(50*50 >= 
-					(x-(SCREEN_WIDTH-75))*(x-(SCREEN_WIDTH-75)) + 
-					(y - (GRID_OFFSET_Y + 50))*(y - (GRID_OFFSET_Y + 50))) {
+			else if(square(TOKEN_RADIUS) >= 
+					square(fromBlueTokenCenterX) + square(fromBlueTokenCenterY)) {
 				gameState->currentToken = BLUE;
 			}
 
@@ -209,14 +261,6 @@ int connect4() {
 				while (lag >= MS_PER_UPDATE) {
 					// NOTE(Zach): update the game logic of gameState.currentState
 					logic[gameState.currentState]();
-          if(gameState.currentState == SETUP) {
-            if(checkBoardStatus(gameState.board) == RED_WON) {
-              printf("Red won.\n");
-            }
-            else if(checkBoardStatus(gameState.board) == BLUE_WON) {
-              printf("Blue won.\n");
-            }
-          }
 					lag -= MS_PER_UPDATE;
 				}
 

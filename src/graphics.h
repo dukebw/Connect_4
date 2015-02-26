@@ -6,28 +6,49 @@
 #include "board.h"
 #include "linkedList.h"
 
-#define SCREEN_WIDTH  1002
-#define SCREEN_HEIGHT  902
-#define TOKEN_WIDTH  100
-#define TOKEN_HEIGHT  100
-#define GRID_OFFSET_Y  51
-#define GRID_OFFSET_X  151
-#define GRID_WIDTH 700
-#define GRID_HEIGHT 600
+// NOTE(brendan): keeps the window from opening under my start bar and
+// hence being unusable; probably solved with window resizing
+const int CONNECT4_WINDOW_OFFSET_Y = 100;
+
+const float SCALE  = 0.8; 
+const int SCREEN_WIDTH = (int)(1002*(SCALE));
+const int SCREEN_HEIGHT = (int)(902*(SCALE));
+const int TOKEN_WIDTH = (int)(100*(SCALE));
+const int TOKEN_HEIGHT = (int)(100*(SCALE));
+const int GRID_OFFSET_Y = (int)(51*(SCALE));
+const int GRID_OFFSET_X = (int)(151*(SCALE));
+const int GRID_WIDTH = (int)(700*(SCALE));
+const int GRID_HEIGHT = (int)(600*(SCALE));
+const int MAINMENU_SETUP_BUTTON_LEFT = (int)(430*(SCALE));
+const int MAINMENU_SETUP_BUTTON_RIGHT = (int)(602*(SCALE));
+const int MAINMENU_SETUP_BUTTON_TOP = (int)(545*(SCALE));
+const int MAINMENU_SETUP_BUTTON_BOTTOM = (int)(610*(SCALE));
+const int MAINMENU_QUIT_BUTTON_LEFT = (int)(452*(SCALE));
+const int MAINMENU_QUIT_BUTTON_RIGHT = (int)(575*(SCALE));
+const int MAINMENU_QUIT_BUTTON_TOP = (int)(700*(SCALE));
+const int MAINMENU_QUIT_BUTTON_BOTTOM = (int)(760*(SCALE));
+const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
+const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
+const int SETUP_2PLAYER_BUTTON_WIDTH = (int)(130*(SCALE));
+const int SETUP_2PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
+const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
+const int SETUP_MENU_BUTTON_HEIGHT = (int)(45*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
+// NOTE(brendan): convenient wrapper; used for highlighting
+struct TokenLocation {
+  int row;
+  int column;
+  Token colour;
+}; 
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
-void displayBoard(void);
-void displaySetupTokens(void);
-void displayMainMenu(void);
-// TODO(Jean): create credit menu image
-// void displayCreditsMenu(void);
-void highlightToken(int row, int col);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.
@@ -62,4 +83,7 @@ bool dropToken(Board b, Token tokenColour, int col);
 
 // NOTE(brendan): delete stationary tokens from gFallingTokens
 void deleteStillToken(FallingToken *fallingToken);
+
+// NOTE(brendan): sets the list of highlighted tokens, freeing the old one
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList);
 #endif // GRAPHICS_H
