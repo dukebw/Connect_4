@@ -25,19 +25,19 @@ struct FallingToken {
 // tokens or not
 static bool gRenderHighlighted = false;
 // NOTE(brendan): Global window/image declarations.
-SDL_Window *gWindow = NULL;
-TextureWrapper *gConnect4Board = NULL;
-TextureWrapper *gRedToken = NULL;
-TextureWrapper *gBlueToken = NULL;
-TextureWrapper *gMainMenu = NULL;
-TextureWrapper *gOnePlayerButton = NULL;
-TextureWrapper *gTwoPlayerButton = NULL;
-TextureWrapper *gMenuButton = NULL;
-TextureWrapper *gGlow = NULL;
-TextureWrapper *gInvalidMessage = NULL;
-TextureWrapper *gInvalidTokenMessage = NULL;
-SDL_Renderer* gRenderer = NULL;
-List<TokenLocation> *gHighlightedTokens = NULL;
+static SDL_Window *gWindow = NULL;
+static TextureWrapper *gConnect4Board = NULL;
+static TextureWrapper *gRedToken = NULL;
+static TextureWrapper *gBlueToken = NULL;
+static TextureWrapper *gMainMenu = NULL;
+static TextureWrapper *gOnePlayerButton = NULL;
+static TextureWrapper *gTwoPlayerButton = NULL;
+static TextureWrapper *gMenuButton = NULL;
+static TextureWrapper *gGlow = NULL;
+static TextureWrapper *gInvalidMessage = NULL;
+static TextureWrapper *gInvalidTokenMessage = NULL;
+static SDL_Renderer* gRenderer = NULL;
+static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
 // NOTE(brendan): does rendering for credits menu
