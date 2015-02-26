@@ -21,6 +21,13 @@ struct FallingToken {
   Token token;
 };
 
+// NOTE(brendan): convenient wrapper; used for highlighting
+struct TokenLocation {
+  int row;
+  int column;
+  Token colour;
+};
+
 // NOTE(brendan): flag for tracking whether we need to render highlighted
 // tokens or not
 static bool gRenderHighlighted = false;
