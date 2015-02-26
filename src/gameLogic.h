@@ -40,4 +40,9 @@ void setupLogic();
 // NOTE(brendan): checks if the board is in progress, won, drawn or an error
 BoardStatus checkBoardStatus(Board b);
 
+// NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
+// false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
+// (highlights winning tokens)
+bool transitionSetupTwoPlayer(GameState *gameState);
+
 #endif // GAMELOGIC_H

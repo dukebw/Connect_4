@@ -143,3 +143,142 @@ BoardStatus checkBoardStatus(Board board) {
 
   return IN_PROGRESS;
 }
+
+// TODO(brendan): checks if tokenA and tokenB are "equal"; replace with
+// operator overloading
+static bool
+equals(TokenLocation *tokenA, TokenLocation *tokenB) {
+  return (tokenA->row == tokenB->row) && 
+    (tokenA->column == tokenB->column) &&
+    (tokenA->colour == tokenB->colour);
+}
+
+// NOTE(brendan): adds a tokenList(row, column, colour) to tokenList
+inline List<TokenLocation> *
+addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column, 
+    Token colour) {
+  TokenLocation *newHighlightedToken = 
+    (TokenLocation *)malloc(sizeof(TokenLocation));
+  newHighlightedToken->row = row;
+  newHighlightedToken->column = column;
+  newHighlightedToken->colour = colour;
+  TokenLocation *matchingToken = 
+    List<TokenLocation>::reduceList(equals, newHighlightedToken, tokenList);
+  if(matchingToken == NULL) {
+    return List<TokenLocation>::addToList(newHighlightedToken, 
+        tokenList);
+  }
+  return tokenList;
+}
+
+// TODO(brendan): debugging function; marked for deletion
+static void
+printTokenLocation(TokenLocation *tokenLocation) {
+  printf((tokenLocation->colour) == RED ? 
+      "row: %d col: %d colour: red\n" : "row: %d col: %d colour: blue\n",
+      tokenLocation->row, tokenLocation->column);
+}
+
+// NOTE(brendan): returns a list of all tokens of the given colour that
+// are part of four-or-more in-a-row sequences
+// Yes I realize this is brutally inefficient
+static List<TokenLocation> *
+getSequentialTokens(Board board) {
+  List<TokenLocation> *sequentialTokens = NULL;
+  for(int row = 0; row < NUM_ROWS; ++row) {
+    for(int col = 0; col < NUM_COLS; ++col) {
+      Token firstColour = board_checkCell(board, row, col);
+      if(firstColour != EMPTY) {
+        // NOTE(brendan): Check for 4-in-a-row in a row starting at the
+        // (row, col) token
+        for(int currentCol = col, currentRow = row;
+            (currentCol >= 0) && 
+            (board_checkCell(board, currentRow, currentCol)) == firstColour;
+            --currentCol) {
+          if(col - currentCol == 3) {
+            while(currentCol <= col) {
+              sequentialTokens = addNewTokenLocation(sequentialTokens, row, 
+                    currentCol++, firstColour);
+            }
+            break;
+          }
+        }
+
+        // NOTE(brendan): Check for 4-in-a-row in a column
+        for(int currentCol = col, currentRow = row;
+            (currentRow >= 0) && 
+            (board_checkCell(board, currentRow, currentCol)) == firstColour;
+            --currentRow) {
+          if(row - currentRow == 3) {
+            while(currentRow <= row) {
+              sequentialTokens = addNewTokenLocation(sequentialTokens, 
+                  currentRow++, col, firstColour);
+            }
+            break;
+          }
+        }
+
+        // NOTE(brendan): check for 4-in-a-row diagonal decreasing left
+        for(int currentCol = col, currentRow = row;
+            (currentRow >= 0) && (currentCol >= 0) &&
+            (board_checkCell(board, currentRow, currentCol)) == firstColour;
+            --currentRow, --currentCol) {
+          if(row - currentRow == 3) {
+            while(currentRow <= row) {
+              sequentialTokens = addNewTokenLocation(sequentialTokens, 
+                  currentRow++, currentCol++, firstColour);
+            }
+            break;
+          }
+        }
+
+        // NOTE(brendan): check for 4-in-a-row diagonal increasing left
+        for(int currentCol = col, currentRow = row;
+            (currentRow >= 0) && (currentCol < NUM_COLS) &&
+            (board_checkCell(board, currentRow, currentCol)) == firstColour;
+            --currentRow, ++currentCol) {
+          if(row - currentRow == 3) {
+            while(currentRow <= row) {
+              sequentialTokens = addNewTokenLocation(sequentialTokens, 
+                  currentRow++, currentCol--, firstColour);
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return sequentialTokens;
+}
+
+// NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
+// false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
+// (highlights winning tokens)
+bool transitionSetupTwoPlayer(GameState *gameState) {
+  BoardStatus boardStatus = checkBoardStatus(gameState->board);
+  switch(boardStatus) {
+    case IN_PROGRESS:
+    {
+      return true;
+    } break;
+    case DRAW:
+    {
+      printf("Error! The game is a draw!\n");
+    } break;
+    case INVALID_BOARD:
+    {
+      printf("Error! Invalid board setup (red tokens - blue tokens > 1)\n");
+    } break;
+    case RED_WON: case BLUE_WON:
+    {
+      setHighlightedTokenList(getSequentialTokens(gameState->board));
+    } break;
+    default:
+    {
+      printf("Error, impossible BoardStatus.\n");
+    } break;
+  }
+  // NOTE(brendan): game not in progress: continue setup
+  return false;
+}

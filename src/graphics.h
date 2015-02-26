@@ -6,7 +6,7 @@
 #include "board.h"
 #include "linkedList.h"
 
-constexpr float SCALE  = 0.85;
+constexpr float SCALE  = 0.85; 
 constexpr int SCREEN_WIDTH = (1002*(SCALE));
 constexpr int SCREEN_HEIGHT = (902*(SCALE));
 constexpr int TOKEN_WIDTH = (100*(SCALE));
@@ -25,10 +25,23 @@ constexpr int MAINMENU_QUIT_BUTTON_TOP = (700*(SCALE));
 constexpr int MAINMENU_QUIT_BUTTON_BOTTOM = (760*(SCALE));
 constexpr int SETUP_BOTTOM_BUTTONS_OFFSET = (10*(SCALE));
 constexpr int SETUP_CLICKY_TOKENS_OFFSET = (25*(SCALE));
+constexpr int SETUP_2PLAYER_BUTTON_WIDTH = (130*(SCALE));
+constexpr int SETUP_2PLAYER_BUTTON_HEIGHT = (45*(SCALE));
+constexpr int SETUP_1PLAYER_BUTTON_WIDTH = (120*(SCALE));
+constexpr int SETUP_1PLAYER_BUTTON_HEIGHT = (45*(SCALE));
+constexpr int SETUP_MENU_BUTTON_WIDTH = (130*(SCALE));
+constexpr int SETUP_MENU_BUTTON_HEIGHT = (45*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
+
+// NOTE(brendan): convenient wrapper; used for highlighting
+struct TokenLocation {
+  int row;
+  int column;
+  Token colour;
+};
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
@@ -73,4 +86,7 @@ bool dropToken(Board b, Token tokenColour, int col);
 
 // NOTE(brendan): delete stationary tokens from gFallingTokens
 void deleteStillToken(FallingToken *fallingToken);
+
+// NOTE(brendan): sets the list of highlighted tokens, freeing the old one
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList);
 #endif // GRAPHICS_H

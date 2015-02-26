@@ -21,6 +21,9 @@ struct FallingToken {
   Token token;
 };
 
+// NOTE(brendan): flag for tracking whether we need to render highlighted
+// tokens or not
+static bool gRenderHighlighted = false;
 // NOTE(brendan): Global window/image declarations.
 SDL_Window *gWindow = NULL;
 TextureWrapper *gConnect4Board = NULL;
@@ -33,6 +36,7 @@ TextureWrapper *gMenuButton = NULL;
 TextureWrapper *gGlow = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
+List<TokenLocation> *gHighlightedTokens = NULL;
 
 // NOTE(brendan): does rendering for credits menu
 // NOTE(Jean): wait until image for credit menu is complete
@@ -48,17 +52,20 @@ void mainMenuRender() {
 }
 
 // NOTE(Zach): highlight a token at (row, col)
-void highlightToken(int row, int col)
-{
+void highlightToken(TokenLocation *tokenToHighlight) {
 	// NOTE(Zach): do not delete
 	// un-condition this out to add highlighting instead or in addition
 	// to the glow
 	// NOTE(Zach): highlight
-	#if 0
-	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH * col,
-								GRID_OFFSET_Y + TOKEN_HEIGHT * row,
+	SDL_Rect fillRect = {GRID_OFFSET_X + TOKEN_WIDTH*tokenToHighlight->column,
+								GRID_OFFSET_Y + TOKEN_HEIGHT * tokenToHighlight->row,
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
+  // NOTE(brendan): redraw token first -- so blending doesn't become whiter
+  // and whiter if we highlight the same token repeatedly.
+  TextureWrapper *tokenColour = 
+    (tokenToHighlight->colour == RED) ?  gRedToken : gBlueToken;
+  SDL_RenderCopy(gRenderer, tokenColour->texture, NULL, &fillRect);
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x66);
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
 
@@ -67,11 +74,10 @@ void highlightToken(int row, int col)
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
 	displayBoard();
 //	SDL_RenderPresent(gRenderer);
-	#endif
 
 	// NOTE(Zach): glow
-	SDL_Rect destRect = {(GRID_OFFSET_X + TOKEN_WIDTH * col),
-								(GRID_OFFSET_Y + TOKEN_HEIGHT * row),
+	SDL_Rect destRect = {(GRID_OFFSET_X + TOKEN_WIDTH * tokenToHighlight->column),
+								(GRID_OFFSET_Y + TOKEN_HEIGHT * tokenToHighlight->row),
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
 	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &destRect);
@@ -117,6 +123,12 @@ void transitionSetupRender(void)
 // NOTE(brendan): does rendering for setup
 void setupRender() {
 	displayBoard();
+  // NOTE(brendan): only render highlighted when we need to 
+  // TODO(brendan): (bug: board hides the aura)
+  if(gRenderHighlighted) {
+    List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
+    gRenderHighlighted = false;
+  }
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -418,8 +430,6 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 void deleteStillToken(FallingToken *fallingToken) {
   if(fallingToken->isFalling == false) {
   		// NOTE(Zach): This call is for testing highlighting only
-		//highlightToken((fallingToken->y - GRID_OFFSET_Y)/TOKEN_HEIGHT,
-		//					(fallingToken->x - GRID_OFFSET_X)/TOKEN_WIDTH);
     gFallingTokens = List<FallingToken>::deleteFromList(fallingToken, 
         gFallingTokens);
   }
@@ -459,4 +469,17 @@ void displaySetupTokens() {
 void displayMainMenu(void)
 {
   SDL_RenderCopy(gRenderer, gMainMenu->texture, NULL, NULL); 
+}
+
+// NOTE(brendan): free token
+void freeTokenLocation(TokenLocation *tokenLocation) {
+  free(tokenLocation);
+}
+
+// NOTE(brendan): sets the list of highlighted tokens, freeing the old one
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList) {
+  // NOTE(brendan): get rid of old list
+  List<TokenLocation>::traverseList(freeTokenLocation, gHighlightedTokens);
+  gHighlightedTokens = highlightedTokenList;
+  gRenderHighlighted = true;
 }

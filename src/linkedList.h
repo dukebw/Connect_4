@@ -105,4 +105,5 @@ List<T>::reduceList(bool (*f)(T *listItem, T *item), T *newest, List<T> *list) {
 	}
 	return NULL;
 }
+
 #endif

@@ -135,6 +135,24 @@ void setupHandleEvents(GameState *gameState) {
 				currentState = TWOPLAYER;
 			}
 #endif
+      int setup2PlayerButtonRight = 
+        2*SETUP_BOTTOM_BUTTONS_OFFSET + SETUP_1PLAYER_BUTTON_WIDTH + 
+        SETUP_2PLAYER_BUTTON_WIDTH;
+      int setup2PlayerButtonLeft = 
+        setup2PlayerButtonRight - SETUP_2PLAYER_BUTTON_WIDTH;
+      int setup2PlayerButtonTop = SCREEN_HEIGHT - 
+        (SETUP_2PLAYER_BUTTON_HEIGHT + SETUP_BOTTOM_BUTTONS_OFFSET);
+      int setup2PlayerButtonBottom = 
+        SCREEN_HEIGHT - SETUP_BOTTOM_BUTTONS_OFFSET;
+      if (x >= setup2PlayerButtonLeft && 
+          x <= setup2PlayerButtonRight &&
+          y >= setup2PlayerButtonTop &&
+          y <= setup2PlayerButtonBottom) {
+        if(transitionSetupTwoPlayer(gameState)) {
+          /* gameState->currentState = TWOPLAYER; */
+          printf("Successfully entered TWOPLAYER from SETUP\n");
+        }
+			}
 
       constexpr int TOKEN_RADIUS = TOKEN_WIDTH/2;
       int fromRedTokenCenterX = x - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS;
@@ -213,14 +231,6 @@ int connect4() {
 				while (lag >= MS_PER_UPDATE) {
 					// NOTE(Zach): update the game logic of gameState.currentState
 					logic[gameState.currentState]();
-          if(gameState.currentState == SETUP) {
-            if(checkBoardStatus(gameState.board) == RED_WON) {
-              printf("Red won.\n");
-            }
-            else if(checkBoardStatus(gameState.board) == BLUE_WON) {
-              printf("Blue won.\n");
-            }
-          }
 					lag -= MS_PER_UPDATE;
 				}
 
