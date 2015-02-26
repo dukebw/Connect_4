@@ -11,10 +11,6 @@ typedef enum {
   MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
 } MenuState;
 
-typedef enum {
-  RED_WON, BLUE_WON, DRAW, IN_PROGRESS, INVALID_BOARD
-} BoardStatus;
-
 // TODO(brendan): Move this "model" to its own module?
 // NOTE(brendan): contains the "model" of the game
 struct GameState {
@@ -29,16 +25,7 @@ square(int x) {
   return x*x;
 }
 
-// NOTE(Zach): Determine next MenuState based on where the user clicked
-MenuState handleMainMenuMouseClick(int x, int y);
-
-// NOTE(Zach): Determine next MenuState based on where the user clicked
-MenuState handleCreditsMenuMouseClick(int x, int y);
-
 void setupLogic();
-
-// NOTE(brendan): checks if the board is in progress, won, drawn or an error
-BoardStatus checkBoardStatus(Board b);
 
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 

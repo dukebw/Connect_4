@@ -55,6 +55,35 @@ void logicStub() {}
 void handleEventsStub(GameState *gameState) {}
 void renderStub() {}
 
+// NOTE(Zach): Determine next MenuState based on where the user clicked
+// NOTE(Jean): Values fixed for the new modified and re-scaled image
+MenuState handleMainMenuMouseClick(int x, int y) {
+
+  //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
+  //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
+  if ((x >= MAINMENU_SETUP_BUTTON_LEFT) && 
+      (y >= MAINMENU_SETUP_BUTTON_TOP) && 
+      (x <= MAINMENU_SETUP_BUTTON_RIGHT) && 
+      (y <= MAINMENU_SETUP_BUTTON_BOTTOM)) {
+    return SETUP; 
+  }
+  if ((x >= MAINMENU_QUIT_BUTTON_LEFT) && 
+      (y >= MAINMENU_QUIT_BUTTON_TOP) && 
+      (x <= MAINMENU_QUIT_BUTTON_RIGHT) && 
+      (y <= MAINMENU_QUIT_BUTTON_BOTTOM)) {
+    return QUIT;
+  }
+  //if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
+
+  return MAINMENU;
+}
+
+// NOTE(Zach): Determine next MenuState based on where the user clicked
+MenuState handleCreditsMenuMouseClick(int x, int y) {
+  //if (x >= 48 && y>= 413 && x <= 454 && y <= 465) return MAINMENU;
+  return MAINMENU;
+}
+
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 void mainMenuHandleEvents(GameState *gameState) {
 	// NOTE(Zach): Event handler
