@@ -346,6 +346,8 @@ void close_sdl() {
   freeTexture(gTwoPlayerButton);
   freeTexture(gMenuButton);
 	freeTexture(gGlow);
+  freeTexture(gInvalidMessage);
+  freeTexture(gInvalidTokenMessage);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -355,6 +357,8 @@ void close_sdl() {
   gTwoPlayerButton = NULL;
   gMenuButton = NULL;
   gGlow = NULL;
+  gInvalidMessage = NULL;
+  gInvalidTokenMessage = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
