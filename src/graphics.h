@@ -35,15 +35,12 @@ constexpr int SETUP_MENU_BUTTON_HEIGHT = (45*(SCALE));
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
-struct TokenLocation
-// NOTE(Jean): moved definition of TokenLocation to graphics.cpp
-//				hope that wont affect anything
 // NOTE(brendan): convenient wrapper; used for highlighting
-// struct TokenLocation {
-//   int row;
-//   int column;
-//   Token colour;
-// }; 
+struct TokenLocation {
+  int row;
+  int column;
+  Token colour;
+}; 
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
