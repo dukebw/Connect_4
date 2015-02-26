@@ -34,6 +34,8 @@ TextureWrapper *gOnePlayerButton = NULL;
 TextureWrapper *gTwoPlayerButton = NULL;
 TextureWrapper *gMenuButton = NULL;
 TextureWrapper *gGlow = NULL;
+TextureWrapper *gInvalidMessage = NULL;
+TextureWrapper *gInvalidTokenMessage = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 List<TokenLocation> *gHighlightedTokens = NULL;
@@ -317,6 +319,20 @@ bool loadMedia() {
     success = false;
   }
 
+  // NOTE(Jean): Invalid Board error message, for setup game mode
+  gInvalidMessage = loadTexture("../misc/invalidMsg.bmp");
+  if (gInvalidMessage == NULL) {
+    printf("Failed to load the \"invalid board\" graphic!\n");
+    success = false;
+  }
+
+    // NOTE(Jean): Invalid token number message, for setup game mode
+  gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
+  if (gInvalidTokenMessage == NULL) {
+    printf("Failed to load the \"invalid number of tokens\" graphic!\n");
+    success = false;
+  }
+
   return success;
 }
 
@@ -330,6 +346,8 @@ void close_sdl() {
   freeTexture(gTwoPlayerButton);
   freeTexture(gMenuButton);
 	freeTexture(gGlow);
+  freeTexture(gInvalidMessage);
+  freeTexture(gInvalidTokenMessage);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -339,6 +357,8 @@ void close_sdl() {
   gTwoPlayerButton = NULL;
   gMenuButton = NULL;
   gGlow = NULL;
+  gInvalidMessage = NULL;
+  gInvalidTokenMessage = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
