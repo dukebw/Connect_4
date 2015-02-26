@@ -34,6 +34,8 @@ TextureWrapper *gOnePlayerButton = NULL;
 TextureWrapper *gTwoPlayerButton = NULL;
 TextureWrapper *gMenuButton = NULL;
 TextureWrapper *gGlow = NULL;
+TextureWrapper *gInvalidMessage = NULL;
+TextureWrapper *gInvalidTokenMessage = NULL;
 SDL_Renderer* gRenderer = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 List<TokenLocation> *gHighlightedTokens = NULL;
@@ -314,6 +316,20 @@ bool loadMedia() {
   gGlow = loadTexture("../misc/glow.bmp");
   if (gGlow == NULL) {
     printf("Failed to load the glow graphic!\n");
+    success = false;
+  }
+
+  // NOTE(Jean): Invalid Board error message, for setup game mode
+  gInvalidMessage = loadTexture("../misc/invalidMsg.bmp");
+  if (gInvalidMessage == NULL) {
+    printf("Failed to load the \"invalid board\" graphic!\n");
+    success = false;
+  }
+
+    // NOTE(Jean): Invalid token number message, for setup game mode
+  gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
+  if (gInvalidTokenMessage == NULL) {
+    printf("Failed to load the \"invalid number of tokens\" graphic!\n");
     success = false;
   }
 
