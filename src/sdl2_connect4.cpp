@@ -155,7 +155,7 @@ void setupHandleEvents(GameState *gameState) {
         }
 			}
 
-      constexpr int TOKEN_RADIUS = TOKEN_WIDTH/2;
+      const int TOKEN_RADIUS = TOKEN_WIDTH/2;
       int fromRedTokenCenterX = x - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS;
       int fromRedTokenCenterY = y - (GRID_OFFSET_Y + TOKEN_RADIUS);
       int fromBlueTokenCenterX = x - (SCREEN_WIDTH - 

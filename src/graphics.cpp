@@ -185,7 +185,7 @@ bool init() {
   else {
     // NOTE(brendan): Create window
     gWindow = SDL_CreateWindow("Connect 4", SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+        CONNECT4_WINDOW_OFFSET_Y, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if(gWindow == NULL) {
       printf("Window could not be created! SDL_Error: %s\n", 
           SDL_GetError());

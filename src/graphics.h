@@ -6,31 +6,35 @@
 #include "board.h"
 #include "linkedList.h"
 
-constexpr float SCALE  = 0.85; 
-constexpr int SCREEN_WIDTH = (1002*(SCALE));
-constexpr int SCREEN_HEIGHT = (902*(SCALE));
-constexpr int TOKEN_WIDTH = (100*(SCALE));
-constexpr int TOKEN_HEIGHT = (100*(SCALE));
-constexpr int GRID_OFFSET_Y = (51*(SCALE));
-constexpr int GRID_OFFSET_X = (151*(SCALE));
-constexpr int GRID_WIDTH = (700*(SCALE));
-constexpr int GRID_HEIGHT = (600*(SCALE));
-constexpr int MAINMENU_SETUP_BUTTON_LEFT = (430*(SCALE));
-constexpr int MAINMENU_SETUP_BUTTON_RIGHT = (602*(SCALE));
-constexpr int MAINMENU_SETUP_BUTTON_TOP = (545*(SCALE));
-constexpr int MAINMENU_SETUP_BUTTON_BOTTOM = (610*(SCALE));
-constexpr int MAINMENU_QUIT_BUTTON_LEFT = (452*(SCALE));
-constexpr int MAINMENU_QUIT_BUTTON_RIGHT = (575*(SCALE));
-constexpr int MAINMENU_QUIT_BUTTON_TOP = (700*(SCALE));
-constexpr int MAINMENU_QUIT_BUTTON_BOTTOM = (760*(SCALE));
-constexpr int SETUP_BOTTOM_BUTTONS_OFFSET = (10*(SCALE));
-constexpr int SETUP_CLICKY_TOKENS_OFFSET = (25*(SCALE));
-constexpr int SETUP_2PLAYER_BUTTON_WIDTH = (130*(SCALE));
-constexpr int SETUP_2PLAYER_BUTTON_HEIGHT = (45*(SCALE));
-constexpr int SETUP_1PLAYER_BUTTON_WIDTH = (120*(SCALE));
-constexpr int SETUP_1PLAYER_BUTTON_HEIGHT = (45*(SCALE));
-constexpr int SETUP_MENU_BUTTON_WIDTH = (130*(SCALE));
-constexpr int SETUP_MENU_BUTTON_HEIGHT = (45*(SCALE));
+// NOTE(brendan): keeps the window from opening under my start bar and
+// hence being unusable; probably solved with window resizing
+const int CONNECT4_WINDOW_OFFSET_Y = 100;
+
+const float SCALE  = 0.8; 
+const int SCREEN_WIDTH = (int)(1002*(SCALE));
+const int SCREEN_HEIGHT = (int)(902*(SCALE));
+const int TOKEN_WIDTH = (int)(100*(SCALE));
+const int TOKEN_HEIGHT = (int)(100*(SCALE));
+const int GRID_OFFSET_Y = (int)(51*(SCALE));
+const int GRID_OFFSET_X = (int)(151*(SCALE));
+const int GRID_WIDTH = (int)(700*(SCALE));
+const int GRID_HEIGHT = (int)(600*(SCALE));
+const int MAINMENU_SETUP_BUTTON_LEFT = (int)(430*(SCALE));
+const int MAINMENU_SETUP_BUTTON_RIGHT = (int)(602*(SCALE));
+const int MAINMENU_SETUP_BUTTON_TOP = (int)(545*(SCALE));
+const int MAINMENU_SETUP_BUTTON_BOTTOM = (int)(610*(SCALE));
+const int MAINMENU_QUIT_BUTTON_LEFT = (int)(452*(SCALE));
+const int MAINMENU_QUIT_BUTTON_RIGHT = (int)(575*(SCALE));
+const int MAINMENU_QUIT_BUTTON_TOP = (int)(700*(SCALE));
+const int MAINMENU_QUIT_BUTTON_BOTTOM = (int)(760*(SCALE));
+const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
+const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
+const int SETUP_2PLAYER_BUTTON_WIDTH = (int)(130*(SCALE));
+const int SETUP_2PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
+const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
+const int SETUP_MENU_BUTTON_HEIGHT = (int)(45*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
