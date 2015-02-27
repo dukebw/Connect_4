@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include <stdlib.h>
 
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
@@ -36,6 +37,7 @@ static TextureWrapper *gMenuButton = NULL;
 static TextureWrapper *gGlow = NULL;
 static TextureWrapper *gInvalidMessage = NULL;
 static TextureWrapper *gInvalidTokenMessage = NULL;
+static TextureWrapper *gDrawGameMessage = NULL;
 static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
@@ -167,6 +169,7 @@ void setupRender() {
 // NOTE(brendan): free myTexture's memory
 static void freeTexture(TextureWrapper *myTexture) {
   if(myTexture != NULL) {
+
     if(myTexture->texture != NULL) {
       SDL_DestroyTexture(myTexture->texture);
       myTexture->texture = NULL;
@@ -336,6 +339,12 @@ bool loadMedia() {
     success = false;
   }
 
+  gDrawGameMessage = loadTexture("../misc/drawGameMessage.bmp");
+  if (gDrawGameMessage == NULL) {
+    printf("Failed to load the \"Draw Game\" graphic!\n");
+    success = false;
+  }
+
   return success;
 }
 
@@ -351,6 +360,7 @@ void close_sdl() {
 	freeTexture(gGlow);
   freeTexture(gInvalidMessage);
   freeTexture(gInvalidTokenMessage);
+  freeTexture(gDrawGameMessage);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -362,6 +372,7 @@ void close_sdl() {
   gGlow = NULL;
   gInvalidMessage = NULL;
   gInvalidTokenMessage = NULL;
+  gDrawGameMessage = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
