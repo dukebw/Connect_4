@@ -1,10 +1,10 @@
-/* ========================================================================
-   File: connect4.cpp
-   Date: Feb. 19/15
-   Revision: 1
-   Creator: Brendan Duke
-   Notice: (C) Copyright 2015 by struct by_lightning{}. All Rights Reserved.
-   ======================================================================== */
+/********************************************
+ * A Connect Four Game                      *
+ * Designed by struct by_lightning{};       *
+ * Group 6                                  *
+ * Kuir Aguer, Brendan Duke, Jean Ferreira, *
+ * Zachariah Levine and Pranesh Satish      *
+ ********************************************/
 
 #include "sdl2_connect4.h"
 

@@ -1,3 +1,11 @@
+/********************************************
+ * A Connect Four Game                      *
+ * Designed by struct by_lightning{};       *
+ * Group 6                                  *
+ * Kuir Aguer, Brendan Duke, Jean Ferreira, *
+ * Zachariah Levine and Pranesh Satish      *
+ ********************************************/
+
 /* Source code by team struct by_lightning{}; */
 
 /*****/

@@ -1,0 +1,74 @@
+Design Verification and Review
+Designed by struct by_lightning{};
+Group 6
+Kuir Aguer, Brendan Duke, Jean Ferreira,
+Zachariah Levine and Pranesh Satish
+
+  Tasks Required and Description of Observed Completeness
+
+1. Program enables the user to set up a 7-6 Connect Four frame
+
+  (a) This is easily done through the 2 player implementation 
+    that is enabled within the program.
+
+2. Order of play is determined randomly
+
+  (a) While not visible when running the program itself as the 
+    game is incomplete, an inner examination of the methods have 
+    shown that the implementation for deciding player turns is 
+    present and as such, the implementation for deciding order of 
+    play is acceptably complete
+
+3. Application verifies if entered board state is valid and 
+  outputs according to validity
+
+  (a) Within the implementation of 2 player, the option to setup 
+    the board accurately examines valid entries and as the 
+    dropping physics are automatically applied upon entering 
+    tokens, parses unbalanced boards and win conditions 
+    accurately
+
+  Architecture and Design Review
+
+Modules:
+
+The tasks for the application have thus far been completed 
+through applying 5 modules revolving around the concept of game 
+and board states. This implementation was determined to have 
+identified the unique portions and isolated them so as to emulate 
+a properly designed application while completing the tasks 
+identified.
+
+1. sdl2_connect4
+
+  • sdl2_connect4 is the module that handles user interface 
+    decisions made in various designated states and contains the 
+    main game loop
+
+2. gameLogic
+
+  • gameLogic maintains the state and a “current model” of the 
+    game and updates physics/logic accordingly
+
+3. graphics
+
+  • graphics allows for graphical manipulation of the user 
+    interface with regards to the game thorugh use of game 
+    information through board and linkedList
+
+4. board
+
+  • board is an API for the current state
+
+5. linkedList
+
+  • linkedList is an API for the falling token drop 
+    implementation
+
+Note: Initially, both the game loop implementation as well as 
+graphical update implementation were contained within the same 
+module. However, it was identified that this could hamper design 
+if the graphical implementation needed to be changed. So, the 
+graphics was abstracted out into its own module with the game 
+loop remaining with the sdl2_connect4
+

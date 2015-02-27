@@ -1,3 +1,11 @@
+REM /********************************************
+REM  * A Connect Four Game                      *
+REM  * Designed by struct by_lightning{};       *
+REM  * Group 6                                  *
+REM  * Kuir Aguer, Brendan Duke, Jean Ferreira, *
+REM  * Zachariah Levine and Pranesh Satish      *
+REM  ********************************************/
+
 @echo off
 
 REM Fix this messy build file

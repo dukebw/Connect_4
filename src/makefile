@@ -1,3 +1,11 @@
+# /********************************************
+#  * A Connect Four Game                      *
+#  * Designed by struct by_lightning{};       *
+#  * Group 6                                  *
+#  * Kuir Aguer, Brendan Duke, Jean Ferreira, *
+#  * Zachariah Levine and Pranesh Satish      *
+#  ********************************************/
+
 SDL_CFLAGS=`sdl2-config --cflags`
 SDL_LDFLAGS=`sdl2-config --libs`
 
