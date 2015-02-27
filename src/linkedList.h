@@ -13,11 +13,11 @@ class List {
   List() {}
 
 public:
-  // NOTE(brendan): add the token to the list
+  // NOTE(brendan): add item T to the list
   static List<T> *
   addToList(T *newitem, List<T> *list);
 
-  // NOTE(brendan): delete the first one of this token; returns the list
+  // NOTE(brendan): delete the first occurrence of item T; returns the list
   static List<T> *
   deleteFromList(T *toDeleteItem, List<T> *list);
 
@@ -35,7 +35,7 @@ public:
   reduceList(bool (*f)(T *listItem, T *item), T *newest, List<T> *list);
 };
 
-// NOTE(brendan): add the token to the list
+// NOTE(brendan): add item T to the list
 template<typename T> List<T> *
 List<T>::addToList(T *newItem, List<T> *list) {
   if(newItem != NULL) {
@@ -49,7 +49,7 @@ List<T>::addToList(T *newItem, List<T> *list) {
   }
 }
 
-// NOTE(brendan): delete the first one of this token; returns the list
+// NOTE(brendan): delete the first occurence of item T; returns the list
 template<typename T> List<T> *
 List<T>::deleteFromList(T *toDeleteItem, List<T> *list) {
   if(list != NULL) {
