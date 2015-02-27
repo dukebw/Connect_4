@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_H // NOTE(Zach): This is an include guard
 #define GRAPHICS_H
 
-#include <SDL2/SDL.h>
 #include <string>
 #include "board.h"
 #include "linkedList.h"
@@ -10,6 +9,7 @@
 // hence being unusable; probably solved with window resizing
 const int CONNECT4_WINDOW_OFFSET_Y = 100;
 
+// TODO(brendan): load these values when textures are loaded
 const float SCALE  = 0.8; 
 const int SCREEN_WIDTH = (int)(1002*(SCALE));
 const int SCREEN_HEIGHT = (int)(902*(SCALE));
@@ -35,6 +35,16 @@ const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
 const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
 const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
 const int SETUP_MENU_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int INVALID_MESSAGE_WIDTH = (int)(250*(SCALE));
+const int INVALID_MESSAGE_HEIGHT = (int)(40*(SCALE));
+const int INVALID_MESSAGE_X = 
+  (int)((float)(SCREEN_WIDTH-INVALID_MESSAGE_WIDTH)/2.0f);
+const int INVALID_MESSAGE_Y = (int)(700*(SCALE));
+const int INVALID_TOKEN_MESSAGE_WIDTH = (int)(450*(SCALE));
+const int INVALID_TOKEN_MESSAGE_HEIGHT = (int)(50*(SCALE));
+const int INVALID_TOKEN_MESSAGE_X = 
+  (int)((float)(SCREEN_WIDTH-INVALID_TOKEN_MESSAGE_WIDTH)/2.0f);
+const int INVALID_TOKEN_MESSAGE_Y = (int)(775*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
@@ -45,6 +55,13 @@ struct TokenLocation {
   int column;
   Token colour;
 }; 
+// NOTE(brendan): contains rendering information
+struct GraphicsState {
+  bool renderInvalidMessage;
+  bool clearInvalidMessage;
+  bool renderInvalidTokenMessage;
+  bool clearInvalidTokenMessage;
+};
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
@@ -60,14 +77,14 @@ extern List<FallingToken> *gFallingTokens;
 //void creditsMenuRender();
 
 // NOTE(brendan): does rendering for main menu
-void mainMenuRender();
+void mainMenuRender(GraphicsState *graphicsState);
 
 // NOTE(Zach): performs the rendering that needs to be done when transitioning
 // to setup from another state
 void transitionSetupRender(void);
 
 // NOTE(brendan): does rendering for setup
-void setupRender();
+void setupRender(GraphicsState *graphicsState);
 
 // NOTE(brendan): Starts up SDL and creates window
 bool init();

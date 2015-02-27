@@ -19,15 +19,16 @@
 // NOTE(Zach): Using SDL, SDL_image, standard IO, and strings
 #include "graphics.h"
 #include "board.h"
-#include <stdio.h>
 #include "gameLogic.h"
 #include "sdl2_connect4.h"
+#include <stdio.h>
+#include <SDL2/SDL.h>
 
 #define MS_PER_UPDATE 13
 
 static void logicStub();
 static void handleEventsStub(GameState *gameState);
-static void renderStub();
+static void renderStub(GraphicsState *graphicsState);
 static void mainMenuHandleEvents(GameState *gameState);
 static void creditsMenuHandleEvents(GameState *gameState);
 static void setupHandleEvents(GameState *gameState);
@@ -47,13 +48,14 @@ static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) =
 static void (*logic[NUMBER_OF_STATES])() = {logicStub, logicStub, logicStub, 
   setupLogic, logicStub, logicStub, logicStub};
 
-static void (*render[NUMBER_OF_STATES])() = {mainMenuRender, renderStub, 
-  renderStub, setupRender, renderStub, renderStub, renderStub}; 
+static void (*render[NUMBER_OF_STATES])(GraphicsState *graphicsState) = 
+{mainMenuRender, renderStub, renderStub, setupRender, renderStub, 
+  renderStub, renderStub}; 
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
 static void logicStub() {}
 static void handleEventsStub(GameState *gameState) {}
-static void renderStub() {}
+static void renderStub(GraphicsState *graphicsState) {}
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
@@ -226,6 +228,9 @@ int connect4() {
 		} else {
 			// NOTE(brendan): initialize our game state to 0
 			GameState gameState = {};
+      gameState.graphicsState = 
+        (GraphicsState *)malloc(sizeof(GraphicsState));
+      *gameState.graphicsState = {};
 
       // TODO(brendan): Put these all in one struct for clarity?
 			// NOTE(Zach): timing variables used to run the game loop
@@ -264,7 +269,7 @@ int connect4() {
 				}
 
 				// NOTE(Zach): render images that occur in gameState.currentState
-				render[gameState.currentState]();
+				render[gameState.currentState](gameState.graphicsState);
 			}
 			board_destroy(gameState.board);
 		}

@@ -2,6 +2,7 @@
 #define GAMELOGIC_H
 
 #include "board.h"
+#include "graphics.h"
 
 #define NUMBER_OF_STATES 7
 
@@ -18,6 +19,7 @@ struct GameState {
   Token currentToken;
   Player currentPlayer;
   Board board;
+  GraphicsState *graphicsState;
 };
 
 inline int

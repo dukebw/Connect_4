@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include <SDL2/SDL.h>
 
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
@@ -84,7 +85,7 @@ void displayMainMenu(void)
 }
 
 // NOTE(brendan): does rendering for main menu
-void mainMenuRender() {
+void mainMenuRender(GraphicsState *graphicsState) {
 	displayMainMenu();
 	SDL_RenderPresent(gRenderer);
 }
@@ -118,48 +119,81 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 	//SDL_RenderPresent(gRenderer);
 }
 
+// NOTE(brendan): places the image at (x, y)
+inline void 
+placeImage(SDL_Texture *image, int x, int y, int width, int height) {
+	SDL_Rect destRect;
+  destRect.x = x;
+  destRect.y = y;
+  destRect.w = width;
+  destRect.h = height;
+	SDL_RenderCopy( gRenderer, image, NULL, &destRect ); 
+}
+
+inline void
+clearToBackground(int x, int y, int width, int height) {
+	SDL_Rect fillRect = {x, y, width, height};
+  SDL_RenderFillRect(gRenderer, &fillRect);
+}
+
 // Positions and renders the buttons to be used 
 // in the setup game mode
-void transitionSetupRender(void)
-{
-	SDL_Rect destRect;
-
+void transitionSetupRender(void) {
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 
+#if 0
 	// NOTE(Zach): Place the Menu Button
-	destRect.x = SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET;
-	destRect.y = SCREEN_HEIGHT - gMenuButton->height - 
-    SETUP_BOTTOM_BUTTONS_OFFSET;
-	destRect.w = gMenuButton->width;
-	destRect.h = gMenuButton->height;
-	SDL_RenderCopy( gRenderer, gMenuButton->texture, NULL, &destRect ); 
+  placeImage(gMenuButton->texture, 
+      SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
+      SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
+      gMenuButton->width, gMenuButton->height);
 
 	// NOTE(Zach): Place the One Player Button
-	destRect.x = SETUP_BOTTOM_BUTTONS_OFFSET;
-	destRect.y = SCREEN_HEIGHT - gOnePlayerButton->height - 
-    SETUP_BOTTOM_BUTTONS_OFFSET;
-	destRect.w = gOnePlayerButton->width;
-	destRect.h = gOnePlayerButton->height;
-	SDL_RenderCopy( gRenderer, gOnePlayerButton->texture, NULL, &destRect ); 
+  placeImage(gOnePlayerButton->texture, SETUP_BOTTOM_BUTTONS_OFFSET,
+      SCREEN_HEIGHT - gOnePlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
+      gOnePlayerButton->width, gOnePlayerButton->height);
+#endif
 
 	// NOTE(Zach): Place the Two Player Button
-	destRect.x = 2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width;
-	destRect.y = SCREEN_HEIGHT - gTwoPlayerButton->height - 
-    SETUP_BOTTOM_BUTTONS_OFFSET;
-	destRect.w = gTwoPlayerButton->width;
-	destRect.h = gTwoPlayerButton->height;
-	SDL_RenderCopy( gRenderer, gTwoPlayerButton->texture, NULL, &destRect ); 
+  placeImage(gTwoPlayerButton->texture, 
+      2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width,
+      SCREEN_HEIGHT - gTwoPlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
+      gTwoPlayerButton->width, gTwoPlayerButton->height);
 }
 
 // NOTE(brendan): does rendering for setup
-void setupRender() {
+void setupRender(GraphicsState *graphicsState) {
 	displayBoard();
   // NOTE(brendan): only render highlighted when we need to 
   // TODO(brendan): (bug: board hides the aura)
   if(gRenderHighlighted) {
     List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
     gRenderHighlighted = false;
+  }
+  if(graphicsState->renderInvalidMessage) {
+    // NOTE(Zach): Place the Invalid Message Button
+    placeImage(gInvalidMessage->texture, INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
+        gInvalidMessage->width, gInvalidMessage->height);
+    graphicsState->renderInvalidMessage = false;
+  }
+  if(graphicsState->clearInvalidMessage) {
+    clearToBackground(INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
+        gInvalidMessage->width, gInvalidMessage->height);
+    graphicsState->clearInvalidMessage = false;
+  }
+  if(graphicsState->renderInvalidTokenMessage) {
+    // NOTE(Zach): Place the Invalid Token Message Button
+    placeImage(gInvalidTokenMessage->texture, INVALID_TOKEN_MESSAGE_X, 
+        INVALID_TOKEN_MESSAGE_Y, gInvalidTokenMessage->width, 
+        gInvalidTokenMessage->height);
+    graphicsState->renderInvalidTokenMessage = false;
+  }
+  if(graphicsState->clearInvalidTokenMessage) {
+    clearToBackground(INVALID_TOKEN_MESSAGE_X, INVALID_TOKEN_MESSAGE_Y, 
+        gInvalidTokenMessage->width, 
+        gInvalidTokenMessage->height);
+    graphicsState->clearInvalidTokenMessage = false;
   }
 	SDL_RenderPresent(gRenderer);
 }

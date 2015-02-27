@@ -1,9 +1,8 @@
+#include "gameLogic.h"
+#include "linkedList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "gameLogic.h"
-#include "graphics.h"
-#include "linkedList.h"
 
 static void switchPlayer(Player *player) {
 	if (*player == PLAYERONE) {
@@ -221,11 +220,23 @@ bool transitionSetupTwoPlayer(GameState *gameState) {
   bool didBlueWin = didColourWin(gameState->board, BLUE);
   bool isDraw = checkDraw(gameState->board);
   bool isBoardInvalid = checkInvalidBoard(gameState->board);
+  // NOTE(brendan): set flag to render invalid message if there is some error
+  // clear invalid message otherwise
+  if(isDraw || isBoardInvalid || didRedWin || didBlueWin) {
+    gameState->graphicsState->renderInvalidMessage = true;
+  }
+  else {
+    gameState->graphicsState->clearInvalidMessage = true;
+  }
   if(isDraw) {
     printf("Error! The game is a draw!\n");
   }
   if(isBoardInvalid) {
+    gameState->graphicsState->renderInvalidTokenMessage = true;
     printf("Error! Invalid board setup (red tokens - blue tokens > 1)\n");
+  }
+  else {
+    gameState->graphicsState->clearInvalidTokenMessage = true;
   }
   if(didRedWin || didBlueWin) {
     setHighlightedTokenList(getSequentialTokens(gameState->board));
