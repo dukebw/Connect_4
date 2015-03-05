@@ -30,16 +30,13 @@ struct GameState {
   GraphicsState graphicsState;
 };
 
-inline int
-square(int x) {
-  return x*x;
-}
-
-void setupLogic();
+// TODO(brendan): change to update (from logic)
+void setupLogic(GameState *gameState);
+void twoPlayerLogic(GameState *gameState);
 
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
 // (highlights winning tokens)
-bool transitionSetupTwoPlayer(GameState *gameState);
+bool readyToTransitionSetupTwoPlayer(GameState *gameState);
 
 #endif // GAMELOGIC_H

@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+static bool didColourWin(Board board, Token colour);
+static bool checkDraw(Board board);
+
 static void switchPlayer(Player *player) {
 	if (*player == PLAYERONE) {
 		*player = PLAYERTWO;
@@ -28,11 +31,23 @@ static void switchToken(Token *token) {
 	}
 }
 
-void setupLogic() {
+// NOTE(brendan): self-explanatory
+static void doTheFallingTokenLogicStuff() {
   List<FallingToken>::traverseList(clearFallingToken, gFallingTokens);
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
   List<FallingToken>::traverseList(deleteStillToken, gFallingTokens);
+}
+
+void setupLogic(GameState *gameState) {
+  doTheFallingTokenLogicStuff();
+}
+
+void twoPlayerLogic(GameState *gameState) {
+  /* bool didRedWin = didColourWin(gameState->board, RED); */
+  /* bool didBlueWin = didColourWin(gameState->board, BLUE); */
+  /* bool isDraw = checkDraw(gameState->board); */
+  /* doTheFallingTokenLogicStuff(); */
 }
 
 static inline int
@@ -110,11 +125,15 @@ static bool checkDraw(Board board) {
   return false;
 }
 
+inline int abs(int x) {
+  return x < 0 ? -x : x;
+}
+
 static bool checkInvalidBoard(Board board) {
   int numberRedTokens = countTokens(board, RED);
   int numberBlueTokens = countTokens(board, BLUE);
   // NOTE(brendan): difference between number of each type of token is >1
-  if(square(numberRedTokens - numberBlueTokens) > 1) {
+  if(abs(numberRedTokens - numberBlueTokens) > 1) {
     return true;
   }
   return false;
@@ -144,6 +163,7 @@ addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column,
     return List<TokenLocation>::addToList(newHighlightedToken, 
         tokenList);
   }
+  free(newHighlightedToken);
   return tokenList;
 }
 
@@ -223,7 +243,7 @@ getSequentialTokens(Board board) {
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
 // (highlights winning tokens)
-bool transitionSetupTwoPlayer(GameState *gameState) {
+bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
   bool didRedWin = didColourWin(gameState->board, RED);
   bool didBlueWin = didColourWin(gameState->board, BLUE);
   bool isDraw = checkDraw(gameState->board);
@@ -256,6 +276,7 @@ bool transitionSetupTwoPlayer(GameState *gameState) {
     printf("Error! Blue has already won.\n");
   }
   if(!(didRedWin || didBlueWin || isDraw || isBoardInvalid)) {
+    gameState->currentState = TWOPLAYER;
     return true;
   }
   // NOTE(brendan): game not in progress: continue setup

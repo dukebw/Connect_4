@@ -12,6 +12,14 @@
 #include <string>
 #include "board.h"
 #include "linkedList.h"
+#include "helper.h"
+
+// NOTE(brendan): convenience function for making a scaled rectangle
+inline Rectangle
+initScaledRectangle(int left, int top, int right, int bottom, float scale) {
+  return (Rectangle){{(int)(left*scale), (int)(top*scale)}, 
+                     {(int)(right*scale), (int)(bottom*scale)}};
+}
 
 // NOTE(brendan): keeps the window from opening under my start bar and
 // hence being unusable; probably solved with window resizing
@@ -27,18 +35,21 @@ const int GRID_OFFSET_Y = (int)(51*(SCALE));
 const int GRID_OFFSET_X = (int)(151*(SCALE));
 const int GRID_WIDTH = (int)(700*(SCALE));
 const int GRID_HEIGHT = (int)(600*(SCALE));
-const int MAINMENU_SETUP_BUTTON_LEFT = (int)(430*(SCALE));
-const int MAINMENU_SETUP_BUTTON_RIGHT = (int)(602*(SCALE));
-const int MAINMENU_SETUP_BUTTON_TOP = (int)(545*(SCALE));
-const int MAINMENU_SETUP_BUTTON_BOTTOM = (int)(610*(SCALE));
-const int MAINMENU_QUIT_BUTTON_LEFT = (int)(452*(SCALE));
-const int MAINMENU_QUIT_BUTTON_RIGHT = (int)(575*(SCALE));
-const int MAINMENU_QUIT_BUTTON_TOP = (int)(700*(SCALE));
-const int MAINMENU_QUIT_BUTTON_BOTTOM = (int)(760*(SCALE));
-const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
+const Rectangle MAINMENU_SETUP_BUTTON_RECT = 
+  initScaledRectangle(430, 545, 602, 610, SCALE);
+const Rectangle MAINMENU_QUIT_BUTTON_RECT = 
+  initScaledRectangle(452, 700, 575, 760, SCALE);
+const Rectangle SETUP_2PLAYER_BUTTON_RECT =
+  initScaledRectangle(140, 847, 270, 892, SCALE);
 const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
-const int SETUP_2PLAYER_BUTTON_WIDTH = (int)(130*(SCALE));
-const int SETUP_2PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
+const int TOKEN_RADIUS = TOKEN_WIDTH/2;
+const Circle SETUP_RED_CLICKY_TOKENS_CIRCLE = 
+  (Circle){{SETUP_CLICKY_TOKENS_OFFSET + TOKEN_RADIUS, 
+            GRID_OFFSET_Y + TOKEN_RADIUS}, TOKEN_RADIUS};
+const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE = 
+  (Circle){{SCREEN_WIDTH - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS, 
+            SETUP_RED_CLICKY_TOKENS_CIRCLE.center.y}, TOKEN_RADIUS};
+const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
 const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
 const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
 const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
