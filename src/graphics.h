@@ -57,12 +57,14 @@ const int INVALID_TOKEN_MESSAGE_Y = (int)(775*(SCALE));
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
+
 // NOTE(brendan): convenient wrapper; used for highlighting
 struct TokenLocation {
   int row;
   int column;
   Token colour;
 }; 
+
 // NOTE(brendan): contains rendering information
 struct GraphicsState {
   bool renderInvalidMessage;

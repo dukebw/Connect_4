@@ -27,7 +27,7 @@ struct GameState {
   Token currentToken;
   Player currentPlayer;
   Board board;
-  GraphicsState *graphicsState;
+  GraphicsState graphicsState;
 };
 
 inline int

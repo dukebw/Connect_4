@@ -236,9 +236,7 @@ int connect4() {
 		} else {
 			// NOTE(brendan): initialize our game state to 0
 			GameState gameState = {};
-      gameState.graphicsState = 
-        (GraphicsState *)malloc(sizeof(GraphicsState));
-      *gameState.graphicsState = {};
+      gameState.graphicsState = {};
 
       // TODO(brendan): Put these all in one struct for clarity?
 			// NOTE(Zach): timing variables used to run the game loop
@@ -277,7 +275,7 @@ int connect4() {
 				}
 
 				// NOTE(Zach): render images that occur in gameState.currentState
-				render[gameState.currentState](gameState.graphicsState);
+				render[gameState.currentState](&gameState.graphicsState);
 			}
 			board_destroy(gameState.board);
 		}
