@@ -554,15 +554,6 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 #undef ACCEL
 }
 
-// NOTE(brendan): delete stationary tokens from gFallingTokens
-void deleteStillToken(FallingToken *fallingToken) {
-  if(fallingToken->isFalling == false) {
-  		// NOTE(Zach): This call is for testing highlighting only
-    gFallingTokens = List<FallingToken>::deleteFromList(fallingToken, 
-        gFallingTokens);
-  }
-}
-
 // NOTE(brendan): free token
 static void freeTokenLocation(TokenLocation *tokenLocation) {
   free(tokenLocation);

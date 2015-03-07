@@ -60,8 +60,8 @@ List<T>::addToList(T *newItem, List<T> *list) {
   }
 }
 
-template<typename T> void List<T>::emptyList(List<T> **list)
-{
+template<typename T> 
+void List<T>::emptyList(List<T> **list) {
 	List<T> *current = *list;
 	List<T> *previous = NULL;
 	while (current != NULL) {
