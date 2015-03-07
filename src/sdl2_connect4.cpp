@@ -116,6 +116,7 @@ void transitionSetupTwoPlayer(GameState *gameState) {
   logic[TWOPLAYER] = twoPlayerLogic;
 }
 
+// NOTE(Zach): The transition "state" from setup to mainmenu
 void transitionSetupMainMenu(GameState *gameState)
 {
 	board_empty(gameState->board);
@@ -123,19 +124,40 @@ void transitionSetupMainMenu(GameState *gameState)
 	logic[MAINMENU] = logicStub;
 }
 
+// NOTE(Zach): The transition "state" from mainmenu to twoplayer
+void transitionMainMenuTwoPlayer(GameState *gameState)
+{
+	gameState->currentPlayer = choosePlayer();
+	gameState->currentToken = chooseToken();
+	logic[TWOPLAYER] = twoPlayerLogic;
+}
+
+// NOTE(Zach): The transition "state" from twoplayer to mainmenu
+void transitionTwoPlayerMainMenu(GameState *gameState)
+{
+	board_empty(gameState->board);
+	List<FallingToken>::emptyList(&gFallingTokens);
+	resetGraphicsState(&gameState->graphicsState);
+	gameState->currentProgress = INPROGRESS;
+	logic[MAINMENU] = logicStub;
+}
+
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 static MenuState handleMainMenuMouseClick(int x, int y) {
-  //if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
-  //if (x >= 530 && y>= 455 && x <= 642 && y <= 490) return TWOPLAYER; 
-  if(pointInsideRect(x, y, MAINMENU_SETUP_BUTTON_RECT)) {
-    return SETUP;
-  }
-  if(pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
-    return QUIT;
-  }
-  //if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
-  return MAINMENU;
+	//if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
+	if(pointInsideRect(x, y, MAINMENU_TWOPLAYER_BUTTON_RECT)) {
+		logic[TWOPLAYER] = transitionMainMenuTwoPlayer;
+		return TWOPLAYER;
+	}
+	if(pointInsideRect(x, y, MAINMENU_SETUP_BUTTON_RECT)) {
+		return SETUP;
+	}
+	if(pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
+		return QUIT;
+	}
+	//if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
+	return MAINMENU;
 }
 
 #if 0
@@ -278,6 +300,10 @@ static void switchToken(Token *token) {
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
 static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
+  if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
+	  logic[MAINMENU] = transitionTwoPlayerMainMenu;
+    return MAINMENU;
+  }
   return TWOPLAYER;
 }
 

@@ -68,8 +68,8 @@ template<typename T> void List<T>::emptyList(List<T> **list)
 		previous = current;
 		current = current->next;
 		free(previous);
-		previous = NULL;
 	}
+	*list = NULL;
 }
 
 // NOTE(brendan): delete the first occurence of item T; returns the list

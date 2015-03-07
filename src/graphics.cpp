@@ -50,6 +50,15 @@ static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
+void resetGraphicsState(GraphicsState *graphicsState)
+{
+	graphicsState->renderInvalidMessage = false;
+	graphicsState->clearInvalidMessage = false;
+	graphicsState->renderInvalidTokenMessage = false;
+	graphicsState->clearInvalidTokenMessage = false;
+	graphicsState->renderHighlighted = false;
+}
+
 // NOTE(brendan): does rendering for credits menu
 // NOTE(Jean): wait until image for credit menu is complete
 // void creditsMenuRender() {
