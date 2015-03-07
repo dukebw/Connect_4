@@ -51,6 +51,11 @@ static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
+void set_gRenderHighlightedToFalse(void)
+{
+	gRenderHighlighted = false;
+}
+
 // NOTE(brendan): does rendering for credits menu
 // NOTE(Jean): wait until image for credit menu is complete
 // void creditsMenuRender() {
@@ -176,31 +181,26 @@ void setupRender(GraphicsState *graphicsState)
   // TODO(brendan): (bug: board hides the aura)
   if(gRenderHighlighted) {
     List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
-    gRenderHighlighted = false;
   }
   if(graphicsState->renderInvalidMessage) {
     // NOTE(Zach): Place the Invalid Message Button
     placeImage(gInvalidMessage->texture, INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
         gInvalidMessage->width, gInvalidMessage->height);
-    graphicsState->renderInvalidMessage = false;
   }
   if(graphicsState->clearInvalidMessage) {
     clearToBackground(INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
         gInvalidMessage->width, gInvalidMessage->height);
-    graphicsState->clearInvalidMessage = false;
   }
   if(graphicsState->renderInvalidTokenMessage) {
     // NOTE(Zach): Place the Invalid Token Message Button
     placeImage(gInvalidTokenMessage->texture, INVALID_TOKEN_MESSAGE_X, 
         INVALID_TOKEN_MESSAGE_Y, gInvalidTokenMessage->width, 
         gInvalidTokenMessage->height);
-    graphicsState->renderInvalidTokenMessage = false;
   }
   if(graphicsState->clearInvalidTokenMessage) {
     clearToBackground(INVALID_TOKEN_MESSAGE_X, INVALID_TOKEN_MESSAGE_Y, 
         gInvalidTokenMessage->width, 
         gInvalidTokenMessage->height);
-    graphicsState->clearInvalidTokenMessage = false;
   }
 	SDL_RenderPresent(gRenderer);
 }

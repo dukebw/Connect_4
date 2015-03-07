@@ -87,6 +87,7 @@ struct GraphicsState {
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
+void set_gRenderHighlightedToFalse(void);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.

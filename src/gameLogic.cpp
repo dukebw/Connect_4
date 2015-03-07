@@ -236,6 +236,13 @@ getSequentialTokens(Board board) {
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
 // (highlights winning tokens)
 bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
+	// Note(Zach): Reset all the transition from setup to two player flags to false
+	gameState->graphicsState.renderInvalidMessage = false;
+	gameState->graphicsState.clearInvalidMessage = false;
+	gameState->graphicsState.renderInvalidTokenMessage = false;
+	gameState->graphicsState.clearInvalidTokenMessage = false;
+	set_gRenderHighlightedToFalse();
+
   bool didRedWin = didColourWin(gameState->board, RED);
   bool didBlueWin = didColourWin(gameState->board, BLUE);
   bool isDraw = checkDraw(gameState->board);
