@@ -255,6 +255,8 @@ static void setupHandleEvents(GameState *gameState) {
         board_dropToken(gameState->board, gameState->currentToken, dropColumn);
       }
     }   
+    else if(e.type == SDL_MOUSEMOTION) {
+    }
   }
 }
 

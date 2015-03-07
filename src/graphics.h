@@ -135,9 +135,6 @@ void close_sdl();
 // NOTE(Zach): visually drops the token into a cell and add it to the board
 bool dropToken(Board b, Token tokenColour, int col);
 
-// NOTE(brendan): delete stationary tokens from gFallingTokens
-void deleteStillToken(FallingToken *fallingToken);
-
 // NOTE(brendan): sets the list of highlighted tokens, freeing the old one
 void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
     GraphicsState *graphicsState);
