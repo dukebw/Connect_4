@@ -113,6 +113,7 @@ void transitionSetupTwoPlayer(GameState *gameState) {
   if(gameState->currentToken == RANDOMTOKEN) {
     gameState->currentToken = chooseToken();
   }
+	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
   logic[TWOPLAYER] = twoPlayerLogic;
 }
 
@@ -121,6 +122,8 @@ void transitionSetupMainMenu(GameState *gameState)
 {
 	board_empty(gameState->board);
 	List<FallingToken>::emptyList(&gFallingTokens);
+	resetGraphicsState(&gameState->graphicsState);
+	gameState->currentProgress = INPROGRESS;
 	logic[MAINMENU] = logicStub;
 }
 
@@ -134,10 +137,11 @@ void transitionMainMenuSetup(GameState *gameState)
 // NOTE(Zach): The transition "state" from mainmenu to twoplayer
 void transitionMainMenuTwoPlayer(GameState *gameState)
 {
-	gameState->graphicsState.indicatorToken.row = -1;
-	gameState->graphicsState.indicatorToken.column = -1;
 	gameState->currentPlayer = choosePlayer();
 	gameState->currentToken = chooseToken();
+	gameState->graphicsState.indicatorToken.row = -1;
+	gameState->graphicsState.indicatorToken.column = -1;
+	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
 	logic[TWOPLAYER] = twoPlayerLogic;
 }
 
