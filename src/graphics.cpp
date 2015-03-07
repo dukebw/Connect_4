@@ -437,14 +437,6 @@ compareXPosition(FallingToken *listItem, FallingToken *item) {
 
 // NOTE(Zach): visually drops the token into a cell if drop is valid
 bool dropToken(Board b, Token tokenColour, int col) {
-  TextureWrapper *token;
-  if (tokenColour == RED) {
-    token = gRedToken;
-  }
-  else if (tokenColour == BLUE) {
-    token = gBlueToken;
-  }
-
   // NOTE(Zach): Find the row where the token should land
   int row = board_dropPosition(b, col);
   // NOTE(Zach): Check if the column was full

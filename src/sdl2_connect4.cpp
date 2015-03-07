@@ -208,6 +208,9 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
   else if(pointInsideCircle(x, y, SETUP_BLUE_CLICKY_TOKENS_CIRCLE)) {
     gameState->currentToken = BLUE;
   }
+  else if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
+    return MAINMENU;
+  }
   return SETUP;
 }
 
