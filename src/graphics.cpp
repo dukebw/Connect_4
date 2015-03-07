@@ -146,9 +146,8 @@ clearToBackground(int x, int y, int width, int height) {
   SDL_RenderFillRect(gRenderer, &fillRect);
 }
 
-// Positions and renders the buttons to be used 
-// in the setup game mode
-void transitionSetupRender(void) {
+void setupRender(GraphicsState *graphicsState)
+{
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 
@@ -170,10 +169,8 @@ void transitionSetupRender(void) {
       2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width,
       SCREEN_HEIGHT - gTwoPlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
       gTwoPlayerButton->width, gTwoPlayerButton->height);
-}
 
-// NOTE(brendan): does rendering for setup
-void setupRender(GraphicsState *graphicsState) {
+  List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
 	displayBoard();
   // NOTE(brendan): only render highlighted when we need to 
   // TODO(brendan): (bug: board hides the aura)
@@ -510,6 +507,7 @@ void clearFallingToken(FallingToken *fallingToken) {
 // TODO(Zach): make macros for constants
 // NOTE(Zach): update position/velocity of falling token
 void updateFallingToken(FallingToken *fallingToken, float dt) {
+	if (!fallingToken->isFalling) return;
 #define ACCEL 5
   fallingToken->y += fallingToken->v * dt;
   fallingToken->v += ACCEL * dt;

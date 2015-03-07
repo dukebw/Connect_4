@@ -144,7 +144,6 @@ static void mainMenuHandleEvents(GameState *gameState) {
 
   if (gameState->currentState == SETUP) {
     gameState->currentToken = RED;
-    transitionSetupRender();
   }
 }
 

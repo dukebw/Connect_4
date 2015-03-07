@@ -31,23 +31,15 @@ static void switchToken(Token *token) {
 	}
 }
 
-// NOTE(brendan): self-explanatory
-static void doTheFallingTokenLogicStuff() {
-  List<FallingToken>::traverseList(clearFallingToken, gFallingTokens);
-  List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
-  List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
-  List<FallingToken>::traverseList(deleteStillToken, gFallingTokens);
-}
-
 void setupLogic(GameState *gameState) {
-  doTheFallingTokenLogicStuff();
+  List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
 void twoPlayerLogic(GameState *gameState) {
   /* bool didRedWin = didColourWin(gameState->board, RED); */
   /* bool didBlueWin = didColourWin(gameState->board, BLUE); */
   /* bool isDraw = checkDraw(gameState->board); */
-  /* doTheFallingTokenLogicStuff(); */
+  /* List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens); */
 }
 
 static inline int
