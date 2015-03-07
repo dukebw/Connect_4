@@ -56,10 +56,10 @@ static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) =
     setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
 
 static void (*logic[NUMBER_OF_STATES])(GameState *gameState) = 
-  {logicStub, logicStub, logicStub, setupLogic, logicStub, logicStub, logicStub};
+  {logicStub, logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
 
 static void (*render[NUMBER_OF_STATES])(GraphicsState *graphicsState) = 
-  {mainMenuRender, renderStub, renderStub, setupRender, renderStub, 
+  {mainMenuRender, renderStub, twoPlayerRender, setupRender, renderStub, 
     renderStub, renderStub}; 
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
@@ -223,6 +223,24 @@ static void setupHandleEvents(GameState *gameState) {
   }
 }
 
+// NOTE(Zach): switch the player
+static void switchPlayer(Player *player) {
+	if (*player == PLAYERONE) {
+		*player = PLAYERTWO;
+	} else {
+		*player = PLAYERONE;
+	}
+}
+
+// NOTE(Zach): switch the token
+static void switchToken(Token *token) {
+	if (*token == RED) {
+		*token = BLUE;
+	} else {
+		*token = RED;
+	}
+}
+
 // NOTE(brendan): handles mouse clicks while in the 2 player state
 static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
   return TWOPLAYER;
@@ -244,22 +262,24 @@ static void twoPlayerHandleEvents(GameState *gameState) {
       y = e.button.y;
 
       gameState->currentState = twoPlayerHandleMouseClick(x, y, gameState);
+		// NOTE(Zach): if the game is not in progress, don't allow any more
+		// tokens to be dropped
+		if (gameState->currentProgress != INPROGRESS) continue;
 
       // NOTE(brendan): if current state changed, click was outside grid area
       // NOTE(Zach): If the click was outside the GRID
-      if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) {
-        continue;
-      }
-      if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) {
-        continue;
-      }
+      if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
+      if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
+
       int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
       // NOTE(brendan): add token to list of falling tokens if valid drop
       if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
         // NOTE(Zach): Insert the token into the board
         board_dropToken(gameState->board, gameState->currentToken, dropColumn);
+		  switchPlayer(&gameState->currentPlayer);
+		  switchToken(&gameState->currentToken);
       }
-    }   
+    }
   }
 }
 
@@ -274,7 +294,6 @@ int connect4() {
     } else {
       // NOTE(brendan): initialize our game state to 0
       GameState gameState = {};
-      gameState.graphicsState = {};
 
       // TODO(brendan): Put these all in one struct for clarity?
       // NOTE(Zach): timing variables used to run the game loop

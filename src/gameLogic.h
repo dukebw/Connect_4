@@ -20,10 +20,13 @@ typedef enum {
   MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
 } MenuState;
 
+typedef enum {INPROGRESS, DRAW, REDWON, BLUEWON} GameProgress;
+
 // TODO(brendan): Move this "model" to its own module?
 // NOTE(brendan): contains the "model" of the game
 struct GameState {
   MenuState currentState;
+	GameProgress currentProgress;
   Token currentToken;
   Player currentPlayer;
   Board board;

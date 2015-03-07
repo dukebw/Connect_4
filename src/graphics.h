@@ -108,6 +108,9 @@ void transitionSetupRender(void);
 // NOTE(brendan): does rendering for setup
 void setupRender(GraphicsState *graphicsState);
 
+// NOTE(Zach): does the rendering for two player mode
+void twoPlayerRender(GraphicsState *graphicsState);
+
 // NOTE(brendan): Starts up SDL and creates window
 bool init();
 

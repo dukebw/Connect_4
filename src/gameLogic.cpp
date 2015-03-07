@@ -15,31 +15,33 @@
 static bool didColourWin(Board board, Token colour);
 static bool checkDraw(Board board);
 
-static void switchPlayer(Player *player) {
-	if (*player == PLAYERONE) {
-		*player = PLAYERTWO;
-	} else {
-		*player = PLAYERONE;
-	}
-}
-
-static void switchToken(Token *token) {
-	if (*token == RED) {
-		*token = BLUE;
-	} else {
-		*token = RED;
-	}
-}
-
 void setupLogic(GameState *gameState) {
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
+// NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState) {
-  /* bool didRedWin = didColourWin(gameState->board, RED); */
-  /* bool didBlueWin = didColourWin(gameState->board, BLUE); */
-  /* bool isDraw = checkDraw(gameState->board); */
-  /* List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens); */
+	// NOTE(Zach): update the physics of all the falling tokens
+   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
+	// NOTE(Zach): if the game is not in progress there is no need to do all
+	// the checking of the gamestate
+	if (gameState->currentProgress != INPROGRESS) return;
+	// NOTE(Zach): do the checking of the gamestate
+   bool didRedWin = didColourWin(gameState->board, RED);
+   bool didBlueWin = didColourWin(gameState->board, BLUE);
+   bool isDraw = checkDraw(gameState->board);
+	if (didRedWin) {
+		gameState->currentProgress = REDWON;
+		return;
+	}
+	if (didBlueWin) {
+		gameState->currentProgress = BLUEWON;
+		return;
+	}
+	if (isDraw) {
+		gameState->currentProgress = DRAW;
+		return;
+	}
 }
 
 static inline int

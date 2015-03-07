@@ -156,7 +156,6 @@ void setupRender(GraphicsState *graphicsState)
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 
-#if 0
 	// NOTE(Zach): Place the Menu Button
   placeImage(gMenuButton->texture, 
       SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
@@ -167,7 +166,6 @@ void setupRender(GraphicsState *graphicsState)
   placeImage(gOnePlayerButton->texture, SETUP_BOTTOM_BUTTONS_OFFSET,
       SCREEN_HEIGHT - gOnePlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
       gOnePlayerButton->width, gOnePlayerButton->height);
-#endif
 
 	// NOTE(Zach): Place the Two Player Button
   placeImage(gTwoPlayerButton->texture, 
@@ -202,6 +200,21 @@ void setupRender(GraphicsState *graphicsState)
         gInvalidTokenMessage->width, 
         gInvalidTokenMessage->height);
   }
+	SDL_RenderPresent(gRenderer);
+}
+
+void twoPlayerRender(GraphicsState *graphicsState)
+{
+	SDL_RenderClear(gRenderer);
+
+	// NOTE(Zach): Place the Menu Button
+  placeImage(gMenuButton->texture, 
+      SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
+      SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
+      gMenuButton->width, gMenuButton->height);
+
+  List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
+	displayBoard();
 	SDL_RenderPresent(gRenderer);
 }
 
