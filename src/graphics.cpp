@@ -33,7 +33,6 @@ struct FallingToken {
 
 // NOTE(brendan): flag for tracking whether we need to render highlighted
 // tokens or not
-static bool gRenderHighlighted = false;
 // NOTE(brendan): Global window/image declarations.
 static SDL_Window *gWindow = NULL;
 static TextureWrapper *gConnect4Board = NULL;
@@ -50,11 +49,6 @@ static TextureWrapper *gDrawGameMessage = NULL;
 static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
-
-void set_gRenderHighlightedToFalse(void)
-{
-	gRenderHighlighted = false;
-}
 
 // NOTE(brendan): does rendering for credits menu
 // NOTE(Jean): wait until image for credit menu is complete
@@ -177,7 +171,7 @@ void setupRender(GraphicsState *graphicsState)
 	displayBoard();
   // NOTE(brendan): only render highlighted when we need to 
   // TODO(brendan): (bug: board hides the aura)
-  if(gRenderHighlighted) {
+  if(graphicsState->renderHighlighted) {
     List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
   }
   if(graphicsState->renderInvalidMessage) {
@@ -557,9 +551,10 @@ static void freeTokenLocation(TokenLocation *tokenLocation) {
 }
 
 // NOTE(brendan): sets the list of highlighted tokens, freeing the old one
-void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList) {
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
+    GraphicsState *graphicsState) {
   // NOTE(brendan): get rid of old list
   List<TokenLocation>::traverseList(freeTokenLocation, gHighlightedTokens);
   gHighlightedTokens = highlightedTokenList;
-  gRenderHighlighted = true;
+  graphicsState->renderHighlighted = true;
 }

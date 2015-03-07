@@ -14,7 +14,7 @@
 
 #define NUMBER_OF_STATES 7
 
-typedef enum {PLAYERONE, PLAYERTWO} Player; 
+typedef enum {PLAYERONE, PLAYERTWO, RANDOMPLAYER} Player; 
 
 typedef enum {
   MAINMENU, ONEPLAYER, TWOPLAYER, SETUP, CREDITS, QUIT, DONOTHING
@@ -35,6 +35,7 @@ struct GameState {
 
 // TODO(brendan): change to update (from logic)
 void setupLogic(GameState *gameState);
+
 void twoPlayerLogic(GameState *gameState);
 
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns

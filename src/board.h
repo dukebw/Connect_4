@@ -13,7 +13,7 @@
 #define NUM_COLS 7
 
 // NOTE(Zach): Create a new type called Token
-typedef enum {EMPTY, RED, BLUE} Token;
+typedef enum {EMPTY, RED, BLUE, RANDOMTOKEN} Token;
 
 // NOTE(Zach): Board is a pointer to the incomplete type board_type
 typedef struct board_type *Board;

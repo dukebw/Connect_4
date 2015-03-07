@@ -82,12 +82,12 @@ struct GraphicsState {
   bool clearInvalidMessage;
   bool renderInvalidTokenMessage;
   bool clearInvalidTokenMessage;
+  bool renderHighlighted;
 };
 
 void drawFallingToken(FallingToken *token);
 void clearFallingToken(FallingToken *fallingToken);
 void updateFallingToken(FallingToken *fallingToken, float dt);
-void set_gRenderHighlightedToFalse(void);
 
 // TODO(brendan): Make these local at some point
 // NOTE(brendan): Global window/image declarations.
@@ -100,10 +100,6 @@ extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender(GraphicsState *graphicsState);
-
-// NOTE(Zach): performs the rendering that needs to be done when transitioning
-// to setup from another state
-void transitionSetupRender(void);
 
 // NOTE(brendan): does rendering for setup
 void setupRender(GraphicsState *graphicsState);
@@ -127,5 +123,6 @@ bool dropToken(Board b, Token tokenColour, int col);
 void deleteStillToken(FallingToken *fallingToken);
 
 // NOTE(brendan): sets the list of highlighted tokens, freeing the old one
-void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList);
+void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
+    GraphicsState *graphicsState);
 #endif // GRAPHICS_H

@@ -21,27 +21,27 @@ void setupLogic(GameState *gameState) {
 
 // NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState) {
-	// NOTE(Zach): update the physics of all the falling tokens
-   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
-	// NOTE(Zach): if the game is not in progress there is no need to do all
-	// the checking of the gamestate
-	if (gameState->currentProgress != INPROGRESS) return;
-	// NOTE(Zach): do the checking of the gamestate
-   bool didRedWin = didColourWin(gameState->board, RED);
-   bool didBlueWin = didColourWin(gameState->board, BLUE);
-   bool isDraw = checkDraw(gameState->board);
-	if (didRedWin) {
-		gameState->currentProgress = REDWON;
-		return;
-	}
-	if (didBlueWin) {
-		gameState->currentProgress = BLUEWON;
-		return;
-	}
-	if (isDraw) {
-		gameState->currentProgress = DRAW;
-		return;
-	}
+  // NOTE(Zach): update the physics of all the falling tokens
+  List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
+  // NOTE(Zach): if the game is not in progress there is no need to do all
+  // the checking of the gamestate
+  if (gameState->currentProgress != INPROGRESS) return;
+  // NOTE(Zach): do the checking of the gamestate
+  bool didRedWin = didColourWin(gameState->board, RED);
+  bool didBlueWin = didColourWin(gameState->board, BLUE);
+  bool isDraw = checkDraw(gameState->board);
+  if (didRedWin) {
+    gameState->currentProgress = REDWON;
+    return;
+  }
+  if (didBlueWin) {
+    gameState->currentProgress = BLUEWON;
+    return;
+  }
+  if (isDraw) {
+    gameState->currentProgress = DRAW;
+    return;
+  }
 }
 
 static inline int
@@ -234,16 +234,34 @@ getSequentialTokens(Board board) {
   return sequentialTokens;
 }
 
+// NOTE(brendan): sets the current token to red if there are more blue than
+// red tokens, or vice versa. If the counts are equal, sets the current token
+// to RANDOMTOKEN
+void setCurrentToken(GameState *gameState) {
+  int redCount = countTokens(gameState->board, RED);
+  int blueCount = countTokens(gameState->board, BLUE);
+  if(redCount > blueCount) {
+    gameState->currentToken = BLUE;
+  }
+  else if(redCount < blueCount) {
+    gameState->currentToken = RED;
+  }
+  else {
+    gameState->currentToken = RANDOMTOKEN;
+  }
+}
+
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
 // (highlights winning tokens)
 bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
-	// Note(Zach): Reset all the transition from setup to two player flags to false
+	// Note(Zach): Reset all the transition from setup to two player flags to 
+  // false
 	gameState->graphicsState.renderInvalidMessage = false;
 	gameState->graphicsState.clearInvalidMessage = false;
 	gameState->graphicsState.renderInvalidTokenMessage = false;
 	gameState->graphicsState.clearInvalidTokenMessage = false;
-	set_gRenderHighlightedToFalse();
+	gameState->graphicsState.renderHighlighted = false;
 
   bool didRedWin = didColourWin(gameState->board, RED);
   bool didBlueWin = didColourWin(gameState->board, BLUE);
@@ -268,7 +286,8 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
     gameState->graphicsState.clearInvalidTokenMessage = true;
   }
   if(didRedWin || didBlueWin) {
-    setHighlightedTokenList(getSequentialTokens(gameState->board));
+    setHighlightedTokenList(getSequentialTokens(gameState->board), 
+        &gameState->graphicsState);
   }
   if(didRedWin) {
     printf("Error! Red has already won.\n");
@@ -278,6 +297,7 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
   }
   if(!(didRedWin || didBlueWin || isDraw || isBoardInvalid)) {
     gameState->currentState = TWOPLAYER;
+    setCurrentToken(gameState);
     return true;
   }
   // NOTE(brendan): game not in progress: continue setup

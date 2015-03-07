@@ -31,6 +31,7 @@
 #include "gameLogic.h"
 #include "sdl2_connect4.h"
 #include <stdio.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 
 #define MS_PER_UPDATE 13
@@ -39,7 +40,7 @@ static void logicStub(GameState *gameState);
 static void handleEventsStub(GameState *gameState);
 static void renderStub(GraphicsState *graphicsState);
 static void mainMenuHandleEvents(GameState *gameState);
-static void creditsMenuHandleEvents(GameState *gameState);
+/* static void creditsMenuHandleEvents(GameState *gameState); */
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
 
@@ -52,15 +53,15 @@ static void twoPlayerHandleEvents(GameState *gameState);
 // NOTE(Zach): The order of the array elements MUST be synchronized with
 // NOTE(Zach): the enumeration MenuState!
 static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
-  {mainMenuHandleEvents, handleEventsStub, twoPlayerHandleEvents, 
-    setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
+{mainMenuHandleEvents, handleEventsStub, twoPlayerHandleEvents, 
+  setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
 
 static void (*logic[NUMBER_OF_STATES])(GameState *gameState) = 
-  {logicStub, logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
+{logicStub, logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
 
 static void (*render[NUMBER_OF_STATES])(GraphicsState *graphicsState) = 
-  {mainMenuRender, renderStub, twoPlayerRender, setupRender, renderStub, 
-    renderStub, renderStub}; 
+{mainMenuRender, renderStub, twoPlayerRender, setupRender, renderStub, 
+  renderStub, renderStub}; 
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
 static void logicStub(GameState *gameState) {}
@@ -96,6 +97,25 @@ pointInsideCircle(int x, int y, Circle circle) {
   return false;
 }
 
+// NOTE(brendan): Return PLAYERTWO or PLAYERONE randomly
+Player choosePlayer() {
+  return (rand() % 2) ? PLAYERONE : PLAYERTWO;
+}
+
+// NOTE(brendan): Return RED or BLUE randomly
+Token chooseToken() {
+  return (rand() % 2) ? RED : BLUE;
+}
+
+// NOTE(brendan): The transition "state" from setup to twoplayer
+void transitionSetupTwoPlayer(GameState *gameState) {
+  gameState->currentPlayer = choosePlayer();
+  if(gameState->currentToken == RANDOMTOKEN) {
+    gameState->currentToken = chooseToken();
+  }
+  logic[TWOPLAYER] = twoPlayerLogic;
+}
+
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 static MenuState handleMainMenuMouseClick(int x, int y) {
@@ -111,11 +131,13 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
   return MAINMENU;
 }
 
+#if 0
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 static MenuState handleCreditsMenuMouseClick(int x, int y) {
   //if (x >= 48 && y>= 413 && x <= 454 && y <= 465) return MAINMENU;
   return MAINMENU;
 }
+#endif
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 static void mainMenuHandleEvents(GameState *gameState) {
@@ -147,6 +169,7 @@ static void mainMenuHandleEvents(GameState *gameState) {
   }
 }
 
+#if 0
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
 static void creditsMenuHandleEvents(GameState *gameState) {
   // NOTE(Zach): Event handler
@@ -169,11 +192,12 @@ static void creditsMenuHandleEvents(GameState *gameState) {
     }
   }
 }
+#endif
 
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
   if(pointInsideRect(x, y, SETUP_2PLAYER_BUTTON_RECT)) {
     if(readyToTransitionSetupTwoPlayer(gameState)) {
-      printf("Successfully entered TWOPLAYER from SETUP\n");
+      logic[TWOPLAYER] = transitionSetupTwoPlayer;
       return TWOPLAYER;
     }
   }
@@ -225,20 +249,20 @@ static void setupHandleEvents(GameState *gameState) {
 
 // NOTE(Zach): switch the player
 static void switchPlayer(Player *player) {
-	if (*player == PLAYERONE) {
-		*player = PLAYERTWO;
-	} else {
-		*player = PLAYERONE;
-	}
+  if (*player == PLAYERONE) {
+    *player = PLAYERTWO;
+  } else {
+    *player = PLAYERONE;
+  }
 }
 
 // NOTE(Zach): switch the token
 static void switchToken(Token *token) {
-	if (*token == RED) {
-		*token = BLUE;
-	} else {
-		*token = RED;
-	}
+  if (*token == RED) {
+    *token = BLUE;
+  } else {
+    *token = RED;
+  }
 }
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
@@ -262,9 +286,9 @@ static void twoPlayerHandleEvents(GameState *gameState) {
       y = e.button.y;
 
       gameState->currentState = twoPlayerHandleMouseClick(x, y, gameState);
-		// NOTE(Zach): if the game is not in progress, don't allow any more
-		// tokens to be dropped
-		if (gameState->currentProgress != INPROGRESS) continue;
+      // NOTE(Zach): if the game is not in progress, don't allow any more
+      // tokens to be dropped
+      if (gameState->currentProgress != INPROGRESS) continue;
 
       // NOTE(brendan): if current state changed, click was outside grid area
       // NOTE(Zach): If the click was outside the GRID
@@ -276,14 +300,15 @@ static void twoPlayerHandleEvents(GameState *gameState) {
       if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
         // NOTE(Zach): Insert the token into the board
         board_dropToken(gameState->board, gameState->currentToken, dropColumn);
-		  switchPlayer(&gameState->currentPlayer);
-		  switchToken(&gameState->currentToken);
+        switchPlayer(&gameState->currentPlayer);
+        switchToken(&gameState->currentToken);
       }
     }
   }
 }
 
 int connect4() {
+  srand((unsigned)(time(0)));
   // NOTE(brendan): Start up SDL and create window.
   if (!init()) {
     // TODO(brendan): Diagnostics
