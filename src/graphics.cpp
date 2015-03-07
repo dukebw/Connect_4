@@ -66,6 +66,21 @@ void resetGraphicsState(GraphicsState *graphicsState)
 // 	SDL_RenderPresent(gRenderer);
 // }
 
+void renderIndicatorToken(TokenLocation *indicatorToken)
+{
+	if (indicatorToken->row == -1 || indicatorToken->column == -1) return;
+	TextureWrapper *token;
+	if (indicatorToken->colour == RED) token = gRedToken;
+	else if (indicatorToken->colour == BLUE) token = gBlueToken;
+	SDL_Rect destRect = {GRID_OFFSET_X + TOKEN_WIDTH*indicatorToken->column,
+								GRID_OFFSET_Y + TOKEN_HEIGHT * indicatorToken->row,
+								TOKEN_WIDTH,
+								TOKEN_HEIGHT};
+	SDL_SetTextureColorMod(token->texture, 127, 127, 127);
+	SDL_RenderCopy(gRenderer, token->texture, NULL, &destRect);
+	SDL_SetTextureColorMod(token->texture, 255, 255, 255);
+}
+
 void displayBoard() {
   // NOTE(Zach): determine the position for the board
   SDL_Rect DestR;
@@ -177,6 +192,7 @@ void setupRender(GraphicsState *graphicsState)
       gTwoPlayerButton->width, gTwoPlayerButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
+  renderIndicatorToken(&graphicsState->indicatorToken);
 	displayBoard();
   // NOTE(brendan): only render highlighted when we need to 
   // TODO(brendan): (bug: board hides the aura)
@@ -217,6 +233,7 @@ void twoPlayerRender(GraphicsState *graphicsState)
       gMenuButton->width, gMenuButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
+  renderIndicatorToken(&graphicsState->indicatorToken);
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
 }

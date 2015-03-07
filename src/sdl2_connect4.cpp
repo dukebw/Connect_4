@@ -124,9 +124,18 @@ void transitionSetupMainMenu(GameState *gameState)
 	logic[MAINMENU] = logicStub;
 }
 
+void transitionMainMenuSetup(GameState *gameState)
+{
+	gameState->graphicsState.indicatorToken.row = -1;
+	gameState->graphicsState.indicatorToken.column = -1;
+	logic[SETUP] = setupLogic;
+}
+
 // NOTE(Zach): The transition "state" from mainmenu to twoplayer
 void transitionMainMenuTwoPlayer(GameState *gameState)
 {
+	gameState->graphicsState.indicatorToken.row = -1;
+	gameState->graphicsState.indicatorToken.column = -1;
 	gameState->currentPlayer = choosePlayer();
 	gameState->currentToken = chooseToken();
 	logic[TWOPLAYER] = twoPlayerLogic;
@@ -151,6 +160,7 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
 		return TWOPLAYER;
 	}
 	if(pointInsideRect(x, y, MAINMENU_SETUP_BUTTON_RECT)) {
+		logic[SETUP] = transitionMainMenuSetup;
 		return SETUP;
 	}
 	if(pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
@@ -244,6 +254,23 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
   return SETUP;
 }
 
+static void handleIndicatorMouseMotion(GameState *gameState)
+{
+	int x, y;
+	int row, col;
+	SDL_GetMouseState( &x, &y );
+	// NOTE(Zach): If the click was outside the GRID
+	if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) return;
+	if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) return;
+	col = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+	row = board_dropPosition(gameState->board, col);
+	if (row != -1) {
+		gameState->graphicsState.indicatorToken.row = row;
+		gameState->graphicsState.indicatorToken.column = col;
+		gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
+	}
+}
+
 // NOTE(brendan): handles mouse clicks in the SETUP state
 static void setupHandleEvents(GameState *gameState) {
   // Event handler
@@ -264,19 +291,18 @@ static void setupHandleEvents(GameState *gameState) {
 
       // NOTE(brendan): if current state changed, click was outside grid area
       // NOTE(Zach): If the click was outside the GRID
-      if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) {
-        continue;
-      }
-      if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) {
-        continue;
-      }
+      if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
+      if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
+
       int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
       // NOTE(brendan): add token to list of falling tokens if valid drop
       if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
         // NOTE(Zach): Insert the token into the board
         board_dropToken(gameState->board, gameState->currentToken, dropColumn);
       }
-    }   
+    } else {
+			handleIndicatorMouseMotion(gameState);
+    }
   }
 }
 
@@ -340,7 +366,9 @@ static void twoPlayerHandleEvents(GameState *gameState) {
         switchPlayer(&gameState->currentPlayer);
         switchToken(&gameState->currentToken);
       }
-    }
+    } else {
+			handleIndicatorMouseMotion(gameState);
+	 }
   }
 }
 

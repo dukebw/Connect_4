@@ -103,6 +103,7 @@ struct GraphicsState {
   bool renderInvalidTokenMessage;
   bool clearInvalidTokenMessage;
   bool renderHighlighted;
+  struct TokenLocation indicatorToken;
 };
 
 void drawFallingToken(FallingToken *token);
@@ -148,4 +149,8 @@ void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
 
 // NOTE(Zach): reset the graphic state flags to false
 void resetGraphicsState(GraphicsState *graphicsState);
+
+// NOTE(Zach): render the indicator token
+void renderIndicatorToken(TokenLocation *indicatorToken);
+
 #endif // GRAPHICS_H
