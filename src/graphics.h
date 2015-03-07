@@ -17,8 +17,22 @@
 // NOTE(brendan): convenience function for making a scaled rectangle
 inline Rectangle
 initScaledRectangle(int left, int top, int right, int bottom, float scale) {
-  return (Rectangle){{(int)(left*scale), (int)(top*scale)}, 
-                     {(int)(right*scale), (int)(bottom*scale)}};
+  Rectangle resultRect = {};
+  resultRect.topLeft.x = (int)(left*scale);
+  resultRect.topLeft.y = (int)(top*scale);
+  resultRect.bottomRight.x = (int)(right*scale);
+  resultRect.bottomRight.y = (int)(bottom*scale);
+  return resultRect;
+}
+
+// NOTE(brendan): convenience function for a non-scaled circle
+inline Circle
+initCircle(int centerX, int centerY, int radius) {
+  Circle resultCircle = {};
+  resultCircle.center.x = centerX;
+  resultCircle.center.y = centerY;
+  resultCircle.radius = radius;
+  return resultCircle;
 }
 
 // NOTE(brendan): keeps the window from opening under my start bar and
@@ -44,11 +58,11 @@ const Rectangle SETUP_2PLAYER_BUTTON_RECT =
 const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
 const int TOKEN_RADIUS = TOKEN_WIDTH/2;
 const Circle SETUP_RED_CLICKY_TOKENS_CIRCLE = 
-  (Circle){{SETUP_CLICKY_TOKENS_OFFSET + TOKEN_RADIUS, 
-            GRID_OFFSET_Y + TOKEN_RADIUS}, TOKEN_RADIUS};
+  initCircle(SETUP_CLICKY_TOKENS_OFFSET + TOKEN_RADIUS, 
+    GRID_OFFSET_Y + TOKEN_RADIUS, TOKEN_RADIUS);
 const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE = 
-  (Circle){{SCREEN_WIDTH - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS, 
-            SETUP_RED_CLICKY_TOKENS_CIRCLE.center.y}, TOKEN_RADIUS};
+  initCircle(SCREEN_WIDTH - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS, 
+    SETUP_RED_CLICKY_TOKENS_CIRCLE.center.y, TOKEN_RADIUS);
 const Rectangle SETUP_MENU_BUTTON_RECT = 
   initScaledRectangle(862, 847, 992, 892, SCALE);
 const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
