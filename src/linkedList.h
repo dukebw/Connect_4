@@ -21,6 +21,9 @@ class List {
   List() {}
 
 public:
+  // NOTE(Zach): empty/destroy the entire list
+	static void emptyList(List<T> **list);
+
   // NOTE(brendan): add item T to the list
   static List<T> *
   addToList(T *newitem, List<T> *list);
@@ -55,6 +58,18 @@ List<T>::addToList(T *newItem, List<T> *list) {
   else {
     return list;
   }
+}
+
+template<typename T> void List<T>::emptyList(List<T> **list)
+{
+	List<T> *current = *list;
+	List<T> *previous = NULL;
+	while (current != NULL) {
+		previous = current;
+		current = current->next;
+		free(previous);
+		previous = NULL;
+	}
 }
 
 // NOTE(brendan): delete the first occurence of item T; returns the list

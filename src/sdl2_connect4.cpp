@@ -116,6 +116,13 @@ void transitionSetupTwoPlayer(GameState *gameState) {
   logic[TWOPLAYER] = twoPlayerLogic;
 }
 
+void transitionSetupMainMenu(GameState *gameState)
+{
+	board_empty(gameState->board);
+	List<FallingToken>::emptyList(&gFallingTokens);
+	logic[MAINMENU] = logicStub;
+}
+
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 static MenuState handleMainMenuMouseClick(int x, int y) {
@@ -209,6 +216,7 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
     gameState->currentToken = BLUE;
   }
   else if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
+	  logic[MAINMENU] = transitionSetupMainMenu;
     return MAINMENU;
   }
   return SETUP;
