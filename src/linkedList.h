@@ -69,7 +69,7 @@ void List<T>::emptyList(List<T> **list) {
 		current = current->next;
 		free(previous);
 	}
-  *list = NULL;
+	*list = NULL;
 }
 
 // NOTE(brendan): delete the first occurence of item T; returns the list

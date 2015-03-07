@@ -49,21 +49,25 @@ const int GRID_OFFSET_Y = (int)(51*(SCALE));
 const int GRID_OFFSET_X = (int)(151*(SCALE));
 const int GRID_WIDTH = (int)(700*(SCALE));
 const int GRID_HEIGHT = (int)(600*(SCALE));
-const Rectangle MAINMENU_SETUP_BUTTON_RECT = 
+const Rectangle MAINMENU_TWOPLAYER_BUTTON_RECT =
+  initScaledRectangle(530, 455, 642, 490, SCALE);
+const Rectangle MAINMENU_SETUP_BUTTON_RECT =
   initScaledRectangle(430, 545, 602, 610, SCALE);
-const Rectangle MAINMENU_QUIT_BUTTON_RECT = 
+const Rectangle MAINMENU_QUIT_BUTTON_RECT =
   initScaledRectangle(452, 700, 575, 760, SCALE);
 const Rectangle SETUP_2PLAYER_BUTTON_RECT =
   initScaledRectangle(140, 847, 270, 892, SCALE);
 const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
 const int TOKEN_RADIUS = TOKEN_WIDTH/2;
-const Circle SETUP_RED_CLICKY_TOKENS_CIRCLE = 
+const Circle SETUP_RED_CLICKY_TOKENS_CIRCLE =
   initCircle(SETUP_CLICKY_TOKENS_OFFSET + TOKEN_RADIUS, 
     GRID_OFFSET_Y + TOKEN_RADIUS, TOKEN_RADIUS);
-const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE = 
+const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE =
   initCircle(SCREEN_WIDTH - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS, 
     SETUP_RED_CLICKY_TOKENS_CIRCLE.center.y, TOKEN_RADIUS);
-const Rectangle SETUP_MENU_BUTTON_RECT = 
+const Rectangle SETUP_MENU_BUTTON_RECT =
+  initScaledRectangle(862, 847, 992, 892, SCALE);
+const Rectangle TWOPLAYER_MENU_BUTTON_RECT =
   initScaledRectangle(862, 847, 992, 892, SCALE);
 const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
 const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
@@ -138,4 +142,7 @@ bool dropToken(Board b, Token tokenColour, int col);
 // NOTE(brendan): sets the list of highlighted tokens, freeing the old one
 void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
     GraphicsState *graphicsState);
+
+// NOTE(Zach): reset the graphic state flags to false
+void resetGraphicsState(GraphicsState *graphicsState);
 #endif // GRAPHICS_H
