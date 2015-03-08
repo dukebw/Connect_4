@@ -355,42 +355,44 @@ static TextureWrapper *loadTexture(std::string path) {
   return loadedTexture;
 }
 
-// NOTE(JEAN) : un-successful attemp into improving loadMedia
-
-// static bool loadAllFiles(string fileNames[], TextureWrapper *textureNames[]) {
-//   //get size of array
-//   int size = (sizeof(fileNames) / sizeof(fileNames[0]));
-//   for (int i = 0; i < size; i++) {
-//     textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
-//     if (textureNames[i] = NULL) {
-//       printf( "Failed to load " + fileNames[i]);
-//       return false;
-//     }
-//   }
-//   return true;
-// }
-
+// NOTE(Jean): A function to load all the media files; will return true if all
+// loaded successfully
+#if 0
+ static bool loadAllFiles(string fileNames[], TextureWrapper **textureNames[], int size) {
+   for (int i = 0; i < size; i++) {
+     *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
+     if ((textureNames[i] = NULL)) {
+       printf( "Failed to load %s\n", fileNames[i].c_str());
+       return false;
+     }
+   }
+   return true;
+ }
+#endif
 
 bool loadMedia() {
-  // NOTE(brendan): Loading success flag
+	// NOTE(brendan): Loading success flag
 
-  bool success = true;
+	bool success = true;
 
-  //Jean: ignore for now, please don't delete
-  // string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
-  //                         "statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
-  //                         "gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "InvalidMsg", 
-  //                         "invalidTokenNumber", "drawGameMessage"};
+	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
+	// however there is still some error with the textures that do the error messages
+	// in setup --- most textures are loading
+	// TODO(Zach): maybe look for typos in those error messages
+#if 0
+	// NOTE(Jean): array of bmp names to be loaded
+	string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
+		"statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
+		"gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "drawGameMessage"};
+
+	// NOTE(Zach): array of pointer to pointers to TextureWrappers
+	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
+		&gStatusDraw,&gStatusInProgress,&gInvalidBoardMsg,&gInvalidTokenMsg,&gRedToken, &gBlueToken,
+		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gDrawGameMessage};
+
+	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
+#endif
   
-  // TextureWrapper *textureNames[] = {*gConnect4Board,*gCreditScreen,*gSetupScreen,*gTwoPlayerScreen,*gStatusBlueWon,*gStatusRedWon,
-  //                                   *gStatusDraw,*gStatusInProgress,*gInvalidBoardMsg,*gInvalidTokenMsg,*gRedToken, *gBlueToken,
-  //                                   *gMainMenu,*gOnePlayerButton,*gTwoPlayerButton,*gMenuButton,*gGlow,*gInvalidMessage,
-  //                                   *gInvalidTokenMsg,*gDrawGameMessage};
-
-                        
-  // success = loadAllFiles(filesToLoad,textureNames);                                
-  
-
   //NOTE(brendan): Load splash image
   gConnect4Board = loadTexture("../misc/boardCopy.bmp");
   if (gConnect4Board == NULL) {
@@ -495,7 +497,6 @@ bool loadMedia() {
     printf("Failed to load the refresh graphic!\n");
     success = false;
   }
-
 
 
   return success;
