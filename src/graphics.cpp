@@ -359,7 +359,7 @@ static TextureWrapper *loadTexture(std::string path) {
  static bool loadAllFiles(string fileNames[], TextureWrapper **textureNames[], int size) {
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
-     if ((textureNames[i] = NULL)) {
+     if (*textureNames[i] == NULL) {
        printf( "Failed to load %s\n", fileNames[i].c_str());
        return false;
      }
@@ -373,11 +373,8 @@ bool loadMedia() {
 
 	bool success = true;
 
-	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
-	// however there is still some error with the textures that do the error messages
-	// in setup --- most textures are loading
-	// TODO(Zach): maybe look for typos in those error messages
 #if 0
+	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
 	// NOTE(Jean): array of bmp names to be loaded
 	string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
 		"statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
@@ -388,7 +385,7 @@ bool loadMedia() {
 	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
 		&gStatusDraw,&gStatusInProgress,&gInvalidBoardMsg,&gInvalidTokenMsg,&gRedToken, &gBlueToken,
 		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gInvalidMessage,
-		&gInvalidTokenMsg,&gDrawGameMessage};
+		&gInvalidTokenMessage,&gDrawGameMessage};
 
 	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
 #endif
