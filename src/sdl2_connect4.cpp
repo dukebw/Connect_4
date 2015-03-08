@@ -40,7 +40,7 @@ static void logicStub(GameState *gameState);
 static void handleEventsStub(GameState *gameState);
 static void renderStub(GraphicsState *graphicsState);
 static void mainMenuHandleEvents(GameState *gameState);
-/* static void creditsMenuHandleEvents(GameState *gameState); */
+static void creditsMenuHandleEvents(GameState *gameState); 
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
 
@@ -170,17 +170,21 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
 	if(pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
 		return QUIT;
 	}
-	//if (x >= 890 && y>= 840 && x <= 972 && y <= 868) return CREDITS; 
-	return MAINMENU;
-}
-
-#if 0
-// NOTE(Zach): Determine next MenuState based on where the user clicked
-static MenuState handleCreditsMenuMouseClick(int x, int y) {
-  //if (x >= 48 && y>= 413 && x <= 454 && y <= 465) return MAINMENU;
+  if(pointInsideRect(x, y, MAINMENU_CREDIT_BUTTON_RECT)) {
+	  return CREDITS;
+  }
   return MAINMENU;
 }
-#endif
+
+
+// NOTE(Zach): Determine next MenuState based on where the user clicked
+static MenuState handleCreditsMenuMouseClick(int x, int y) {
+  if(pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
+    return MAINMENU;
+  }
+  return CREDITS;
+}
+
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
 static void mainMenuHandleEvents(GameState *gameState) {
@@ -212,7 +216,7 @@ static void mainMenuHandleEvents(GameState *gameState) {
   }
 }
 
-#if 0
+
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
 static void creditsMenuHandleEvents(GameState *gameState) {
   // NOTE(Zach): Event handler
@@ -235,7 +239,7 @@ static void creditsMenuHandleEvents(GameState *gameState) {
     }
   }
 }
-#endif
+
 
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
   if(pointInsideRect(x, y, SETUP_2PLAYER_BUTTON_RECT)) {
