@@ -116,6 +116,10 @@ const int INVALID_TOKEN_MESSAGE_Y = (int)(680*(SCALE));
 
 const int REFRESH_BUTTON_WIDTH = (int)(60*(SCALE));
 const int REFRESH_BUTTON_HEIGHT = (int)(60*(SCALE));
+
+const int STATUS_MESSAGE_HEIGHT = (int)(60*(SCALE));
+const int STATUS_MESSAGE_WIDTH = (int)(400*(SCALE));
+
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
