@@ -9,8 +9,6 @@
 #include "graphics.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
-#include <string>
-using std::string;
 
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
@@ -41,9 +39,6 @@ static TextureWrapper *gConnect4Board = NULL;
 static TextureWrapper *gRedToken = NULL;
 static TextureWrapper *gBlueToken = NULL;
 static TextureWrapper *gMainMenu = NULL;
-static TextureWrapper *gOnePlayerButton = NULL;
-static TextureWrapper *gTwoPlayerButton = NULL;
-static TextureWrapper *gMenuButton = NULL;
 static TextureWrapper *gGlow = NULL;
 static TextureWrapper *gInvalidMessage = NULL;
 static TextureWrapper *gInvalidTokenMessage = NULL;
@@ -52,7 +47,6 @@ static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
-//new images from Jean  NOTE: not yet implemented, or called to be destroyed. Still working on it
 static TextureWrapper *gCreditScreen = NULL;
 static TextureWrapper *gSetupScreen = NULL;
 static TextureWrapper *gTwoPlayerScreen = NULL;
@@ -60,8 +54,8 @@ static TextureWrapper *gStatusBlueWon = NULL;
 static TextureWrapper *gStatusRedWon = NULL;
 static TextureWrapper *gStatusDraw = NULL;
 static TextureWrapper *gStatusInProgress = NULL;
-static TextureWrapper *gInvalidBoardMsg = NULL;
-static TextureWrapper *gInvalidTokenMsg = NULL;
+static TextureWrapper *gRefresh = NULL;
+
 
 
 void resetGraphicsState(GraphicsState *graphicsState)
@@ -73,12 +67,16 @@ void resetGraphicsState(GraphicsState *graphicsState)
 	graphicsState->renderHighlighted = false;
 }
 
+void displayCredits(void) {
+  SDL_RenderCopy(gRenderer, gCreditScreen->texture, NULL, NULL); 
+}
+
 // NOTE(brendan): does rendering for credits menu
-// NOTE(Jean): wait until image for credit menu is complete
-// void creditsMenuRender() {
-// 	SDL_RenderClear(gRenderer);
-// 	SDL_RenderPresent(gRenderer);
-// }
+void creditsMenuRender() {
+  displayCredits();
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
+}
 
 void renderIndicatorToken(TokenLocation *indicatorToken)
 {
@@ -188,24 +186,25 @@ void setupRender(GraphicsState *graphicsState)
 	SDL_RenderClear(gRenderer);
 	displaySetupTokens();
 
+  // Place setup Screen
+  placeImage(gSetupScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
+
 	// NOTE(Zach): Place the Menu Button
-  //placeImage(gSetupScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
+  // placeImage(gMenuButton->texture, 
+  //     SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
+  //     SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
+  //     gMenuButton->width, gMenuButton->height);
 
-  placeImage(gMenuButton->texture, 
-      SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
-      SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
-      gMenuButton->width, gMenuButton->height);
+	// // NOTE(Zach): Place the One Player Button
+ //  placeImage(gOnePlayerButton->texture, SETUP_BOTTOM_BUTTONS_OFFSET,
+ //      SCREEN_HEIGHT - gOnePlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
+ //      gOnePlayerButton->width, gOnePlayerButton->height);
 
-	// NOTE(Zach): Place the One Player Button
-  placeImage(gOnePlayerButton->texture, SETUP_BOTTOM_BUTTONS_OFFSET,
-      SCREEN_HEIGHT - gOnePlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
-      gOnePlayerButton->width, gOnePlayerButton->height);
-
-	// NOTE(Zach): Place the Two Player Button
-  placeImage(gTwoPlayerButton->texture, 
-      2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width,
-      SCREEN_HEIGHT - gTwoPlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
-      gTwoPlayerButton->width, gTwoPlayerButton->height);
+	// // NOTE(Zach): Place the Two Player Button
+ //  placeImage(gTwoPlayerButton->texture, 
+ //      2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width,
+ //      SCREEN_HEIGHT - gTwoPlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
+ //      gTwoPlayerButton->width, gTwoPlayerButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
   renderIndicatorToken(&graphicsState->indicatorToken);
@@ -242,11 +241,13 @@ void twoPlayerRender(GraphicsState *graphicsState)
 {
 	SDL_RenderClear(gRenderer);
 
+  // Place two player screen
+  placeImage(gTwoPlayerScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
 	// NOTE(Zach): Place the Menu Button
-  placeImage(gMenuButton->texture, 
-      SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
-      SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
-      gMenuButton->width, gMenuButton->height);
+  // placeImage(gMenuButton->texture, 
+  //     SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
+  //     SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
+  //     gMenuButton->width, gMenuButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
   renderIndicatorToken(&graphicsState->indicatorToken);
@@ -356,6 +357,7 @@ static TextureWrapper *loadTexture(std::string path) {
 
 // NOTE(Jean): A function to load all the media files; will return true if all
 // loaded successfully
+#if 0
  static bool loadAllFiles(string fileNames[], TextureWrapper **textureNames[], int size) {
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
@@ -366,7 +368,7 @@ static TextureWrapper *loadTexture(std::string path) {
    }
    return true;
  }
-
+#endif
 
 bool loadMedia() {
 	// NOTE(brendan): Loading success flag
@@ -378,14 +380,17 @@ bool loadMedia() {
 	// NOTE(Jean): array of bmp names to be loaded
 	string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
 		"statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
-		"gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "InvalidMsg", 
-		"invalidTokenNumber", "drawGameMessage"};
+		"gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "drawGameMessage"};
 
 	// NOTE(Zach): array of pointer to pointers to TextureWrappers
 	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
 		&gStatusDraw,&gStatusInProgress,&gInvalidBoardMsg,&gInvalidTokenMsg,&gRedToken, &gBlueToken,
+<<<<<<< HEAD
 		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gInvalidMessage,
 		&gInvalidTokenMessage,&gDrawGameMessage};
+=======
+		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gDrawGameMessage};
+>>>>>>> b0ba79e115bc99ca48316290103e4f6eb64f0e1f
 
 	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
 #endif
@@ -418,26 +423,7 @@ bool loadMedia() {
     printf("Failed to load the main menu!\n");
     success = false;
   }
-  // NOTE(Zach): Load the One Player button graphic
-  gOnePlayerButton = loadTexture("../misc/1PlayerSetup.bmp");
-  if (gOnePlayerButton == NULL) {
-    printf("Failed to load the One Player button graphic!\n");
-    success = false;
-  }
 
-  // NOTE(Zach): Load the Two Player button graphic
-  gTwoPlayerButton = loadTexture("../misc/2PlayerSetup.bmp");
-  if (gTwoPlayerButton == NULL) {
-    printf("Failed to load the Two Player button graphic!\n");
-    success = false;
-  }
-
-  // NOTE(Zach): Load the Menu button graphic
-  gMenuButton = loadTexture("../misc/menuSetup.bmp");
-  if (gMenuButton == NULL) {
-    printf("Failed to load the Menu button graphic!\n");
-    success = false;
-  }
 
   // NOTE(Zach): Load the glow graphic
   gGlow = loadTexture("../misc/glow.bmp");
@@ -447,14 +433,14 @@ bool loadMedia() {
   }
 
   // NOTE(Jean): Invalid Board error message, for setup game mode
-  gInvalidMessage = loadTexture("../misc/InvalidMsg.bmp");
+  gInvalidMessage = loadTexture("../misc/invalidBoard.bmp");
   if (gInvalidMessage == NULL) {
     printf("Failed to load the \"invalid board\" graphic!\n");
     success = false;
   }
 
     // NOTE(Jean): Invalid token number message, for setup game mode
-  gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
+  gInvalidTokenMessage = loadTexture("../misc/invalidMessage.bmp");
   if (gInvalidTokenMessage == NULL) {
     printf("Failed to load the \"invalid number of tokens\" graphic!\n");
     success = false;
@@ -466,6 +452,55 @@ bool loadMedia() {
     success = false;
   }
 
+  gCreditScreen = loadTexture("../misc/creditsMenu.bmp");
+   if (gCreditScreen == NULL) {
+    printf("Failed to load the credit screen graphic!\n");
+    success = false;
+  }
+
+  gSetupScreen = loadTexture("../misc/setupScreen.bmp");
+    if (gSetupScreen == NULL) {
+    printf("Failed to load the setup screen graphic!\n");
+    success = false;
+  }
+
+  gTwoPlayerScreen = loadTexture("../misc/twoPlayerScreen.bmp");
+    if (gTwoPlayerScreen == NULL) {
+    printf("Failed to load the twoPlayerScreen graphic!\n");
+    success = false;
+  }
+
+  gStatusBlueWon = loadTexture("../misc/statusBlueWon.bmp");
+    if ( gStatusBlueWon == NULL) {
+    printf("Failed to load the statusBlueWon graphic!\n");
+    success = false;
+  }
+
+  gStatusRedWon = loadTexture("../misc/statusRedWon.bmp");
+    if (gStatusRedWon == NULL) {
+    printf("Failed to load the statusRedWon graphic!\n");
+    success = false;
+  }
+
+ gStatusDraw = loadTexture("../misc/statusDraw.bmp");
+   if (gStatusDraw == NULL) {
+    printf("Failed to load statusDraw graphic!\n");
+    success = false;
+  }
+
+  gStatusInProgress = loadTexture("../misc/statusProgress.bmp");
+    if (gStatusInProgress == NULL) {
+    printf("Failed to load the status progress graphic!\n");
+    success = false;
+  }
+
+  gRefresh = loadTexture("../misc/refresh.bmp");
+    if (gRefresh == NULL) {
+    printf("Failed to load the refresh graphic!\n");
+    success = false;
+  }
+
+
   return success;
 }
 
@@ -475,9 +510,6 @@ void close_sdl() {
   freeTexture(gRedToken);
   freeTexture(gBlueToken);
   freeTexture(gMainMenu);
-  freeTexture(gOnePlayerButton);
-  freeTexture(gTwoPlayerButton);
-  freeTexture(gMenuButton);
 	freeTexture(gGlow);
   freeTexture(gInvalidMessage);
   freeTexture(gInvalidTokenMessage);
@@ -490,16 +522,13 @@ void close_sdl() {
   freeTexture(gStatusRedWon);
   freeTexture(gStatusDraw);
   freeTexture(gStatusInProgress);
-  freeTexture(gInvalidBoardMsg);
-  freeTexture(gInvalidTokenMsg);
+  freeTexture(gRefresh);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
   gBlueToken = NULL;
   gMainMenu = NULL;
-  gOnePlayerButton = NULL;
-  gTwoPlayerButton = NULL;
-  gMenuButton = NULL;
+
   gGlow = NULL;
   gInvalidMessage = NULL;
   gInvalidTokenMessage = NULL;
@@ -512,8 +541,7 @@ void close_sdl() {
   gStatusRedWon = NULL;
   gStatusDraw = NULL;
   gStatusInProgress = NULL;
-  gInvalidBoardMsg = NULL;
-  gInvalidTokenMsg = NULL;
+  gRefresh = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);

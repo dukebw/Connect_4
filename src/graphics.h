@@ -49,42 +49,73 @@ const int GRID_OFFSET_Y = (int)(51*(SCALE));
 const int GRID_OFFSET_X = (int)(151*(SCALE));
 const int GRID_WIDTH = (int)(700*(SCALE));
 const int GRID_HEIGHT = (int)(600*(SCALE));
+ 
 const Rectangle MAINMENU_TWOPLAYER_BUTTON_RECT =
   initScaledRectangle(530, 455, 642, 490, SCALE);
+
 const Rectangle MAINMENU_SETUP_BUTTON_RECT =
   initScaledRectangle(430, 545, 602, 610, SCALE);
+
+const Rectangle MAINMENU_CREDIT_BUTTON_RECT =
+  initScaledRectangle(890, 840, 972, 868, SCALE);
+
 const Rectangle MAINMENU_QUIT_BUTTON_RECT =
   initScaledRectangle(452, 700, 575, 760, SCALE);
+
+const Rectangle CREDITS_QUIT_BUTTON_RECT =
+  initScaledRectangle(809, 823, 914, 854, SCALE);
+
+const Rectangle SETUP_1PLAYER_BUTTON_RECT =
+  initScaledRectangle(94, 770, 374, 832, SCALE);
+
 const Rectangle SETUP_2PLAYER_BUTTON_RECT =
-  initScaledRectangle(140, 847, 270, 892, SCALE);
+  initScaledRectangle(397, 770, 681, 832, SCALE);
+
+const Rectangle SETUP_MENU_BUTTON_RECT =
+  initScaledRectangle(771, 770, 921, 832, SCALE);
+
+const Rectangle REFRESH_BUTTON_RECT =
+  initScaledRectangle(47, 334, 105, 392, SCALE);
+  
 const int SETUP_CLICKY_TOKENS_OFFSET = (int)(25*(SCALE));
+
 const int TOKEN_RADIUS = TOKEN_WIDTH/2;
+
 const Circle SETUP_RED_CLICKY_TOKENS_CIRCLE =
   initCircle(SETUP_CLICKY_TOKENS_OFFSET + TOKEN_RADIUS, 
     GRID_OFFSET_Y + TOKEN_RADIUS, TOKEN_RADIUS);
+
 const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE =
   initCircle(SCREEN_WIDTH - SETUP_CLICKY_TOKENS_OFFSET - TOKEN_RADIUS, 
     SETUP_RED_CLICKY_TOKENS_CIRCLE.center.y, TOKEN_RADIUS);
-const Rectangle SETUP_MENU_BUTTON_RECT =
-  initScaledRectangle(862, 847, 992, 892, SCALE);
+
+
 const Rectangle TWOPLAYER_MENU_BUTTON_RECT =
   initScaledRectangle(862, 847, 992, 892, SCALE);
+
+
 const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
 const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
 const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
 const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
 const int SETUP_MENU_BUTTON_HEIGHT = (int)(45*(SCALE));
-const int INVALID_MESSAGE_WIDTH = (int)(300*(SCALE));
-const int INVALID_MESSAGE_HEIGHT = (int)(60*(SCALE));
-const int INVALID_MESSAGE_X = 
-  (int)((float)(SCREEN_WIDTH-INVALID_MESSAGE_WIDTH)/2.0f);
-const int INVALID_MESSAGE_Y = (int)(700*(SCALE));
-const int INVALID_TOKEN_MESSAGE_WIDTH = (int)(630*(SCALE));
-const int INVALID_TOKEN_MESSAGE_HEIGHT = (int)(65*(SCALE));
-const int INVALID_TOKEN_MESSAGE_X = 
-  (int)((float)(SCREEN_WIDTH-INVALID_TOKEN_MESSAGE_WIDTH)/2.0f);
-const int INVALID_TOKEN_MESSAGE_Y = (int)(775*(SCALE));
 
+//invalid board msg
+const int INVALID_MESSAGE_WIDTH = (int)(240*(SCALE));
+const int INVALID_MESSAGE_HEIGHT = (int)(50*(SCALE));
+const int INVALID_MESSAGE_X = (int)(147*(SCALE));
+  //(int)((float)(SCREEN_WIDTH-INVALID_MESSAGE_WIDTH)/2.0f);
+const int INVALID_MESSAGE_Y = (int)(680*(SCALE));
+
+//invalid number of tokens msg
+const int INVALID_TOKEN_MESSAGE_WIDTH = (int)(500*(SCALE));
+const int INVALID_TOKEN_MESSAGE_HEIGHT = (int)(50*(SCALE));
+const int INVALID_TOKEN_MESSAGE_X = (int)(422*(SCALE));
+  //(int)((float)(SCREEN_WIDTH-INVALID_TOKEN_MESSAGE_WIDTH)/2.0f);
+const int INVALID_TOKEN_MESSAGE_Y = (int)(680*(SCALE));
+
+const int REFRESH_BUTTON_WIDTH = (int)(60*(SCALE));
+const int REFRESH_BUTTON_HEIGHT = (int)(60*(SCALE));
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
 struct TextureWrapper;
@@ -117,7 +148,7 @@ void updateFallingToken(FallingToken *fallingToken, float dt);
 extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): does rendering for credits menu
-//void creditsMenuRender();
+void creditsMenuRender();
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender(GraphicsState *graphicsState);
