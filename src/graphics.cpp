@@ -50,6 +50,18 @@ static SDL_Renderer* gRenderer = NULL;
 static List<TokenLocation> *gHighlightedTokens = NULL;
 List<FallingToken> *gFallingTokens = NULL;
 
+//new images from Jean  NOTE: not yet implemented, or called to be destroyed. Still working on it
+static TextureWrapper *gCreditScreen = NULL;
+static TextureWrapper *gSetupScreen = NULL;
+static TextureWrapper *gTwoPlayerScreen = NULL;
+static TextureWrapper *gStatusBlueWon = NULL;
+static TextureWrapper *gStatusRedWon = NULL;
+static TextureWrapper *gStatusDraw = NULL;
+static TextureWrapper *gStatusInProgress = NULL;
+static TextureWrapper *gInvalidBoardMsg = NULL;
+static TextureWrapper *gInvalidTokenMsg = NULL;
+
+
 void resetGraphicsState(GraphicsState *graphicsState)
 {
 	graphicsState->renderInvalidMessage = false;
@@ -338,84 +350,125 @@ static TextureWrapper *loadTexture(std::string path) {
   return loadedTexture;
 }
 
+// NOTE(JEAN) : better way to load files ? called from loadMedia()
+//              could possibly replace loadMedia()
+// returns true if all files loaded properly..
+bool loadAllFiles(string fileNames[], TextureWrapper* textureNames[]) {
+
+  //get size of array
+  int size = (sizeof(fileNames) / sizeof(fileName[0]));
+
+  for (int i = 0; i < size; i++) {
+    textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
+    
+    if (textureNames[i] = NULL) {
+      printf( "Failed to load " + fileName[i]);
+      return false;
+    }
+  }
+  return true;
+}
+
+
 bool loadMedia() {
   // NOTE(brendan): Loading success flag
+
   bool success = true;
 
+  string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
+                          "statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
+                          "gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "InvalidMsg", 
+                          "invalidTokenNumber", "drawGameMessage"};
+  
+  TextureWrapper *textureNames[] = {*gConnect4Board,*gCreditScreen,*gSetupScreen,*gTwoPlayerScreen,*gStatusBlueWon,*gStatusRedWon,
+                                    *gStatusDraw,*gStatusInProgress,*gInvalidBoardMsg,*gInvalidTokenMsg,*gRedToken, *gBlueToken,
+                                    *gMainMenu,*gOnePlayerButton,*gTwoPlayerButton,*gMenuButton,*gGlow,*gInvalidMessage,
+                                    *gInvalidTokenMsg,*gDrawGameMessage};
+
+  //                              
+  success = loadAllFiles(filesToLoad,*textureNames);                                
+  
+
   // NOTE(brendan): Load splash image
-  gConnect4Board = loadTexture("../misc/board.bmp");
-  if (gConnect4Board == NULL) {
-    printf( "Failed to load board!\n" );
-    success = false;
-  }
+  // gConnect4Board = loadTexture("../misc/boardCopy.bmp");
+  // if (gConnect4Board == NULL) {
+  //   printf( "Failed to load board!\n" );
+  //   success = false;
+  // }
 
-  // NOTE(Zach): Load the red token
-  gRedToken = loadTexture("../misc/red_token.bmp");
-  //gRedToken = loadTexture("../misc/red_token.png");
-  if (gRedToken == NULL) {
-    printf("Failed to load red token!\n");
-    success = false;
-  }
-  // NOTE(Zach): Load the blue token
-  gBlueToken = loadTexture("../misc/blue_token.bmp");
-  if (gBlueToken == NULL) {
-    printf("Failed to load blue token!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the red token
+  // gRedToken = loadTexture("../misc/redToken2.bmp");
+  // //gRedToken = loadTexture("../misc/red_token.png");
+  // if (gRedToken == NULL) {
+  //   printf("Failed to load red token!\n");
+  //   success = false;
+  // }
 
-  // NOTE(Zach): Load the main menu
-  gMainMenu = loadTexture("../misc/gameTitlePage.bmp");
-  if (gBlueToken == NULL) {
-    printf("Failed to load the main menu!\n");
-    success = false;
-  }
-  // NOTE(Zach): Load the One Player button graphic
-  gOnePlayerButton = loadTexture("../misc/1PlayerSetup.bmp");
-  if (gOnePlayerButton == NULL) {
-    printf("Failed to load the One Player button graphic!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the blue token
+  // gBlueToken = loadTexture("../misc/blueToken2.bmp");
+  // if (gBlueToken == NULL) {
+  //   printf("Failed to load blue token!\n");
+  //   success = false;
+  // }
 
-  // NOTE(Zach): Load the Two Player button graphic
-  gTwoPlayerButton = loadTexture("../misc/2PlayerSetup.bmp");
-  if (gTwoPlayerButton == NULL) {
-    printf("Failed to load the Two Player button graphic!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the main menu
+  // gMainMenu = loadTexture("../misc/gameTitlePage.bmp");
+  // if (gBlueToken == NULL) {
+  //   printf("Failed to load the main menu!\n");
+  //   success = false;
+  // }
+  // // NOTE(Zach): Load the One Player button graphic
+  // gOnePlayerButton = loadTexture("../misc/1PlayerSetup.bmp");
+  // if (gOnePlayerButton == NULL) {
+  //   printf("Failed to load the One Player button graphic!\n");
+  //   success = false;
+  // }
 
-  // NOTE(Zach): Load the Menu button graphic
-  gMenuButton = loadTexture("../misc/menuSetup.bmp");
-  if (gMenuButton == NULL) {
-    printf("Failed to load the Menu button graphic!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the Two Player button graphic
+  // gTwoPlayerButton = loadTexture("../misc/2PlayerSetup.bmp");
+  // if (gTwoPlayerButton == NULL) {
+  //   printf("Failed to load the Two Player button graphic!\n");
+  //   success = false;
+  // }
 
-  // NOTE(Zach): Load the glow graphic
-  gGlow = loadTexture("../misc/glow.bmp");
-  if (gGlow == NULL) {
-    printf("Failed to load the glow graphic!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the Menu button graphic
+  // gMenuButton = loadTexture("../misc/menuSetup.bmp");
+  // if (gMenuButton == NULL) {
+  //   printf("Failed to load the Menu button graphic!\n");
+  //   success = false;
+  // }
 
-  // NOTE(Jean): Invalid Board error message, for setup game mode
-  gInvalidMessage = loadTexture("../misc/InvalidMsg.bmp");
-  if (gInvalidMessage == NULL) {
-    printf("Failed to load the \"invalid board\" graphic!\n");
-    success = false;
-  }
+  // // NOTE(Zach): Load the glow graphic
+  // gGlow = loadTexture("../misc/glow.bmp");
+  // if (gGlow == NULL) {
+  //   printf("Failed to load the glow graphic!\n");
+  //   success = false;
+  // }
 
-    // NOTE(Jean): Invalid token number message, for setup game mode
-  gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
-  if (gInvalidTokenMessage == NULL) {
-    printf("Failed to load the \"invalid number of tokens\" graphic!\n");
-    success = false;
-  }
+  // // NOTE(Jean): Invalid Board error message, for setup game mode
+  // gInvalidMessage = loadTexture("../misc/InvalidMsg.bmp");
+  // if (gInvalidMessage == NULL) {
+  //   printf("Failed to load the \"invalid board\" graphic!\n");
+  //   success = false;
+  // }
 
-  gDrawGameMessage = loadTexture("../misc/drawGameMessage.bmp");
-  if (gDrawGameMessage == NULL) {
-    printf("Failed to load the \"Draw Game\" graphic!\n");
-    success = false;
-  }
+  //   // NOTE(Jean): Invalid token number message, for setup game mode
+  // gInvalidTokenMessage = loadTexture("../misc/invalidTokenNumber.bmp");
+  // if (gInvalidTokenMessage == NULL) {
+  //   printf("Failed to load the \"invalid number of tokens\" graphic!\n");
+  //   success = false;
+  // }
+
+  // gDrawGameMessage = loadTexture("../misc/drawGameMessage.bmp");
+  // if (gDrawGameMessage == NULL) {
+  //   printf("Failed to load the \"Draw Game\" graphic!\n");
+  //   success = false;
+  // }
+
+
+
+
+
 
   return success;
 }
@@ -433,6 +486,16 @@ void close_sdl() {
   freeTexture(gInvalidMessage);
   freeTexture(gInvalidTokenMessage);
   freeTexture(gDrawGameMessage);
+  
+  freeTexture(gCreditScreen);
+  freeTexture(gSetupScreen);
+  freeTexture(gTwoPlayerScreen);
+  freeTexture(gStatusBlueWon);
+  freeTexture(gStatusRedWon);
+  freeTexture(gStatusDraw);
+  freeTexture(gStatusInProgress);
+  freeTexture(gInvalidBoardMsg);
+  freeTexture(gInvalidTokenMessage);
 
   gConnect4Board = NULL;
   gRedToken = NULL;
@@ -445,6 +508,16 @@ void close_sdl() {
   gInvalidMessage = NULL;
   gInvalidTokenMessage = NULL;
   gDrawGameMessage = NULL;
+
+  gCreditScreen = NULL;
+  gSetupScreen = NULL;
+  gTwoPlayerScreen = NULL;
+  gStatusBlueWon = NULL;
+  gStatusRedWon = NULL;
+  gStatusDraw = NULL;
+  gStatusInProgress = NULL;
+  gInvalidBoardMsg = NULL;
+  gInvalidTokenMessage = NULL;
 
   // NOTE(brendan): Destroy window
   SDL_DestroyWindow(gWindow);
