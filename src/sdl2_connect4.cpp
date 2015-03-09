@@ -40,7 +40,7 @@ static void logicStub(GameState *gameState);
 static void handleEventsStub(GameState *gameState);
 static void renderStub(GraphicsState *graphicsState);
 static void mainMenuHandleEvents(GameState *gameState);
-static void creditsMenuHandleEvents(GameState *gameState); 
+static void creditsHandleEvents(GameState *gameState); 
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
 
@@ -54,13 +54,13 @@ static void twoPlayerHandleEvents(GameState *gameState);
 // NOTE(Zach): the enumeration MenuState!
 static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) = 
 {mainMenuHandleEvents, handleEventsStub, twoPlayerHandleEvents, 
-  setupHandleEvents, handleEventsStub, handleEventsStub, handleEventsStub};
+  setupHandleEvents, creditsHandleEvents, handleEventsStub, handleEventsStub};
 
 static void (*logic[NUMBER_OF_STATES])(GameState *gameState) = 
 {logicStub, logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
 
 static void (*render[NUMBER_OF_STATES])(GraphicsState *graphicsState) = 
-{mainMenuRender, renderStub, twoPlayerRender, setupRender, renderStub, 
+{mainMenuRender, renderStub, twoPlayerRender, setupRender, creditsRender, 
   renderStub, renderStub}; 
 
 // NOTE(brendan): Stub functions so we don't have to test for NULL functions
@@ -177,6 +177,8 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
 }
 
 
+
+
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 static MenuState handleCreditsMenuMouseClick(int x, int y) {
   if(pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
@@ -218,7 +220,7 @@ static void mainMenuHandleEvents(GameState *gameState) {
 
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
-static void creditsMenuHandleEvents(GameState *gameState) {
+static void creditsHandleEvents(GameState *gameState) {
   // NOTE(Zach): Event handler
   SDL_Event e;
 
@@ -242,6 +244,17 @@ static void creditsMenuHandleEvents(GameState *gameState) {
 
 
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
+
+//NOTE (Jean): It works, but I am not sure if I have declared everything that needs to be declared
+//             In order to clear everything correctly
+  if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
+    List<FallingToken>::emptyList(&gFallingTokens);
+    resetGraphicsState(&gameState->graphicsState);   
+    gameState->currentState = SETUP;
+    gameState->currentProgress = INPROGRESS;
+    board_empty(gameState->board);
+  }
+
   if(pointInsideRect(x, y, SETUP_2PLAYER_BUTTON_RECT)) {
     if(readyToTransitionSetupTwoPlayer(gameState)) {
       logic[TWOPLAYER] = transitionSetupTwoPlayer;
@@ -334,6 +347,16 @@ static void switchToken(Token *token) {
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
 static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
+  
+  
+  if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
+    List<FallingToken>::emptyList(&gFallingTokens);
+    resetGraphicsState(&gameState->graphicsState);   
+    gameState->currentState = TWOPLAYER;
+    gameState->currentProgress = INPROGRESS;
+    board_empty(gameState->board);
+  }
+
   if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
 	  logic[MAINMENU] = transitionTwoPlayerMainMenu;
     return MAINMENU;

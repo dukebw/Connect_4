@@ -114,9 +114,11 @@ const int INVALID_TOKEN_MESSAGE_X = (int)(422*(SCALE));
   //(int)((float)(SCREEN_WIDTH-INVALID_TOKEN_MESSAGE_WIDTH)/2.0f);
 const int INVALID_TOKEN_MESSAGE_Y = (int)(680*(SCALE));
 
+//refresh button
 const int REFRESH_BUTTON_WIDTH = (int)(60*(SCALE));
 const int REFRESH_BUTTON_HEIGHT = (int)(60*(SCALE));
 
+//twoplayer and oneplayer status messages 
 const int STATUS_MESSAGE_HEIGHT = (int)(60*(SCALE));
 const int STATUS_MESSAGE_WIDTH = (int)(400*(SCALE));
 
@@ -152,7 +154,7 @@ void updateFallingToken(FallingToken *fallingToken, float dt);
 extern List<FallingToken> *gFallingTokens;
 
 // NOTE(brendan): does rendering for credits menu
-void creditsMenuRender();
+void creditsRender(GraphicsState *graphicsState);
 
 // NOTE(brendan): does rendering for main menu
 void mainMenuRender(GraphicsState *graphicsState);

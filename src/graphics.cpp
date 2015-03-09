@@ -9,6 +9,7 @@
 #include "graphics.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include <string>
 
 #define CHECK_POINT printf("*** Reached line %d of file %s ***\n"\
     , __LINE__, __FILE__)
@@ -67,14 +68,9 @@ void resetGraphicsState(GraphicsState *graphicsState)
 	graphicsState->renderHighlighted = false;
 }
 
-void displayCredits(void) {
-  SDL_RenderCopy(gRenderer, gCreditScreen->texture, NULL, NULL); 
-}
-
 // NOTE(brendan): does rendering for credits menu
-void creditsMenuRender() {
-  displayCredits();
-	SDL_RenderClear(gRenderer);
+void creditsRender(GraphicsState *graphicsState) {
+  SDL_RenderCopy(gRenderer, gCreditScreen->texture, NULL, NULL); 
 	SDL_RenderPresent(gRenderer);
 }
 
@@ -177,8 +173,8 @@ placeImage(SDL_Texture *image, int x, int y, int width, int height) {
 
 inline void
 clearToBackground(int x, int y, int width, int height) {
-	SDL_Rect fillRect = {x, y, width, height};
-  SDL_RenderFillRect(gRenderer, &fillRect);
+	SDL_Rect replaceRect = {x, y, width, height};
+  SDL_RenderCopy(gRenderer, gSetupScreen->texture, &replaceRect, &replaceRect);
 }
 
 void setupRender(GraphicsState *graphicsState)
@@ -188,23 +184,6 @@ void setupRender(GraphicsState *graphicsState)
 
   // Place setup Screen
   placeImage(gSetupScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
-
-	// NOTE(Zach): Place the Menu Button
-  // placeImage(gMenuButton->texture, 
-  //     SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
-  //     SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
-  //     gMenuButton->width, gMenuButton->height);
-
-	// // NOTE(Zach): Place the One Player Button
- //  placeImage(gOnePlayerButton->texture, SETUP_BOTTOM_BUTTONS_OFFSET,
- //      SCREEN_HEIGHT - gOnePlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
- //      gOnePlayerButton->width, gOnePlayerButton->height);
-
-	// // NOTE(Zach): Place the Two Player Button
- //  placeImage(gTwoPlayerButton->texture, 
- //      2*SETUP_BOTTOM_BUTTONS_OFFSET + gOnePlayerButton->width,
- //      SCREEN_HEIGHT - gTwoPlayerButton->height - SETUP_BOTTOM_BUTTONS_OFFSET,
- //      gTwoPlayerButton->width, gTwoPlayerButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
   renderIndicatorToken(&graphicsState->indicatorToken);
@@ -243,11 +222,6 @@ void twoPlayerRender(GraphicsState *graphicsState)
 
   // Place two player screen
   placeImage(gTwoPlayerScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
-	// NOTE(Zach): Place the Menu Button
-  // placeImage(gMenuButton->texture, 
-  //     SCREEN_WIDTH - gMenuButton->width - SETUP_BOTTOM_BUTTONS_OFFSET, 
-  //     SCREEN_HEIGHT - gMenuButton->height - SETUP_BOTTOM_BUTTONS_OFFSET, 
-  //     gMenuButton->width, gMenuButton->height);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
   renderIndicatorToken(&graphicsState->indicatorToken);
@@ -357,7 +331,7 @@ static TextureWrapper *loadTexture(std::string path) {
 
 // NOTE(Jean): A function to load all the media files; will return true if all
 // loaded successfully
-#if 0
+/*
  static bool loadAllFiles(string fileNames[], TextureWrapper **textureNames[], int size) {
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
@@ -368,14 +342,14 @@ static TextureWrapper *loadTexture(std::string path) {
    }
    return true;
  }
-#endif
+*/
 
 bool loadMedia() {
 	// NOTE(brendan): Loading success flag
 
 	bool success = true;
 
-#if 0
+/*
 	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
 	// NOTE(Jean): array of bmp names to be loaded
 	string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
@@ -385,16 +359,13 @@ bool loadMedia() {
 	// NOTE(Zach): array of pointer to pointers to TextureWrappers
 	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
 		&gStatusDraw,&gStatusInProgress,&gInvalidBoardMsg,&gInvalidTokenMsg,&gRedToken, &gBlueToken,
-<<<<<<< HEAD
-		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gInvalidMessage,
-		&gInvalidTokenMessage,&gDrawGameMessage};
-=======
 		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gDrawGameMessage};
->>>>>>> b0ba79e115bc99ca48316290103e4f6eb64f0e1f
+
 
 	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
-#endif
-  
+
+*/
+
   //NOTE(brendan): Load splash image
   gConnect4Board = loadTexture("../misc/boardCopy.bmp");
   if (gConnect4Board == NULL) {
@@ -499,7 +470,6 @@ bool loadMedia() {
     printf("Failed to load the refresh graphic!\n");
     success = false;
   }
-
 
   return success;
 }
