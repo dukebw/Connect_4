@@ -61,9 +61,7 @@ List<FallingToken> *gFallingTokens = NULL;
 void resetGraphicsState(GraphicsState *graphicsState)
 {
 	graphicsState->renderInvalidMessage = false;
-	graphicsState->clearInvalidMessage = false;
 	graphicsState->renderInvalidTokenMessage = false;
-	graphicsState->clearInvalidTokenMessage = false;
 	graphicsState->renderHighlighted = false;
 	graphicsState->renderIndicatorToken = true;
 }
@@ -171,12 +169,6 @@ placeImage(SDL_Texture *image, int x, int y, int width, int height) {
 	SDL_RenderCopy( gRenderer, image, NULL, &destRect ); 
 }
 
-inline void
-clearToBackground(int x, int y, int width, int height) {
-	SDL_Rect replaceRect = {x, y, width, height};
-  SDL_RenderCopy(gRenderer, gSetupScreen->texture, &replaceRect, &replaceRect);
-}
-
 void setupRender(GraphicsState *graphicsState)
 {
 	SDL_RenderClear(gRenderer);
@@ -198,19 +190,10 @@ void setupRender(GraphicsState *graphicsState)
     placeImage(gInvalidMessage->texture, INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
         gInvalidMessage->width, gInvalidMessage->height);
   }
-  if(graphicsState->clearInvalidMessage) {
-    clearToBackground(INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
-        gInvalidMessage->width, gInvalidMessage->height);
-  }
   if(graphicsState->renderInvalidTokenMessage) {
     // NOTE(Zach): Place the Invalid Token Message Button
     placeImage(gInvalidTokenMessage->texture, INVALID_TOKEN_MESSAGE_X, 
         INVALID_TOKEN_MESSAGE_Y, gInvalidTokenMessage->width, 
-        gInvalidTokenMessage->height);
-  }
-  if(graphicsState->clearInvalidTokenMessage) {
-    clearToBackground(INVALID_TOKEN_MESSAGE_X, INVALID_TOKEN_MESSAGE_Y, 
-        gInvalidTokenMessage->width, 
         gInvalidTokenMessage->height);
   }
 	SDL_RenderPresent(gRenderer);

@@ -144,9 +144,7 @@ struct TokenLocation {
 // NOTE(brendan): contains rendering information
 struct GraphicsState {
   bool renderInvalidMessage;
-  bool clearInvalidMessage;
   bool renderInvalidTokenMessage;
-  bool clearInvalidTokenMessage;
   bool renderHighlighted;
   bool renderIndicatorToken;
   struct TokenLocation indicatorToken;
