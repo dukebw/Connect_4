@@ -131,6 +131,7 @@ void transitionMainMenuSetup(GameState *gameState)
 {
 	gameState->graphicsState.indicatorToken.row = -1;
 	gameState->graphicsState.indicatorToken.column = -1;
+	resetGraphicsState(&gameState->graphicsState);
 	logic[SETUP] = setupLogic;
 }
 
@@ -141,6 +142,7 @@ void transitionMainMenuTwoPlayer(GameState *gameState)
 	gameState->currentToken = chooseToken();
 	gameState->graphicsState.indicatorToken.row = -1;
 	gameState->graphicsState.indicatorToken.column = -1;
+	resetGraphicsState(&gameState->graphicsState);
 	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
 	logic[TWOPLAYER] = twoPlayerLogic;
 }

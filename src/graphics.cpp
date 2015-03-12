@@ -66,6 +66,7 @@ void resetGraphicsState(GraphicsState *graphicsState)
 	graphicsState->renderInvalidTokenMessage = false;
 	graphicsState->clearInvalidTokenMessage = false;
 	graphicsState->renderHighlighted = false;
+	graphicsState->renderIndicatorToken = true;
 }
 
 // NOTE(brendan): does rendering for credits menu
@@ -224,7 +225,10 @@ void twoPlayerRender(GraphicsState *graphicsState)
   placeImage(gTwoPlayerScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
-  renderIndicatorToken(&graphicsState->indicatorToken);
+
+  if (graphicsState->renderIndicatorToken)
+	  renderIndicatorToken(&graphicsState->indicatorToken);
+
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
 }

@@ -140,6 +140,7 @@ struct GraphicsState {
   bool renderInvalidTokenMessage;
   bool clearInvalidTokenMessage;
   bool renderHighlighted;
+  bool renderIndicatorToken;
   struct TokenLocation indicatorToken;
 };
 
