@@ -139,11 +139,6 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 								GRID_OFFSET_Y + TOKEN_HEIGHT * tokenToHighlight->row,
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
-  // NOTE(brendan): redraw token first -- so blending doesn't become whiter
-  // and whiter if we highlight the same token repeatedly.
-  TextureWrapper *tokenColour = 
-    (tokenToHighlight->colour == RED) ?  gRedToken : gBlueToken;
-  SDL_RenderCopy(gRenderer, tokenColour->texture, NULL, &fillRect);
 
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x66);
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
@@ -151,7 +146,7 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 	SDL_RenderFillRect(gRenderer, &fillRect);
 	SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
-	displayBoard();
+	//displayBoard();
 //	SDL_RenderPresent(gRenderer);
 
 	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &fillRect);
