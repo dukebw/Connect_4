@@ -176,9 +176,6 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
   return MAINMENU;
 }
 
-
-
-
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 static MenuState handleCreditsMenuMouseClick(int x, int y) {
   if(pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
@@ -245,8 +242,9 @@ static void creditsHandleEvents(GameState *gameState) {
 
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
 
-//NOTE (Jean): It works, but I am not sure if I have declared everything that needs to be declared
-//             In order to clear everything correctly
+//NOTE (Jean): It works, but I am not sure if I have declared everything that 
+// needs to be declared
+//           In order to clear everything correctly
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
@@ -259,6 +257,15 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
     if(readyToTransitionSetupTwoPlayer(gameState)) {
       logic[TWOPLAYER] = transitionSetupTwoPlayer;
       return TWOPLAYER;
+    }
+  }
+
+  if (pointInsideRect(x, y, SETUP_1PLAYER_BUTTON_RECT)) {
+    if (gameState->loadGame) {
+      gameState->loadGame = false;
+    }
+    else {
+      gameState->loadGame = true;
     }
   }
 

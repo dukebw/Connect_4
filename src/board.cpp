@@ -83,3 +83,25 @@ void board_empty(Board b)
 
 	return;
 }
+
+// NOTE(brendan): load the board from a previously saved game
+void board_load(Board b, FILE *in_file) {
+  if (in_file == 0) {
+    printf("Invalid file pointer in board_load function\n");
+  }
+  else {
+    fread((char *) b, sizeof(char), sizeof(*b), in_file);
+  }
+  fclose(in_file);
+}
+
+// NOTE(brendan): save the board
+void board_save(Board b, FILE *out_file) {
+  if (out_file == 0) {
+    printf("Invalid file pointer in board_save function\n");
+  }
+  else {
+    fwrite((char *) b, sizeof(char), sizeof(*b), out_file);
+  }
+  fclose(out_file);
+}

@@ -31,6 +31,7 @@ struct GameState {
   Player currentPlayer;
   Board board;
   GraphicsState graphicsState;
+  bool loadGame;
 };
 
 // TODO(brendan): change to update (from logic)

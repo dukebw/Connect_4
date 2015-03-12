@@ -14,8 +14,39 @@
 
 static bool didColourWin(Board board, Token colour);
 static bool checkDraw(Board board);
+static char saveGameFilename[] = "saved_game.dat";
+
+// NOTE(brendan): 
+void loadGame(GameState *gameState) {
+  FILE *in_file = fopen(saveGameFilename, "r");
+  if (in_file == 0) {
+    fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
+  }
+  else {
+    board_load(gameState->board);
+    fread((char *) gameState, sizeof(char), sizeof(GameState), 
+        in_file);
+  }
+  fclose(in_file);
+}
+
+// NOTE(brendan): 
+void saveGame(GameState *gameState) {
+  FILE *out_file = fopen(saveGameFilename, "w");
+  if (out_file == 0) {
+    fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
+  }
+  else {
+    board_save(gameState->board);
+    fwrite((char *) gameState, sizeof(char), sizeof(GameState), out_file);
+  }
+  fclose(out_file);
+}
 
 void setupLogic(GameState *gameState) {
+  if (gameState->loadGame) {
+
+  }
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 

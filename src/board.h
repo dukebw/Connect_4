@@ -39,4 +39,10 @@ int board_dropPosition(Board b, int col);
 // NOTE(Zach): Empty the Board, b
 void board_empty(Board b);
 
+// NOTE(brendan): load the board from a previously saved game
+void board_load(Board b);
+
+// NOTE(brendan): save the board
+void board_save(Board b);
+
 #endif // BOARD_H
