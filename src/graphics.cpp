@@ -66,6 +66,12 @@ void resetGraphicsState(GraphicsState *graphicsState)
 	graphicsState->clearInvalidTokenMessage = false;
 	graphicsState->renderHighlighted = false;
 	graphicsState->renderIndicatorToken = true;
+
+  graphicsState->renderStatusInProgress = true;
+  graphicsState->renderStatusDrawGame = false;
+  graphicsState->renderStatusBlueWon = false;
+  graphicsState->renderStatusRedWon = false;
+
 }
 
 // NOTE(brendan): does rendering for credits menu
@@ -228,6 +234,25 @@ void twoPlayerRender(GraphicsState *graphicsState)
   if (graphicsState->renderIndicatorToken)
 	  renderIndicatorToken(&graphicsState->indicatorToken);
 
+  if (graphicsState->renderStatusInProgress) {
+    placeImage(gStatusInProgress->texture, STATUS_MESSAGE_X,STATUS_MESSAGE_Y,
+        gStatusInProgress->width, gStatusInProgress->height);
+  }
+
+  if (graphicsState->renderStatusBlueWon) {
+    placeImage(gStatusBlueWon->texture, STATUS_MESSAGE_X,STATUS_MESSAGE_Y,
+        gStatusBlueWon->width, gStatusBlueWon->height);
+  }
+
+  if (graphicsState->renderStatusRedWon) {
+      placeImage(gStatusRedWon->texture, STATUS_MESSAGE_X,STATUS_MESSAGE_Y,
+          gStatusRedWon->width, gStatusRedWon->height);
+  }
+
+  if (graphicsState->renderStatusDrawGame) {
+      placeImage(gStatusDraw->texture, STATUS_MESSAGE_X,STATUS_MESSAGE_Y,
+          gStatusDraw->width, gStatusDraw->height);
+  }
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
 }
