@@ -45,9 +45,6 @@ static TextureWrapper *gInvalidMessage = NULL;
 static TextureWrapper *gInvalidTokenMessage = NULL;
 static TextureWrapper *gDrawGameMessage = NULL;
 static SDL_Renderer* gRenderer = NULL;
-static List<TokenLocation> *gHighlightedTokens = NULL;
-List<FallingToken> *gFallingTokens = NULL;
-
 static TextureWrapper *gCreditScreen = NULL;
 static TextureWrapper *gSetupScreen = NULL;
 static TextureWrapper *gTwoPlayerScreen = NULL;
@@ -57,6 +54,8 @@ static TextureWrapper *gStatusDraw = NULL;
 static TextureWrapper *gStatusInProgress = NULL;
 static TextureWrapper *gRefresh = NULL;
 
+static List<TokenLocation> *gHighlightedTokens = NULL;
+List<FallingToken> *gFallingTokens = NULL;
 
 
 void resetGraphicsState(GraphicsState *graphicsState)

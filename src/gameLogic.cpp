@@ -30,6 +30,7 @@ void twoPlayerLogic(GameState *gameState) {
   bool didRedWin = didColourWin(gameState->board, RED);
   bool didBlueWin = didColourWin(gameState->board, BLUE);
   bool isDraw = checkDraw(gameState->board);
+  
   if (didRedWin) {
     gameState->currentProgress = REDWON;
     return;

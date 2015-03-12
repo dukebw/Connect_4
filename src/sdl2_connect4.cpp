@@ -245,8 +245,7 @@ static void creditsHandleEvents(GameState *gameState) {
 
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
 
-//NOTE (Jean): It works, but I am not sure if I have declared everything that needs to be declared
-//             In order to clear everything correctly
+  //clear all the tokens in the screen if refresh button pressed
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
@@ -364,7 +363,7 @@ static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
   return TWOPLAYER;
 }
 
-// NOTE(brendan): handles mouse clicks in the SETUP state
+// NOTE(brendan): handles mouse clicks in the two player state
 static void twoPlayerHandleEvents(GameState *gameState) {
   // Event handler
   SDL_Event e;
