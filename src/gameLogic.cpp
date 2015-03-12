@@ -285,18 +285,12 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
   if(isDraw || isBoardInvalid || didRedWin || didBlueWin) {
     gameState->graphicsState.renderInvalidMessage = true;
   }
-  else {
-    gameState->graphicsState.clearInvalidMessage = true;
-  }
   if(isDraw) {
     printf("Error! The game is a draw!\n");
   }
   if(isBoardInvalid) {
     gameState->graphicsState.renderInvalidTokenMessage = true;
     printf("Error! Invalid board setup (red tokens - blue tokens > 1)\n");
-  }
-  else {
-    gameState->graphicsState.clearInvalidTokenMessage = true;
   }
   if(didRedWin || didBlueWin) {
     setHighlightedTokenList(getSequentialTokens(gameState->board), 

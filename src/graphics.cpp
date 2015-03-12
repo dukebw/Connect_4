@@ -61,9 +61,7 @@ List<FallingToken> *gFallingTokens = NULL;
 void resetGraphicsState(GraphicsState *graphicsState)
 {
 	graphicsState->renderInvalidMessage = false;
-	graphicsState->clearInvalidMessage = false;
 	graphicsState->renderInvalidTokenMessage = false;
-	graphicsState->clearInvalidTokenMessage = false;
 	graphicsState->renderHighlighted = false;
 	graphicsState->renderIndicatorToken = true;
 
@@ -147,11 +145,6 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 								GRID_OFFSET_Y + TOKEN_HEIGHT * tokenToHighlight->row,
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
-  // NOTE(brendan): redraw token first -- so blending doesn't become whiter
-  // and whiter if we highlight the same token repeatedly.
-  TextureWrapper *tokenColour = 
-    (tokenToHighlight->colour == RED) ?  gRedToken : gBlueToken;
-  SDL_RenderCopy(gRenderer, tokenColour->texture, NULL, &fillRect);
 
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0x66);
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
@@ -159,7 +152,7 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 	SDL_RenderFillRect(gRenderer, &fillRect);
 	SDL_SetRenderDrawColor( gRenderer, 128, 128, 128, 0xFF );
 	SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_NONE);
-	displayBoard();
+	//displayBoard();
 //	SDL_RenderPresent(gRenderer);
 
 	SDL_RenderCopy(gRenderer, gGlow->texture, NULL, &fillRect);
@@ -175,12 +168,6 @@ placeImage(SDL_Texture *image, int x, int y, int width, int height) {
   destRect.w = width;
   destRect.h = height;
 	SDL_RenderCopy( gRenderer, image, NULL, &destRect ); 
-}
-
-inline void
-clearToBackground(int x, int y, int width, int height) {
-	SDL_Rect replaceRect = {x, y, width, height};
-  SDL_RenderCopy(gRenderer, gSetupScreen->texture, &replaceRect, &replaceRect);
 }
 
 void setupRender(GraphicsState *graphicsState)
@@ -204,19 +191,10 @@ void setupRender(GraphicsState *graphicsState)
     placeImage(gInvalidMessage->texture, INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
         gInvalidMessage->width, gInvalidMessage->height);
   }
-  if(graphicsState->clearInvalidMessage) {
-    clearToBackground(INVALID_MESSAGE_X, INVALID_MESSAGE_Y,
-        gInvalidMessage->width, gInvalidMessage->height);
-  }
   if(graphicsState->renderInvalidTokenMessage) {
     // NOTE(Zach): Place the Invalid Token Message Button
     placeImage(gInvalidTokenMessage->texture, INVALID_TOKEN_MESSAGE_X, 
         INVALID_TOKEN_MESSAGE_Y, gInvalidTokenMessage->width, 
-        gInvalidTokenMessage->height);
-  }
-  if(graphicsState->clearInvalidTokenMessage) {
-    clearToBackground(INVALID_TOKEN_MESSAGE_X, INVALID_TOKEN_MESSAGE_Y, 
-        gInvalidTokenMessage->width, 
         gInvalidTokenMessage->height);
   }
 	SDL_RenderPresent(gRenderer);
