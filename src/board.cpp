@@ -7,7 +7,6 @@
  ********************************************/
 
 #include "board.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -90,9 +89,8 @@ void board_load(Board b, FILE *in_file) {
     printf("Invalid file pointer in board_load function\n");
   }
   else {
-    fread((char *) b, sizeof(char), sizeof(*b), in_file);
+    fread(b, sizeof(*b), 1, in_file);
   }
-  fclose(in_file);
 }
 
 // NOTE(brendan): save the board
@@ -101,7 +99,6 @@ void board_save(Board b, FILE *out_file) {
     printf("Invalid file pointer in board_save function\n");
   }
   else {
-    fwrite((char *) b, sizeof(char), sizeof(*b), out_file);
+    fwrite(b, sizeof(*b), 1, out_file);
   }
-  fclose(out_file);
 }

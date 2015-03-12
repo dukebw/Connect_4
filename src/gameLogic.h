@@ -31,8 +31,14 @@ struct GameState {
   Player currentPlayer;
   Board board;
   GraphicsState graphicsState;
+  // NOTE(brendan): loadGame and saveGame are set in sdl2_connect4 (event
+  // handing) and turned off in graphics, when the graphic state is reloaded
   bool loadGame;
+  bool saveGame;
 };
+
+// NOTE(brendan): handle MainMenu logic; load and save game for now
+void mainMenuLogic(GameState *gameState);
 
 // TODO(brendan): change to update (from logic)
 void setupLogic(GameState *gameState);

@@ -9,6 +9,8 @@
 #ifndef BOARD_H // NOTE(Zach): This is an include guard
 #define BOARD_H
 
+#include <stdio.h>
+
 #define NUM_ROWS 6
 #define NUM_COLS 7
 
@@ -40,9 +42,9 @@ int board_dropPosition(Board b, int col);
 void board_empty(Board b);
 
 // NOTE(brendan): load the board from a previously saved game
-void board_load(Board b);
+void board_load(Board b, FILE *in_file);
 
 // NOTE(brendan): save the board
-void board_save(Board b);
+void board_save(Board b, FILE *out_file);
 
 #endif // BOARD_H

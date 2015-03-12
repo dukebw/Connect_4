@@ -10,6 +10,7 @@
 #define LINKEDLIST_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 template<typename T>
 class List {
@@ -40,6 +41,14 @@ public:
   static void 
   traverseList(void (*f)(T *item, float dt), float dt, List<T> *list);
 
+  // NOTE(brendan): write all the items in list contiguously to fp
+  static List<T> *
+  readListFromFile(List<T> *list, FILE *fp);
+
+  // NOTE(brendan): write all the items in list contiguously to fp
+  static void
+  writeListToFile(List<T> *list, FILE *fp);
+
   // NOTE(brendan): iterate over list, returning the item of the first node
   // that satisfies function f
   static T *
@@ -60,8 +69,8 @@ List<T>::addToList(T *newItem, List<T> *list) {
   }
 }
 
-template<typename T> 
-void List<T>::emptyList(List<T> **list) {
+template<typename T> void 
+List<T>::emptyList(List<T> **list) {
 	List<T> *current = *list;
 	List<T> *previous = NULL;
 	while (current != NULL) {
@@ -116,11 +125,41 @@ List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) {
     (*f)(current->item, dt);
   }
 }
+// NOTE(brendan): write all the items in list contiguously to fp
+template<typename T> List<T> *
+List<T>::readListFromFile(List<T> *list, FILE *fp) {
+  List<T>::emptyList(&list);
+  int count;
+  fread(&count, sizeof(int), 1, fp);
+  printf("tokens read: %d\n", count);
+  for(int i = 0; i < count; ++i) {
+    T *item = (T *)malloc(sizeof(T));
+    fread(item, sizeof(T), 1, fp);
+    list = List<T>::addToList(item, list);
+  }
+  return list;
+}
+
+// NOTE(brendan): write all the items in list contiguously to fp
+template<typename T> void
+List<T>::writeListToFile(List<T> *list, FILE *fp) {
+  fseek(fp, sizeof(int), SEEK_CUR);
+  int count = 0;
+	for(; list != NULL; list = list->next) {
+    fwrite(list->item, sizeof(T), 1, fp);
+    ++count;
+	}
+  printf("tokens written: %d\n", count);
+  fseek(fp, -(count*sizeof(T) + sizeof(int)), SEEK_CUR);
+  fwrite(&count, sizeof(int), 1, fp);
+  fseek(fp, count*sizeof(T), SEEK_CUR);
+}
 
 // NOTE(brendan): iterate over list, returning the item of the first node
 // that satisfies function f
 template<typename T> T *
-List<T>::reduceList(bool (*f)(T *listItem, T *item), T *newest, List<T> *list) {
+List<T>::reduceList(bool (*f)(T *listItem, T *item), T *newest, 
+    List<T> *list) {
 	for(; list != NULL; list = list->next) {
 		if((*f)(list->item, newest) == true ) {
       return list->item;	

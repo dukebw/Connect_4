@@ -45,9 +45,6 @@ static TextureWrapper *gInvalidMessage = NULL;
 static TextureWrapper *gInvalidTokenMessage = NULL;
 static TextureWrapper *gDrawGameMessage = NULL;
 static SDL_Renderer* gRenderer = NULL;
-static List<TokenLocation> *gHighlightedTokens = NULL;
-List<FallingToken> *gFallingTokens = NULL;
-
 static TextureWrapper *gCreditScreen = NULL;
 static TextureWrapper *gSetupScreen = NULL;
 static TextureWrapper *gTwoPlayerScreen = NULL;
@@ -57,7 +54,8 @@ static TextureWrapper *gStatusDraw = NULL;
 static TextureWrapper *gStatusInProgress = NULL;
 static TextureWrapper *gRefresh = NULL;
 
-
+static List<TokenLocation> *gHighlightedTokens = NULL;
+List<FallingToken> *gFallingTokens = NULL;
 
 void resetGraphicsState(GraphicsState *graphicsState)
 {
@@ -66,6 +64,7 @@ void resetGraphicsState(GraphicsState *graphicsState)
 	graphicsState->renderInvalidTokenMessage = false;
 	graphicsState->clearInvalidTokenMessage = false;
 	graphicsState->renderHighlighted = false;
+	graphicsState->renderIndicatorToken = true;
 }
 
 // NOTE(brendan): does rendering for credits menu
@@ -161,7 +160,7 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 }
 
 // NOTE(brendan): places the image at (x, y)
-inline void 
+inline void
 placeImage(SDL_Texture *image, int x, int y, int width, int height) {
 	SDL_Rect destRect;
   destRect.x = x;
@@ -224,7 +223,10 @@ void twoPlayerRender(GraphicsState *graphicsState)
   placeImage(gTwoPlayerScreen->texture, 0, 0, SCREEN_WIDTH,SCREEN_HEIGHT);
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
-  renderIndicatorToken(&graphicsState->indicatorToken);
+
+  if (graphicsState->renderIndicatorToken)
+	  renderIndicatorToken(&graphicsState->indicatorToken);
+
 	displayBoard();
 	SDL_RenderPresent(gRenderer);
 }
@@ -633,4 +635,25 @@ void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
   List<TokenLocation>::traverseList(freeTokenLocation, gHighlightedTokens);
   gHighlightedTokens = highlightedTokenList;
   graphicsState->renderHighlighted = true;
+}
+
+// NOTE(brendan): load the graphics state (falling tokens/highlighted tokens?)
+void loadGraphics(GraphicsState *graphicsState, FILE *in_file) {
+  if (in_file == 0) {
+    printf("Invalid file pointer in loadGraphics function\n");
+  }
+  else {
+    gFallingTokens = List<FallingToken>::readListFromFile(gFallingTokens, 
+        in_file);
+  }
+}
+
+// NOTE(brendan): save the graphics state (falling tokens/highlighted tokens?)
+void saveGraphics(GraphicsState *graphicsState, FILE *out_file) {
+  if (out_file == 0) {
+    printf("Invalid file pointer in saveGraphics function\n");
+  }
+  else {
+    List<FallingToken>::writeListToFile(gFallingTokens, out_file);
+  }
 }

@@ -16,63 +16,82 @@ static bool didColourWin(Board board, Token colour);
 static bool checkDraw(Board board);
 static char saveGameFilename[] = "saved_game.dat";
 
-// NOTE(brendan): 
+// NOTE(brendan): load all the game state from a file
 void loadGame(GameState *gameState) {
   FILE *in_file = fopen(saveGameFilename, "r");
   if (in_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
   else {
-    board_load(gameState->board);
-    fread((char *) gameState, sizeof(char), sizeof(GameState), 
-        in_file);
+    Board tempBoard = board_create();
+    board_load(tempBoard, in_file);
+    fread(gameState, sizeof(*gameState), 1, in_file);
+    loadGraphics(&gameState->graphicsState, in_file);
+    gameState->board = tempBoard;
   }
   fclose(in_file);
 }
 
-// NOTE(brendan): 
+// NOTE(brendan): save all the game state to a file so we can read it back
 void saveGame(GameState *gameState) {
   FILE *out_file = fopen(saveGameFilename, "w");
   if (out_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
   else {
-    board_save(gameState->board);
-    fwrite((char *) gameState, sizeof(char), sizeof(GameState), out_file);
+    board_save(gameState->board, out_file);
+    fwrite(gameState, sizeof(*gameState), 1, out_file);
+    saveGraphics(&gameState->graphicsState, out_file);
   }
   fclose(out_file);
 }
 
-void setupLogic(GameState *gameState) {
+// NOTE(brendan): handle MainMenu logic; load and save game for now
+void mainMenuLogic(GameState *gameState) {
   if (gameState->loadGame) {
+    loadGame(gameState);
+    gameState->loadGame = false;
+  }
+}
 
+void setupLogic(GameState *gameState) {
+  if (gameState->saveGame) {
+    saveGame(gameState);
+    gameState->saveGame = false;
   }
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
 // NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState) {
-  // NOTE(Zach): update the physics of all the falling tokens
-  List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
-  // NOTE(Zach): if the game is not in progress there is no need to do all
-  // the checking of the gamestate
-  if (gameState->currentProgress != INPROGRESS) return;
-  // NOTE(Zach): do the checking of the gamestate
-  bool didRedWin = didColourWin(gameState->board, RED);
-  bool didBlueWin = didColourWin(gameState->board, BLUE);
-  bool isDraw = checkDraw(gameState->board);
-  if (didRedWin) {
-    gameState->currentProgress = REDWON;
-    return;
-  }
-  if (didBlueWin) {
-    gameState->currentProgress = BLUEWON;
-    return;
-  }
-  if (isDraw) {
-    gameState->currentProgress = DRAW;
-    return;
-  }
+	resetGraphicsState(&gameState->graphicsState);
+	// NOTE(Zach): update the physics of all the falling tokens
+	List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
+	// NOTE(Zach): if the game is not in progress there is no need to do all
+	// the checking of the gamestate
+	if (gameState->currentProgress != INPROGRESS) {
+		gameState->graphicsState.renderIndicatorToken = false;
+		return;
+	}
+	// NOTE(Zach): do the checking of the gamestate
+	bool didRedWin = didColourWin(gameState->board, RED);
+	bool didBlueWin = didColourWin(gameState->board, BLUE);
+	bool isDraw = checkDraw(gameState->board);
+	if (didRedWin) {
+		gameState->currentProgress = REDWON;
+		gameState->graphicsState.renderIndicatorToken = false;
+		return;
+	}
+	if (didBlueWin) {
+		gameState->currentProgress = BLUEWON;
+		gameState->graphicsState.renderIndicatorToken = false;
+		return;
+	}
+	if (isDraw) {
+		gameState->currentProgress = DRAW;
+		gameState->graphicsState.renderIndicatorToken = false;
+		return;
+	}
 }
 
 static inline int

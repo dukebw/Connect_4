@@ -56,8 +56,8 @@ static void (*handleEvents[NUMBER_OF_STATES])(GameState *gameState) =
 {mainMenuHandleEvents, handleEventsStub, twoPlayerHandleEvents, 
   setupHandleEvents, creditsHandleEvents, handleEventsStub, handleEventsStub};
 
-static void (*logic[NUMBER_OF_STATES])(GameState *gameState) = 
-{logicStub, logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
+static void (*logic[NUMBER_OF_STATES])(GameState *gameState) = {mainMenuLogic, 
+  logicStub, twoPlayerLogic, setupLogic, logicStub, logicStub, logicStub};
 
 static void (*render[NUMBER_OF_STATES])(GraphicsState *graphicsState) = 
 {mainMenuRender, renderStub, twoPlayerRender, setupRender, creditsRender, 
@@ -124,13 +124,14 @@ void transitionSetupMainMenu(GameState *gameState)
 	List<FallingToken>::emptyList(&gFallingTokens);
 	resetGraphicsState(&gameState->graphicsState);
 	gameState->currentProgress = INPROGRESS;
-	logic[MAINMENU] = logicStub;
+	logic[MAINMENU] = mainMenuLogic;
 }
 
 void transitionMainMenuSetup(GameState *gameState)
 {
 	gameState->graphicsState.indicatorToken.row = -1;
 	gameState->graphicsState.indicatorToken.column = -1;
+	resetGraphicsState(&gameState->graphicsState);
 	logic[SETUP] = setupLogic;
 }
 
@@ -141,6 +142,7 @@ void transitionMainMenuTwoPlayer(GameState *gameState)
 	gameState->currentToken = chooseToken();
 	gameState->graphicsState.indicatorToken.row = -1;
 	gameState->graphicsState.indicatorToken.column = -1;
+	resetGraphicsState(&gameState->graphicsState);
 	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
 	logic[TWOPLAYER] = twoPlayerLogic;
 }
@@ -157,7 +159,7 @@ void transitionTwoPlayerMainMenu(GameState *gameState)
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
-static MenuState handleMainMenuMouseClick(int x, int y) {
+static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
 	//if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
 	if(pointInsideRect(x, y, MAINMENU_TWOPLAYER_BUTTON_RECT)) {
 		logic[TWOPLAYER] = transitionMainMenuTwoPlayer;
@@ -172,6 +174,9 @@ static MenuState handleMainMenuMouseClick(int x, int y) {
 	}
   if(pointInsideRect(x, y, MAINMENU_CREDIT_BUTTON_RECT)) {
 	  return CREDITS;
+  }
+  if (pointInsideRect(x, y, MAINMENU_LOADGAME_BUTTON_RECT)) {
+    gameState->loadGame = true;
   }
   return MAINMENU;
 }
@@ -203,7 +208,7 @@ static void mainMenuHandleEvents(GameState *gameState) {
       x = e.button.x;
       y = e.button.y;
 
-      gameState->currentState = handleMainMenuMouseClick(x, y);
+      gameState->currentState = handleMainMenuMouseClick(x, y, gameState);
     } 
     else {
       //handleMainMenuMouseMotion();
@@ -239,13 +244,11 @@ static void creditsHandleEvents(GameState *gameState) {
   }
 }
 
-
 static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
-
-//NOTE (Jean): It works, but I am not sure if I have declared everything that 
-// needs to be declared
-//           In order to clear everything correctly
-  if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
+  // NOTE (Jean): It works, but I am not sure if I have declared everything 
+  // that needs to be declared In order to clear everything correctly
+  //clear all the tokens in the screen if refresh button pressed
+  if (pointInsideRect(x, y, REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
     gameState->currentState = SETUP;
@@ -260,13 +263,8 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
     }
   }
 
-  if (pointInsideRect(x, y, SETUP_1PLAYER_BUTTON_RECT)) {
-    if (gameState->loadGame) {
-      gameState->loadGame = false;
-    }
-    else {
-      gameState->loadGame = true;
-    }
+  if (pointInsideRect(x, y, SAVE_BUTTON_RECT)) {
+    gameState->saveGame = true;
   }
 
   if(pointInsideCircle(x, y, SETUP_RED_CLICKY_TOKENS_CIRCLE)) {
@@ -354,8 +352,6 @@ static void switchToken(Token *token) {
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
 static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
-  
-  
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
@@ -371,7 +367,7 @@ static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
   return TWOPLAYER;
 }
 
-// NOTE(brendan): handles mouse clicks in the SETUP state
+// NOTE(brendan): handles mouse clicks in the two player state
 static void twoPlayerHandleEvents(GameState *gameState) {
   // Event handler
   SDL_Event e;
