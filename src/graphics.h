@@ -123,8 +123,8 @@ const int SAVE_BUTTON_WIDTH = (int)(120*(SCALE));
 const int SAVE_BUTTON_HEIGHT = (int)(50*(SCALE));
 
 //twoplayer and oneplayer status messages 
-const int STATUS_MESSAGE_HEIGHT = (int)(60*(SCALE));
-const int STATUS_MESSAGE_WIDTH = (int)(400*(SCALE));
+const int STATUS_MESSAGE_Y = (int)(770*(SCALE));
+const int STATUS_MESSAGE_X = (int)(148*(SCALE));
 
 // NOTE(brendan): defined in graphics.cpp; implementation details not leaked
 struct FallingToken;
@@ -140,10 +140,13 @@ struct TokenLocation {
 // NOTE(brendan): contains rendering information
 struct GraphicsState {
   bool renderInvalidMessage;
-  bool clearInvalidMessage;
   bool renderInvalidTokenMessage;
-  bool clearInvalidTokenMessage;
   bool renderHighlighted;
+
+  bool renderStatusInProgress;
+  bool renderStatusDrawGame;
+  bool renderStatusBlueWon;
+  bool renderStatusRedWon;
   bool renderIndicatorToken;
   int previousTokensWritten;
   TokenLocation indicatorToken;
