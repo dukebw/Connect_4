@@ -48,6 +48,7 @@ void saveGame(GameState *gameState) {
 
 // NOTE(brendan): handle MainMenu logic; load and save game for now
 void mainMenuLogic(GameState *gameState) {
+  // NOTE(brendan): load game
   if (gameState->loadGame) {
     loadGame(gameState);
     gameState->loadGame = false;
@@ -55,6 +56,7 @@ void mainMenuLogic(GameState *gameState) {
 }
 
 void setupLogic(GameState *gameState) {
+  // NOTE(brendan): save game
   if (gameState->saveGame) {
     saveGame(gameState);
     gameState->saveGame = false;
@@ -64,6 +66,12 @@ void setupLogic(GameState *gameState) {
 
 // NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState) {
+  // NOTE(brendan): save game
+  if (gameState->saveGame) {
+    saveGame(gameState);
+    gameState->saveGame = false;
+  }
+
 	resetGraphicsState(&gameState->graphicsState);
 	// NOTE(Zach): update the physics of all the falling tokens
 	List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
@@ -156,7 +164,7 @@ didColourWin(Board board, Token colour) {
 
         // NOTE(brendan): check for 4-in-a-row diagonal increasing left
         for(int currentCol = col, currentRow = row;
-            (currentRow >= 0) && (currentCol >= 0) &&
+            (currentRow >= 0) && (currentCol < NUM_COLS) &&
             (board_checkCell(board, currentRow, currentCol)) == colour;
             --currentRow, ++currentCol) {
           if(row - currentRow == 3) {

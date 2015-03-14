@@ -154,25 +154,24 @@ void transitionTwoPlayerMainMenu(GameState *gameState)
 	List<FallingToken>::emptyList(&gFallingTokens);
 	resetGraphicsState(&gameState->graphicsState);
 	gameState->currentProgress = INPROGRESS;
-	logic[MAINMENU] = logicStub;
+	logic[MAINMENU] = mainMenuLogic;
 }
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
-	//if (x >= 405 && y >= 455 && x <= 511 && y <= 490) return ONEPLAYER; 
-	if(pointInsideRect(x, y, MAINMENU_TWOPLAYER_BUTTON_RECT)) {
+	if (pointInsideRect(x, y, MAINMENU_TWOPLAYER_BUTTON_RECT)) {
 		logic[TWOPLAYER] = transitionMainMenuTwoPlayer;
 		return TWOPLAYER;
 	}
-	if(pointInsideRect(x, y, MAINMENU_SETUP_BUTTON_RECT)) {
+	if (pointInsideRect(x, y, MAINMENU_SETUP_BUTTON_RECT)) {
 		logic[SETUP] = transitionMainMenuSetup;
 		return SETUP;
 	}
-	if(pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
+	if (pointInsideRect(x, y, MAINMENU_QUIT_BUTTON_RECT)) {
 		return QUIT;
 	}
-  if(pointInsideRect(x, y, MAINMENU_CREDIT_BUTTON_RECT)) {
+  if (pointInsideRect(x, y, MAINMENU_CREDIT_BUTTON_RECT)) {
 	  return CREDITS;
   }
   if (pointInsideRect(x, y, MAINMENU_LOADGAME_BUTTON_RECT)) {
@@ -183,7 +182,7 @@ static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 static MenuState handleCreditsMenuMouseClick(int x, int y) {
-  if(pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
+  if (pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
     return MAINMENU;
   }
   return CREDITS;
@@ -263,6 +262,7 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
     }
   }
 
+  // NOTE(brendan): register save game event
   if (pointInsideRect(x, y, SAVE_BUTTON_RECT)) {
     gameState->saveGame = true;
   }
@@ -358,6 +358,11 @@ static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
     gameState->currentState = TWOPLAYER;
     gameState->currentProgress = INPROGRESS;
     board_empty(gameState->board);
+  }
+
+  // NOTE(brendan): register save game event
+  if (pointInsideRect(x, y, SAVE_BUTTON_RECT)) {
+    gameState->saveGame = true;
   }
 
   if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
