@@ -339,8 +339,8 @@ static TextureWrapper *loadTexture(std::string path) {
 
 // NOTE(Jean): A function to load all the media files; will return true if all
 // loaded successfully
-/*
- static bool loadAllFiles(string fileNames[], TextureWrapper **textureNames[], int size) {
+
+ static bool loadAllFiles(std::string fileNames[], TextureWrapper **textureNames[], int size) {
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
      if (*textureNames[i] == NULL) {
@@ -350,30 +350,29 @@ static TextureWrapper *loadTexture(std::string path) {
    }
    return true;
  }
-*/
+
 
 bool loadMedia() {
 	// NOTE(brendan): Loading success flag
 
 	bool success = true;
 
-/*
+
 	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
 	// NOTE(Jean): array of bmp names to be loaded
-	string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
+	std::string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
 		"statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
-		"gameTitlePage","1PlayerSetup","2PlayerSetup", "menuSetup", "glow", "drawGameMessage"};
+		"gameTitlePage", "glow", "drawGameMessage"};
 
 	// NOTE(Zach): array of pointer to pointers to TextureWrappers
 	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
-		&gStatusDraw,&gStatusInProgress,&gInvalidBoardMsg,&gInvalidTokenMsg,&gRedToken, &gBlueToken,
-		&gMainMenu,&gOnePlayerButton,&gTwoPlayerButton,&gMenuButton,&gGlow,&gDrawGameMessage};
+		&gStatusDraw,&gStatusInProgress,&gInvalidMessage,&gInvalidTokenMessage,&gRedToken, &gBlueToken,
+		&gMainMenu,&gGlow,&gDrawGameMessage};
 
 
 	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
 
-*/
-
+/*
   //NOTE(brendan): Load splash image
   gConnect4Board = loadTexture("../misc/boardCopy.bmp");
   if (gConnect4Board == NULL) {
@@ -478,7 +477,7 @@ bool loadMedia() {
     printf("Failed to load the refresh graphic!\n");
     success = false;
   }
-
+*/
   return success;
 }
 
