@@ -96,11 +96,7 @@ const Circle SETUP_BLUE_CLICKY_TOKENS_CIRCLE =
 const Rectangle TWOPLAYER_MENU_BUTTON_RECT =
   initScaledRectangle(862, 847, 992, 892, SCALE);
 
-const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
-const int SETUP_1PLAYER_BUTTON_WIDTH = (int)(120*(SCALE));
-const int SETUP_1PLAYER_BUTTON_HEIGHT = (int)(45*(SCALE));
-const int SETUP_MENU_BUTTON_WIDTH = (int)(130*(SCALE));
-const int SETUP_MENU_BUTTON_HEIGHT = (int)(45*(SCALE));
+ const int SETUP_BOTTOM_BUTTONS_OFFSET = (int)(10*(SCALE));
 
 //invalid board msg
 const int INVALID_MESSAGE_WIDTH = (int)(240*(SCALE));
@@ -109,18 +105,8 @@ const int INVALID_MESSAGE_X = (int)(147*(SCALE));
 const int INVALID_MESSAGE_Y = (int)(680*(SCALE));
 
 //invalid number of tokens msg
-const int INVALID_TOKEN_MESSAGE_WIDTH = (int)(500*(SCALE));
-const int INVALID_TOKEN_MESSAGE_HEIGHT = (int)(50*(SCALE));
-const int INVALID_TOKEN_MESSAGE_X = (int)(422*(SCALE));
-const int INVALID_TOKEN_MESSAGE_Y = (int)(680*(SCALE));
-
-//refresh button
-const int REFRESH_BUTTON_WIDTH = (int)(60*(SCALE));
-const int REFRESH_BUTTON_HEIGHT = (int)(60*(SCALE));
-
-//save button
-const int SAVE_BUTTON_WIDTH = (int)(120*(SCALE));
-const int SAVE_BUTTON_HEIGHT = (int)(50*(SCALE));
+ const int INVALID_TOKEN_MESSAGE_X = (int)(422*(SCALE));
+ const int INVALID_TOKEN_MESSAGE_Y = (int)(680*(SCALE));
 
 //twoplayer and oneplayer status messages 
 const int STATUS_MESSAGE_Y = (int)(770*(SCALE));
