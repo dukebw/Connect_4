@@ -208,6 +208,9 @@ void twoPlayerRender(GraphicsState *graphicsState)
 
   List<FallingToken>::traverseList(drawFallingToken, gFallingTokens);
 
+  if(graphicsState->renderHighlighted) {
+    List<TokenLocation>::traverseList(highlightToken, gHighlightedTokens);
+  }
   if (graphicsState->renderIndicatorToken)
 	  renderIndicatorToken(&graphicsState->indicatorToken);
 

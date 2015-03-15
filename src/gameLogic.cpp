@@ -14,6 +14,8 @@
 
 static bool didColourWin(Board board, Token colour);
 static bool checkDraw(Board board);
+static List<TokenLocation> *
+getSequentialTokens(Board board);
 static char saveGameFilename[] = "saved_game.dat";
 
 // NOTE(brendan): load all the game state from a file
@@ -58,8 +60,8 @@ void mainMenuLogic(GameState *gameState) {
 void setupLogic(GameState *gameState) {
   // NOTE(brendan): save game
   if (gameState->saveGame) {
-    saveGame(gameState);
     gameState->saveGame = false;
+    saveGame(gameState);
   }
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
@@ -68,8 +70,8 @@ void setupLogic(GameState *gameState) {
 void twoPlayerLogic(GameState *gameState) {
   // NOTE(brendan): save game
   if (gameState->saveGame) {
-    saveGame(gameState);
     gameState->saveGame = false;
+    saveGame(gameState);
   }
 
 	resetGraphicsState(&gameState->graphicsState);
@@ -89,6 +91,10 @@ void twoPlayerLogic(GameState *gameState) {
 
 
 
+  if (didRedWin || didBlueWin) {
+    setHighlightedTokenList(getSequentialTokens(gameState->board), 
+        &gameState->graphicsState);
+  }
   if (didRedWin) {
 		gameState->currentProgress = REDWON;
 		gameState->graphicsState.renderIndicatorToken = false;
@@ -126,6 +132,8 @@ countTokens(Board board, Token colour) {
 }
 
 // NOTE(brendan): checks if the board has been won by colour
+// TODO(brendan): do a version of this just checking for ONE token (the
+// body of inner loop) for two-player mode.
 static bool
 didColourWin(Board board, Token colour) {
   for(int row = 0; row < NUM_ROWS; ++row) {
@@ -232,6 +240,8 @@ addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column,
 // NOTE(brendan): returns a list of all tokens of the given colour that
 // are part of four-or-more in-a-row sequences
 // Yes I realize this is brutally inefficient
+// TODO(brendan): do a version of this just checking for ONE token (the
+// body of inner loop) for two-player mode.
 static List<TokenLocation> *
 getSequentialTokens(Board board) {
   List<TokenLocation> *sequentialTokens = NULL;
