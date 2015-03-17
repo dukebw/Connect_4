@@ -13,7 +13,7 @@ REM Fix this messy build file
 IF NOT EXIST ..\build mkdir ..\..\build
 pushd ..\build
 
-cl /EHsc /MD  ..\src\connect4.cpp ..\src\sdl2_connect4.cpp ..\src\board.cpp ..\src\gameLogic.cpp ..\src\graphics.cpp /Feconnect4.exe /I w:\vs_dev_lib\SDL2-2.0.3\include /link /LIBPATH:w:\vs_dev_lib\SDL2-2.0.3\lib\x64 SDL2.lib SDL2main.lib /SUBSYSTEM:CONSOLE
+cl /EHsc /MD  ..\src\connect4.cpp ..\src\sdl2_connect4.cpp ..\src\board.cpp ..\src\gameLogic.cpp ..\src\graphics.cpp /Feconnect4.exe /I C:\Users\jeanlucas\Desktop\SDL2-2.0.3\include /link /LIBPATH:C:\Users\jeanlucas\Desktop\SDL2-2.0.3\lib\x64 SDL2.lib SDL2main.lib /SUBSYSTEM:CONSOLE
 
 popd
 
