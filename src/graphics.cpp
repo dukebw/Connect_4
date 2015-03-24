@@ -340,7 +340,9 @@ static TextureWrapper *loadTexture(std::string path) {
 // NOTE(Jean): A function to load all the media files; will return true if all
 // loaded successfully
 
- static bool loadAllFiles(std::string fileNames[], TextureWrapper **textureNames[], int size) {
+ static bool 
+ loadAllFiles(std::string fileNames[], 
+     TextureWrapper **textureNames[], int size) {
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
      if (*textureNames[i] == NULL) {
@@ -354,130 +356,23 @@ static TextureWrapper *loadTexture(std::string path) {
 
 bool loadMedia() {
 	// NOTE(brendan): Loading success flag
-
 	bool success = true;
 
-
-	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames array below
+	// NOTE(Zach): I fixed the function loadAllFiles above and the textureNames 
+  // array below
 	// NOTE(Jean): array of bmp names to be loaded
-	std::string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen","twoPlayerScreen","statusBlueWon","statusRedWon",
-		"statusDraw","statusProgress","invalidBoard","invalidMessage","redToken2","blueToken2",
-		"gameTitlePage", "glow", "drawGameMessage"};
+	std::string filesToLoad[] = {"boardCopy","creditsMenu","setupScreen",
+    "twoPlayerScreen","statusBlueWon","statusRedWon",
+		"statusDraw","statusProgress","invalidBoard","invalidMessage",
+    "redToken2","blueToken2", "gameTitlePage", "glow", "drawGameMessage"};
 
 	// NOTE(Zach): array of pointer to pointers to TextureWrappers
 	TextureWrapper **textureNames[] = {&gConnect4Board,&gCreditScreen,&gSetupScreen,&gTwoPlayerScreen,&gStatusBlueWon,&gStatusRedWon,
 		&gStatusDraw,&gStatusInProgress,&gInvalidMessage,&gInvalidTokenMessage,&gRedToken, &gBlueToken,
 		&gMainMenu,&gGlow,&gDrawGameMessage};
 
-
-	success = loadAllFiles(filesToLoad, textureNames, sizeof(filesToLoad) / sizeof(filesToLoad[0]));                                
-
-/*
-  //NOTE(brendan): Load splash image
-  gConnect4Board = loadTexture("../misc/boardCopy.bmp");
-  if (gConnect4Board == NULL) {
-    printf( "Failed to load board!\n" );
-    success = false;
-  }
-
-  // NOTE(Zach): Load the red token
-  gRedToken = loadTexture("../misc/redToken2.bmp");
-  //gRedToken = loadTexture("../misc/red_token.png");
-  if (gRedToken == NULL) {
-    printf("Failed to load red token!\n");
-    success = false;
-  }
-
-  // NOTE(Zach): Load the blue token
-  gBlueToken = loadTexture("../misc/blueToken2.bmp");
-  if (gBlueToken == NULL) {
-    printf("Failed to load blue token!\n");
-    success = false;
-  }
-
-  // NOTE(Zach): Load the main menu
-  gMainMenu = loadTexture("../misc/gameTitlePage.bmp");
-  if (gBlueToken == NULL) {
-    printf("Failed to load the main menu!\n");
-    success = false;
-  }
-
-
-  // NOTE(Zach): Load the glow graphic
-  gGlow = loadTexture("../misc/glow.bmp");
-  if (gGlow == NULL) {
-    printf("Failed to load the glow graphic!\n");
-    success = false;
-  }
-
-  // NOTE(Jean): Invalid Board error message, for setup game mode
-  gInvalidMessage = loadTexture("../misc/invalidBoard.bmp");
-  if (gInvalidMessage == NULL) {
-    printf("Failed to load the \"invalid board\" graphic!\n");
-    success = false;
-  }
-
-    // NOTE(Jean): Invalid token number message, for setup game mode
-  gInvalidTokenMessage = loadTexture("../misc/invalidMessage.bmp");
-  if (gInvalidTokenMessage == NULL) {
-    printf("Failed to load the \"invalid number of tokens\" graphic!\n");
-    success = false;
-  }
-
-  gDrawGameMessage = loadTexture("../misc/drawGameMessage.bmp");
-  if (gDrawGameMessage == NULL) {
-    printf("Failed to load the \"Draw Game\" graphic!\n");
-    success = false;
-  }
-
-  gCreditScreen = loadTexture("../misc/creditsMenu.bmp");
-   if (gCreditScreen == NULL) {
-    printf("Failed to load the credit screen graphic!\n");
-    success = false;
-  }
-
-  gSetupScreen = loadTexture("../misc/setupScreen.bmp");
-    if (gSetupScreen == NULL) {
-    printf("Failed to load the setup screen graphic!\n");
-    success = false;
-  }
-
-  gTwoPlayerScreen = loadTexture("../misc/twoPlayerScreen.bmp");
-    if (gTwoPlayerScreen == NULL) {
-    printf("Failed to load the twoPlayerScreen graphic!\n");
-    success = false;
-  }
-
-  gStatusBlueWon = loadTexture("../misc/statusBlueWon.bmp");
-    if ( gStatusBlueWon == NULL) {
-    printf("Failed to load the statusBlueWon graphic!\n");
-    success = false;
-  }
-
-  gStatusRedWon = loadTexture("../misc/statusRedWon.bmp");
-    if (gStatusRedWon == NULL) {
-    printf("Failed to load the statusRedWon graphic!\n");
-    success = false;
-  }
-
- gStatusDraw = loadTexture("../misc/statusDraw.bmp");
-   if (gStatusDraw == NULL) {
-    printf("Failed to load statusDraw graphic!\n");
-    success = false;
-  }
-
-  gStatusInProgress = loadTexture("../misc/statusProgress.bmp");
-    if (gStatusInProgress == NULL) {
-    printf("Failed to load the status progress graphic!\n");
-    success = false;
-  }
-
-  gRefresh = loadTexture("../misc/refresh.bmp");
-    if (gRefresh == NULL) {
-    printf("Failed to load the refresh graphic!\n");
-    success = false;
-  }
-*/
+	success = loadAllFiles(filesToLoad, textureNames, 
+      sizeof(filesToLoad)/sizeof(filesToLoad[0]));                                
   return success;
 }
 

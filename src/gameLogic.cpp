@@ -171,11 +171,11 @@ didColourWin(Board board, Token colour) {
         }
 
         // NOTE(brendan): check for 4-in-a-row diagonal increasing left
-        for(int currentCol = col, currentRow = row;
+        for (int currentCol = col, currentRow = row;
             (currentRow >= 0) && (currentCol < NUM_COLS) &&
             (board_checkCell(board, currentRow, currentCol)) == colour;
             --currentRow, ++currentCol) {
-          if(row - currentRow == 3) {
+          if (row - currentRow == 3) {
             return true;
           }
         }
