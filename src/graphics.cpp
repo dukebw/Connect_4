@@ -87,7 +87,7 @@ void renderIndicatorToken(TokenLocation *indicatorToken)
 								GRID_OFFSET_Y + TOKEN_HEIGHT * indicatorToken->row,
 								TOKEN_WIDTH,
 								TOKEN_HEIGHT};
-	SDL_SetTextureColorMod(token->texture, 127, 127, 127);
+	SDL_SetTextureColorMod(token->texture, 153, 153, 153);
 	SDL_RenderCopy(gRenderer, token->texture, NULL, &destRect);
 	SDL_SetTextureColorMod(token->texture, 255, 255, 255);
 }
