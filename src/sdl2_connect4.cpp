@@ -44,6 +44,7 @@ static void creditsHandleEvents(GameState *gameState);
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
 static void onePlayerHandleEvents(GameState *gameState);
+static void switchPlayer(Player *player);
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
@@ -137,6 +138,28 @@ void transitionMainMenuSetup(GameState *gameState)
 }
 
 // NOTE(Zach): The transition "state" from mainmenu to twoplayer
+void transitionMainMenuOnePlayer(GameState *gameState)
+{
+	gameState->currentPlayer = choosePlayer();
+	gameState->currentToken = chooseToken();
+	gameState->graphicsState.indicatorToken.row = -1;
+	gameState->graphicsState.indicatorToken.column = -1;
+	resetGraphicsState(&gameState->graphicsState);
+	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
+	logic[ONEPLAYER] = onePlayerLogic;
+
+	if (gameState->currentPlayer == PLAYERONE) {
+	  int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
+	  dropToken(gameState->board, gameState->currentToken, aiDropColumn);
+	  board_dropToken(gameState->board, gameState->currentToken, 
+							aiDropColumn);
+	  switchPlayer(&gameState->currentPlayer);
+	  gameState->currentToken = otherToken(gameState->currentToken);
+	}
+
+}
+
+// NOTE(Zach): The transition "state" from mainmenu to twoplayer
 void transitionMainMenuTwoPlayer(GameState *gameState)
 {
 	gameState->currentPlayer = choosePlayer();
@@ -162,7 +185,7 @@ void transitionTwoPlayerMainMenu(GameState *gameState)
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
 static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
 	if (pointInsideRect(x, y, MAINMENU_ONEPLAYER_BUTTON_RECT)) {
-		logic[ONEPLAYER] = transitionMainMenuTwoPlayer;
+		logic[ONEPLAYER] = transitionMainMenuOnePlayer;
 		return ONEPLAYER;
 	}
 	if (pointInsideRect(x, y, MAINMENU_TWOPLAYER_BUTTON_RECT)) {
