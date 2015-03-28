@@ -16,4 +16,6 @@ struct Circle {
   int radius;
 };
 
+#define MAX(x,y) ((x) < (y) ? (y) : (x))
+
 #endif /* HELPER_H */

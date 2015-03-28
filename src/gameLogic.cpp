@@ -5,7 +5,7 @@
  * Kuir Aguer, Brendan Duke, Jean Ferreira, *
  * Zachariah Levine and Pranesh Satish      *
  ********************************************/
-
+#include "board.h"
 #include "gameLogic.h"
 #include "linkedList.h"
 #include <stdio.h>
@@ -380,6 +380,7 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
 // ---------------------------------------------------------------------------
 
 #define MAX_VALUE -1000
+enum WEIGHTS{WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0};
 
 // NOTE(Zach): Given a board and a token colour this function will return
 // an int corresponding to the column where the AI should move
@@ -415,5 +416,21 @@ static void boardToArray(Board b, Token arr[][NUM_COLS]){
 // board state corresponding to the array of tokens
 static int
 negamax(Token token_array[][NUM_COLS], Token colour, int column) {
+	Board b = (Board) token_array;
+	board_dropToken(b, colour, column);
+	if (didColourWin(b, colour)) return WIN_VALUE;
+	if (checkDraw(b)) return DRAW_VALUE;
 
+	int bestValue = LOSE_VALUE;
+	int value;
+	switchToken(&colour);
+	// Note(Zach): for each child node
+	for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
+		if (board_dropPosition(b, childCol) != -1) {
+			value = -negamax(token_array, colour, childCol);
+			bestValue = MAX(bestValue, value);
+		}
+	}
+	switchToken(&colour);
+	return bestValue;
 }

@@ -341,15 +341,6 @@ static void switchPlayer(Player *player) {
   }
 }
 
-// NOTE(Zach): switch the token
-static void switchToken(Token *token) {
-  if (*token == RED) {
-    *token = BLUE;
-  } else {
-    *token = RED;
-  }
-}
-
 // NOTE(brendan): handles mouse clicks while in the 2 player state
 static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {

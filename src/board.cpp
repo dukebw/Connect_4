@@ -102,3 +102,12 @@ void board_save(Board b, FILE *out_file) {
     fwrite(b, sizeof(*b), 1, out_file);
   }
 }
+
+// NOTE(Zach): switch the token
+void switchToken(Token *token) {
+  if (*token == RED) {
+    *token = BLUE;
+  } else {
+    *token = RED;
+  }
+}
