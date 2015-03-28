@@ -80,16 +80,20 @@ void creditsRender(GraphicsState *graphicsState) {
 void renderIndicatorToken(TokenLocation *indicatorToken)
 {
 	if (indicatorToken->row == -1 || indicatorToken->column == -1) return;
-	TextureWrapper *token;
+	TextureWrapper *token = NULL;
 	if (indicatorToken->colour == RED) token = gRedToken;
 	else if (indicatorToken->colour == BLUE) token = gBlueToken;
-	SDL_Rect destRect = {GRID_OFFSET_X + TOKEN_WIDTH*indicatorToken->column,
-								GRID_OFFSET_Y + TOKEN_HEIGHT * indicatorToken->row,
-								TOKEN_WIDTH,
-								TOKEN_HEIGHT};
-	SDL_SetTextureColorMod(token->texture, 153, 153, 153);
-	SDL_RenderCopy(gRenderer, token->texture, NULL, &destRect);
-	SDL_SetTextureColorMod(token->texture, 255, 255, 255);
+  // TODO(brendan): did this to get rid of syntastic error; clean up above?
+  // Specifically: didn't handle indicatorToken->colour not BLUE or RED case
+  if (token) {
+    SDL_Rect destRect = {GRID_OFFSET_X + TOKEN_WIDTH*indicatorToken->column,
+      GRID_OFFSET_Y + TOKEN_HEIGHT * indicatorToken->row,
+      TOKEN_WIDTH,
+      TOKEN_HEIGHT};
+    SDL_SetTextureColorMod(token->texture, 153, 153, 153);
+    SDL_RenderCopy(gRenderer, token->texture, NULL, &destRect);
+    SDL_SetTextureColorMod(token->texture, 255, 255, 255);
+  }
 }
 
 void displayBoard() {

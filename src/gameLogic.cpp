@@ -16,7 +16,10 @@ static bool didColourWin(Board board, Token colour);
 static bool checkDraw(Board board);
 static List<TokenLocation> *
 getSequentialTokens(Board board);
+static void boardToArray(Board b, Token arr[][NUM_COLS]);
 static char saveGameFilename[] = "saved_game.dat";
+static int
+negamax(Token token_array[][NUM_COLS], Token colour, int column);
 
 // NOTE(brendan): load all the game state from a file
 void loadGame(GameState *gameState) {
@@ -370,4 +373,47 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
   }
   // NOTE(brendan): game not in progress: continue setup
   return false;
+}
+
+// ---------------------------------------------------------------------------
+// AI
+// ---------------------------------------------------------------------------
+
+#define MAX_VALUE -1000
+
+// NOTE(Zach): Given a board and a token colour this function will return
+// an int corresponding to the column where the AI should move
+int AI_move(Board b, Token colour)
+{
+	Token arr[NUM_ROWS][NUM_COLS];
+	boardToArray(b, arr);
+  int moveColumn = 0, maxValue = -MAX_VALUE, value;
+  for (int col = 0; col < NUM_COLS; ++col) {
+    if (board_dropPosition(b, col) != -1) {
+      if ((value = negamax(arr, colour, col)) > maxValue) {
+        moveColumn = col;
+        maxValue = value;
+      }
+    }
+  }
+  return moveColumn;
+}
+
+// NOTE(Zach): Read the board into a two dimensional array
+static void boardToArray(Board b, Token arr[][NUM_COLS]){
+	int row, col;
+
+	for (row = 0; row < NUM_ROWS; row++) {
+		for (col = 0; col < NUM_COLS; col++) {
+			arr[row][col] = board_checkCell(b, row, col);
+		}
+	}
+}
+
+// NOTE(brendan): INPUT: array of tokens; current token colour
+// OUTPUT: a value indicating the best move for the token colour given the
+// board state corresponding to the array of tokens
+static int
+negamax(Token token_array[][NUM_COLS], Token colour, int column) {
+
 }
