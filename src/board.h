@@ -47,7 +47,7 @@ void board_load(Board b, FILE *in_file);
 // NOTE(brendan): save the board
 void board_save(Board b, FILE *out_file);
 
-// NOTE(Zach): switch the token
-void switchToken(Token *token);
+// NOTE(Zach): return the other token
+Token otherToken(Token token);
 
 #endif // BOARD_H

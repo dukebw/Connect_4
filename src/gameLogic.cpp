@@ -92,8 +92,6 @@ void twoPlayerLogic(GameState *gameState) {
 	bool didBlueWin = didColourWin(gameState->board, BLUE);
 	bool isDraw = checkDraw(gameState->board);
 
-
-
   if (didRedWin || didBlueWin) {
     setHighlightedTokenList(getSequentialTokens(gameState->board), 
         &gameState->graphicsState);
@@ -423,14 +421,12 @@ negamax(Token token_array[][NUM_COLS], Token colour, int column) {
 
 	int bestValue = LOSE_VALUE;
 	int value;
-	switchToken(&colour);
 	// Note(Zach): for each child node
 	for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
 		if (board_dropPosition(b, childCol) != -1) {
-			value = -negamax(token_array, colour, childCol);
+			value = -negamax(token_array, otherToken(colour), childCol);
 			bestValue = MAX(bestValue, value);
 		}
 	}
-	switchToken(&colour);
 	return bestValue;
 }

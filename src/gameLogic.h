@@ -50,4 +50,8 @@ void twoPlayerLogic(GameState *gameState);
 // (highlights winning tokens)
 bool readyToTransitionSetupTwoPlayer(GameState *gameState);
 
+// NOTE(Zach): Given a board and a token colour this function will return
+// an int corresponding to the column where the AI should move
+int AI_move(Board b, Token colour);
+
 #endif // GAMELOGIC_H

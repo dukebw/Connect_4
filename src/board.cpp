@@ -103,11 +103,11 @@ void board_save(Board b, FILE *out_file) {
   }
 }
 
-// NOTE(Zach): switch the token
-void switchToken(Token *token) {
-  if (*token == RED) {
-    *token = BLUE;
+// NOTE(Zach): return the other token
+Token otherToken(Token token) {
+  if (token == RED) {
+    return BLUE;
   } else {
-    *token = RED;
+    return RED;
   }
 }

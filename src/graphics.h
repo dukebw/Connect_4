@@ -53,6 +53,8 @@ const int GRID_HEIGHT = (int)(600*(SCALE));
   //main menu
 const Rectangle MAINMENU_TWOPLAYER_BUTTON_RECT =
   initScaledRectangle(530, 455, 642, 490, SCALE);
+const Rectangle MAINMENU_ONEPLAYER_BUTTON_RECT =
+  initScaledRectangle(400, 455, 530, 490, SCALE);
 const Rectangle MAINMENU_SETUP_BUTTON_RECT =
   initScaledRectangle(430, 545, 602, 610, SCALE);
 const Rectangle MAINMENU_LOADGAME_BUTTON_RECT = 
