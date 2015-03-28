@@ -43,6 +43,10 @@ void mainMenuLogic(GameState *gameState);
 // TODO(brendan): change to update (from logic)
 void setupLogic(GameState *gameState);
 
+// NOTE(Zach): do the one player mode logic
+void onePlayerLogic(GameState *gameState);
+
+// NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState);
 
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns

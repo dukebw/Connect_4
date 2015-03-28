@@ -69,6 +69,11 @@ void setupLogic(GameState *gameState) {
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
+// NOTE(Zach): do the one player mode logic
+void onePlayerLogic(GameState *gameState) {
+	twoPlayerLogic(gameState);
+}
+
 // NOTE(Zach): do the two player mode logic
 void twoPlayerLogic(GameState *gameState) {
   // NOTE(brendan): save game

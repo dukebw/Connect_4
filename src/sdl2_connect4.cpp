@@ -43,6 +43,7 @@ static void mainMenuHandleEvents(GameState *gameState);
 static void creditsHandleEvents(GameState *gameState); 
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
+static void onePlayerHandleEvents(GameState *gameState);
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {

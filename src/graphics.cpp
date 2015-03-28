@@ -203,6 +203,11 @@ void setupRender(GraphicsState *graphicsState)
 	SDL_RenderPresent(gRenderer);
 }
 
+void onePlayerRender(GraphicsState *graphicsState)
+{
+	twoPlayerRender(graphicsState);
+}
+
 void twoPlayerRender(GraphicsState *graphicsState)
 {
 	SDL_RenderClear(gRenderer);

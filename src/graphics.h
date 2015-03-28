@@ -159,6 +159,9 @@ void mainMenuRender(GraphicsState *graphicsState);
 // NOTE(brendan): does rendering for setup
 void setupRender(GraphicsState *graphicsState);
 
+// NOTE(Zach): does the rendering for one player mode
+void onePlayerRender(GraphicsState *graphicsState);
+
 // NOTE(Zach): does the rendering for two player mode
 void twoPlayerRender(GraphicsState *graphicsState);
 
