@@ -13,6 +13,7 @@
 #include "graphics.h"
 
 #define NUMBER_OF_STATES 7
+#define NO_DROP_COLUMN -1
 
 typedef enum {PLAYERONE, PLAYERTWO, RANDOMPLAYER} Player; 
 
@@ -36,6 +37,9 @@ struct GameState {
   bool loadGame;
   bool saveGame;
 };
+
+// NOTE(Zach): switch the player
+Player otherPlayer(Player player);
 
 // NOTE(brendan): handle MainMenu logic; load and save game for now
 void mainMenuLogic(GameState *gameState);

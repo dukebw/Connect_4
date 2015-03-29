@@ -44,7 +44,6 @@ static void creditsHandleEvents(GameState *gameState);
 static void setupHandleEvents(GameState *gameState);
 static void twoPlayerHandleEvents(GameState *gameState);
 static void onePlayerHandleEvents(GameState *gameState);
-static void switchPlayer(Player *player);
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
@@ -72,7 +71,8 @@ static void renderStub(GraphicsState *graphicsState) {}
 
 // NOTE(brendan): checks if a click landed in the rect
 inline bool
-pointInsideRect(int x, int y, Rectangle rect) {
+pointInsideRect(int x, int y, Rectangle rect) 
+{
   if ((x >= rect.topLeft.x) && (y >= rect.topLeft.y) && 
       (x <= rect.bottomRight.x) && (y <= rect.bottomRight.y)) {
     return true; 
@@ -83,13 +83,15 @@ pointInsideRect(int x, int y, Rectangle rect) {
 }
 
 inline int
-square(int x) {
+square(int x) 
+{
   return x*x;
 }
 
 // NOTE(brendan): checks if a click landed in the circle
 inline bool
-pointInsideCircle(int x, int y, Circle circle) {
+pointInsideCircle(int x, int y, Circle circle) 
+{
   int fromCircleCenterX = x - circle.center.x;
   int fromCircleCenterY = y - circle.center.y;
   if(square(circle.radius) >= 
@@ -100,17 +102,20 @@ pointInsideCircle(int x, int y, Circle circle) {
 }
 
 // NOTE(brendan): Return PLAYERTWO or PLAYERONE randomly
-Player choosePlayer() {
+Player choosePlayer() 
+{
   return (rand() % 2) ? PLAYERONE : PLAYERTWO;
 }
 
 // NOTE(brendan): Return RED or BLUE randomly
-Token chooseToken() {
+Token chooseToken() 
+{
   return (rand() % 2) ? RED : BLUE;
 }
 
 // NOTE(brendan): The transition "state" from setup to twoplayer
-void transitionSetupTwoPlayer(GameState *gameState) {
+void transitionSetupTwoPlayer(GameState *gameState) 
+{
   gameState->currentPlayer = choosePlayer();
   if(gameState->currentToken == RANDOMTOKEN) {
     gameState->currentToken = chooseToken();
@@ -147,21 +152,13 @@ void transitionMainMenuOnePlayer(GameState *gameState)
 	resetGraphicsState(&gameState->graphicsState);
 	gameState->graphicsState.indicatorToken.colour = gameState->currentToken;
 	logic[ONEPLAYER] = onePlayerLogic;
-
-	if (gameState->currentPlayer == PLAYERONE) {
-	  int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
-	  dropToken(gameState->board, gameState->currentToken, aiDropColumn);
-	  board_dropToken(gameState->board, gameState->currentToken, 
-							aiDropColumn);
-	  switchPlayer(&gameState->currentPlayer);
-	  gameState->currentToken = otherToken(gameState->currentToken);
-	}
-
 }
 
 // NOTE(Zach): The transition "state" from mainmenu to twoplayer
 void transitionMainMenuTwoPlayer(GameState *gameState)
 {
+  // NOTE(brendan): don't drop on first frame
+  gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
 	gameState->currentPlayer = choosePlayer();
 	gameState->currentToken = chooseToken();
 	gameState->graphicsState.indicatorToken.row = -1;
@@ -183,7 +180,8 @@ void transitionTwoPlayerMainMenu(GameState *gameState)
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
 // NOTE(Jean): Values fixed for the new modified and re-scaled image
-static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
+static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) 
+{
 	if (pointInsideRect(x, y, MAINMENU_ONEPLAYER_BUTTON_RECT)) {
 		logic[ONEPLAYER] = transitionMainMenuOnePlayer;
 		return ONEPLAYER;
@@ -209,7 +207,8 @@ static MenuState handleMainMenuMouseClick(int x, int y, GameState *gameState) {
 }
 
 // NOTE(Zach): Determine next MenuState based on where the user clicked
-static MenuState handleCreditsMenuMouseClick(int x, int y) {
+static MenuState handleCreditsMenuMouseClick(int x, int y) 
+{
   if (pointInsideRect(x, y, CREDITS_QUIT_BUTTON_RECT)) {
     return MAINMENU;
   }
@@ -218,7 +217,8 @@ static MenuState handleCreditsMenuMouseClick(int x, int y) {
 
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Main Menu
-static void mainMenuHandleEvents(GameState *gameState) {
+static void mainMenuHandleEvents(GameState *gameState) 
+{
   // NOTE(Zach): Event handler
   SDL_Event e;
 
@@ -249,7 +249,8 @@ static void mainMenuHandleEvents(GameState *gameState) {
 
 
 // NOTE(Zach): Display and handle mouse clicks/motion of the Credits Menu
-static void creditsHandleEvents(GameState *gameState) {
+static void creditsHandleEvents(GameState *gameState) 
+{
   // NOTE(Zach): Event handler
   SDL_Event e;
 
@@ -271,7 +272,8 @@ static void creditsHandleEvents(GameState *gameState) {
   }
 }
 
-static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) {
+static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) 
+{
   // NOTE (Jean): It works, but I am not sure if I have declared everything 
   // that needs to be declared In order to clear everything correctly
   //clear all the tokens in the screen if refresh button pressed
@@ -326,7 +328,8 @@ static void handleIndicatorMouseMotion(GameState *gameState)
 }
 
 // NOTE(brendan): handles mouse clicks in the SETUP state
-static void setupHandleEvents(GameState *gameState) {
+static void setupHandleEvents(GameState *gameState) 
+{
   // Event handler
   SDL_Event e;
 
@@ -360,17 +363,9 @@ static void setupHandleEvents(GameState *gameState) {
   }
 }
 
-// NOTE(Zach): switch the player
-static void switchPlayer(Player *player) {
-  if (*player == PLAYERONE) {
-    *player = PLAYERTWO;
-  } else {
-    *player = PLAYERONE;
-  }
-}
-
 // NOTE(brendan): handles mouse clicks while in the 2 player state
-static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
+static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) 
+{
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
@@ -392,7 +387,8 @@ static MenuState twoPlayerHandleMouseClick(int x, int y, GameState *gameState) {
 }
 
 // NOTE(brendan): handles mouse clicks in the two player state
-static void twoPlayerHandleEvents(GameState *gameState) {
+static void twoPlayerHandleEvents(GameState *gameState) 
+{
   // Event handler
   SDL_Event e;
 
@@ -416,14 +412,9 @@ static void twoPlayerHandleEvents(GameState *gameState) {
       if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
       if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
 
-      int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
-      // NOTE(brendan): add token to list of falling tokens if valid drop
-      if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
-        // NOTE(Zach): Insert the token into the board
-        board_dropToken(gameState->board, gameState->currentToken, dropColumn);
-        switchPlayer(&gameState->currentPlayer);
-        gameState->currentToken = otherToken(gameState->currentToken);
-      }
+      // NOTE(brendan): set drop column
+      gameState->graphicsState.playerDrop.column = 
+        (x - GRID_OFFSET_X)/TOKEN_WIDTH;
     } else {
 			handleIndicatorMouseMotion(gameState);
 	 }
@@ -431,7 +422,8 @@ static void twoPlayerHandleEvents(GameState *gameState) {
 }
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
-static MenuState onePlayerHandleMouseClick(int x, int y, GameState *gameState) {
+static MenuState onePlayerHandleMouseClick(int x, int y, GameState *gameState) 
+{
   if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
     resetGraphicsState(&gameState->graphicsState);   
@@ -454,7 +446,8 @@ static MenuState onePlayerHandleMouseClick(int x, int y, GameState *gameState) {
 
 // NOTE(brendan): handles mouse clicks in the one player state
 // TODO(brendan): compress the redundant event handling
-static void onePlayerHandleEvents(GameState *gameState) {
+static void onePlayerHandleEvents(GameState *gameState) 
+{
   // Event handler
   SDL_Event e;
 
@@ -483,7 +476,7 @@ static void onePlayerHandleEvents(GameState *gameState) {
       if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
         // NOTE(Zach): Insert the token into the board
         board_dropToken(gameState->board, gameState->currentToken, dropColumn);
-        switchPlayer(&gameState->currentPlayer);
+        gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
         gameState->currentToken = otherToken(gameState->currentToken);
 
         // TODO(brendan): change the dropToken to change some game state,
@@ -492,7 +485,7 @@ static void onePlayerHandleEvents(GameState *gameState) {
         dropToken(gameState->board, gameState->currentToken, aiDropColumn);
         board_dropToken(gameState->board, gameState->currentToken, 
                         aiDropColumn);
-        switchPlayer(&gameState->currentPlayer);
+        gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
         gameState->currentToken = otherToken(gameState->currentToken);
       }
     } else {
@@ -501,7 +494,8 @@ static void onePlayerHandleEvents(GameState *gameState) {
   }
 }
 
-int connect4() {
+int connect4() 
+{
   srand((unsigned)(time(0)));
   // NOTE(brendan): Start up SDL and create window.
   if (!init()) {

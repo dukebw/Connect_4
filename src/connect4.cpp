@@ -8,6 +8,7 @@
 
 #include "sdl2_connect4.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
   return connect4();
 }

@@ -57,7 +57,8 @@ public:
 
 // NOTE(brendan): add item T to the list
 template<typename T> List<T> *
-List<T>::addToList(T *newItem, List<T> *list) {
+List<T>::addToList(T *newItem, List<T> *list) 
+{
   if(newItem != NULL) {
     List<T> *resultList = (List<T> *)malloc(sizeof(List<T>));
     resultList->item = newItem;
@@ -70,7 +71,8 @@ List<T>::addToList(T *newItem, List<T> *list) {
 }
 
 template<typename T> void 
-List<T>::emptyList(List<T> **list) {
+List<T>::emptyList(List<T> **list) 
+{
 	List<T> *current = *list;
 	List<T> *previous = NULL;
 	while (current != NULL) {
@@ -83,7 +85,8 @@ List<T>::emptyList(List<T> **list) {
 
 // NOTE(brendan): delete the first occurence of item T; returns the list
 template<typename T> List<T> *
-List<T>::deleteFromList(T *toDeleteItem, List<T> *list) {
+List<T>::deleteFromList(T *toDeleteItem, List<T> *list) 
+{
   if(list != NULL) {
     List<T> *current;
     List<T> *previous;
@@ -108,7 +111,8 @@ List<T>::deleteFromList(T *toDeleteItem, List<T> *list) {
 
 // NOTE(brendan): iterate over list, executing function f() on each node
 template<typename T> void 
-List<T>::traverseList(void (*f)(T *item), List<T> *list) {
+List<T>::traverseList(void (*f)(T *item), List<T> *list) 
+{
   for(List<T> *current = list;
       current != NULL;
       current = current->next) {
@@ -118,7 +122,8 @@ List<T>::traverseList(void (*f)(T *item), List<T> *list) {
 
 // NOTE(brendan): iterate over list, executing function f() on each node
 template<typename T> void 
-List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) {
+List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) 
+{
   for(List<T> *current = list;
       current != NULL;
       current = current->next) {
@@ -127,7 +132,8 @@ List<T>::traverseList(void (*f)(T *item, float dt), float dt, List<T> *list) {
 }
 // NOTE(brendan): write all the items in list contiguously to fp
 template<typename T> List<T> *
-List<T>::readListFromFile(List<T> *list, FILE *fp) {
+List<T>::readListFromFile(List<T> *list, FILE *fp) 
+{
   List<T>::emptyList(&list);
   int count;
   fread(&count, sizeof(int), 1, fp);
@@ -142,7 +148,8 @@ List<T>::readListFromFile(List<T> *list, FILE *fp) {
 
 // NOTE(brendan): write all the items in list contiguously to fp
 template<typename T> void
-List<T>::writeListToFile(List<T> *list, FILE *fp) {
+List<T>::writeListToFile(List<T> *list, FILE *fp) 
+{
   fseek(fp, sizeof(int), SEEK_CUR);
   int count = 0;
 	for(; list != NULL; list = list->next) {
@@ -159,7 +166,8 @@ List<T>::writeListToFile(List<T> *list, FILE *fp) {
 // that satisfies function f
 template<typename T> T *
 List<T>::reduceList(bool (*f)(T *listItem, T *item), T *newest, 
-    List<T> *list) {
+    List<T> *list) 
+{
 	for(; list != NULL; list = list->next) {
 		if((*f)(list->item, newest) == true ) {
       return list->item;	

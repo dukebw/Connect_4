@@ -127,6 +127,9 @@ struct TokenLocation {
 
 // NOTE(brendan): contains rendering information
 struct GraphicsState {
+  TokenLocation indicatorToken;
+  TokenLocation playerDrop;
+  TokenLocation computerDrop;
   bool renderInvalidMessage;
   bool renderInvalidTokenMessage;
   bool renderHighlighted;
@@ -137,7 +140,6 @@ struct GraphicsState {
   bool renderStatusRedWon;
   bool renderIndicatorToken;
   int previousTokensWritten;
-  TokenLocation indicatorToken;
 };
 
 void drawFallingToken(FallingToken *token);

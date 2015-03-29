@@ -21,8 +21,19 @@ static char saveGameFilename[] = "saved_game.dat";
 static int
 negamax(Token token_array[][NUM_COLS], Token colour, int column);
 
+// NOTE(Zach): switch the player
+Player otherPlayer(Player player) 
+{
+  if (player == PLAYERONE) {
+    return PLAYERTWO;
+  } else {
+    return PLAYERONE;
+  }
+}
+
 // NOTE(brendan): load all the game state from a file
-void loadGame(GameState *gameState) {
+void loadGame(GameState *gameState) 
+{
   FILE *in_file = fopen(saveGameFilename, "r");
   if (in_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
@@ -38,7 +49,8 @@ void loadGame(GameState *gameState) {
 }
 
 // NOTE(brendan): save all the game state to a file so we can read it back
-void saveGame(GameState *gameState) {
+void saveGame(GameState *gameState) 
+{
   FILE *out_file = fopen(saveGameFilename, "w");
   if (out_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
@@ -52,7 +64,8 @@ void saveGame(GameState *gameState) {
 }
 
 // NOTE(brendan): handle MainMenu logic; load and save game for now
-void mainMenuLogic(GameState *gameState) {
+void mainMenuLogic(GameState *gameState) 
+{
   // NOTE(brendan): load game
   if (gameState->loadGame) {
     loadGame(gameState);
@@ -60,7 +73,8 @@ void mainMenuLogic(GameState *gameState) {
   }
 }
 
-void setupLogic(GameState *gameState) {
+void setupLogic(GameState *gameState) 
+{
   // NOTE(brendan): save game
   if (gameState->saveGame) {
     gameState->saveGame = false;
@@ -69,20 +83,38 @@ void setupLogic(GameState *gameState) {
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
+// NOTE(brendan): INPUT: game state and a column
+// checks if a drop is valid; if so changes the current player and token, and 
+// changes the graphics state so that the token will be dropped next render
+// TODO(brendan): change this so it doesn't call the graphics function
+static void tryDrop(GameState *gameState, int dropColumn) 
+{
+  if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
+    board_dropToken(gameState->board, gameState->currentToken, dropColumn);
+    gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
+    gameState->currentToken = otherToken(gameState->currentToken);
+  }
+}
+
 // NOTE(Zach): do the one player mode logic
-void onePlayerLogic(GameState *gameState) {
+void onePlayerLogic(GameState *gameState) 
+{
+  if (gameState->currentPlayer == PLAYERONE) {
+    int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
+    tryDrop(gameState, aiDropColumn);
+  }
 	twoPlayerLogic(gameState);
 }
 
 // NOTE(Zach): do the two player mode logic
-void twoPlayerLogic(GameState *gameState) {
+void twoPlayerLogic(GameState *gameState) 
+{
   // NOTE(brendan): save game
   if (gameState->saveGame) {
     gameState->saveGame = false;
     saveGame(gameState);
   }
 
-	resetGraphicsState(&gameState->graphicsState);
 	// NOTE(Zach): update the physics of all the falling tokens
 	List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 	// NOTE(Zach): if the game is not in progress there is no need to do all
@@ -90,42 +122,48 @@ void twoPlayerLogic(GameState *gameState) {
 	
   if (gameState->currentProgress != INPROGRESS) {
 		gameState->graphicsState.renderIndicatorToken = false;
-		
 	}
-	// NOTE(Zach): do the checking of the gamestate
-	bool didRedWin = didColourWin(gameState->board, RED);
-	bool didBlueWin = didColourWin(gameState->board, BLUE);
-	bool isDraw = checkDraw(gameState->board);
 
-  if (didRedWin || didBlueWin) {
-    setHighlightedTokenList(getSequentialTokens(gameState->board), 
-        &gameState->graphicsState);
+  int playerDropColumn = gameState->graphicsState.playerDrop.column;
+  if (playerDropColumn != NO_DROP_COLUMN) {
+    tryDrop(gameState, playerDropColumn);
+    gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+    // NOTE(Zach): do the checking of the gamestate
+    bool didRedWin = didColourWin(gameState->board, RED);
+    bool didBlueWin = didColourWin(gameState->board, BLUE);
+    bool isDraw = checkDraw(gameState->board);
+
+    if (didRedWin || didBlueWin) {
+      setHighlightedTokenList(getSequentialTokens(gameState->board), 
+          &gameState->graphicsState);
+    }
+    if (didRedWin) {
+      gameState->currentProgress = REDWON;
+      gameState->graphicsState.renderIndicatorToken = false;
+      gameState->graphicsState.renderStatusRedWon = true;
+      gameState->graphicsState.renderStatusInProgress = false;
+      return;
+    }
+    if (didBlueWin) {
+      gameState->currentProgress = BLUEWON;
+      gameState->graphicsState.renderIndicatorToken = false;
+      gameState->graphicsState.renderStatusBlueWon = true;
+      gameState->graphicsState.renderStatusInProgress = false;
+      return;
+    }
+    if (isDraw) {
+      gameState->currentProgress = DRAW;
+      gameState->graphicsState.renderIndicatorToken = false;
+      gameState->graphicsState.renderStatusDrawGame = true;
+      gameState->graphicsState.renderStatusInProgress = false;
+      return;
+    }
   }
-  if (didRedWin) {
-		gameState->currentProgress = REDWON;
-		gameState->graphicsState.renderIndicatorToken = false;
-    gameState->graphicsState.renderStatusRedWon = true;
-    gameState->graphicsState.renderStatusInProgress = false;
-		return;
-	}
-	if (didBlueWin) {
-		gameState->currentProgress = BLUEWON;
-		gameState->graphicsState.renderIndicatorToken = false;
-    gameState->graphicsState.renderStatusBlueWon = true;
-    gameState->graphicsState.renderStatusInProgress = false;
-		return;
-	}
-	if (isDraw) {
-		gameState->currentProgress = DRAW;
-		gameState->graphicsState.renderIndicatorToken = false;
-    gameState->graphicsState.renderStatusDrawGame = true;
-    gameState->graphicsState.renderStatusInProgress = false;
-		return;
-	}
 }
 
 static inline int
-countTokens(Board board, Token colour) {
+countTokens(Board board, Token colour) 
+{
   int numberOfTokens = 0;
   for(int row = 0; row < NUM_ROWS; ++row) {
     for(int col = 0; col < NUM_COLS; ++col) {
@@ -141,7 +179,8 @@ countTokens(Board board, Token colour) {
 // TODO(brendan): do a version of this just checking for ONE token (the
 // body of inner loop) for two-player mode.
 static bool
-didColourWin(Board board, Token colour) {
+didColourWin(Board board, Token colour) 
+{
   for(int row = 0; row < NUM_ROWS; ++row) {
     for(int col = 0; col < NUM_COLS; ++col) {
       if(board_checkCell(board, row, col) == colour) {
@@ -192,7 +231,8 @@ didColourWin(Board board, Token colour) {
 }
 
 // NOTE(brendan): checks if the board is drawn
-static bool checkDraw(Board board) {
+static bool checkDraw(Board board) 
+{
   int numberRedTokens = countTokens(board, RED);
   int numberBlueTokens = countTokens(board, BLUE);
   if(numberRedTokens + numberBlueTokens == NUM_ROWS*NUM_COLS) {
@@ -201,11 +241,13 @@ static bool checkDraw(Board board) {
   return false;
 }
 
-inline int abs(int x) {
+inline int abs(int x) 
+{
   return x < 0 ? -x : x;
 }
 
-static bool checkInvalidBoard(Board board) {
+static bool checkInvalidBoard(Board board) 
+{
   int numberRedTokens = countTokens(board, RED);
   int numberBlueTokens = countTokens(board, BLUE);
   // NOTE(brendan): difference between number of each type of token is >1
@@ -218,7 +260,8 @@ static bool checkInvalidBoard(Board board) {
 // TODO(brendan): checks if tokenA and tokenB are "equal"; replace with
 // operator overloading
 static bool
-equals(TokenLocation *tokenA, TokenLocation *tokenB) {
+equals(TokenLocation *tokenA, TokenLocation *tokenB) 
+{
   return (tokenA->row == tokenB->row) && 
     (tokenA->column == tokenB->column) &&
     (tokenA->colour == tokenB->colour);
@@ -227,7 +270,8 @@ equals(TokenLocation *tokenA, TokenLocation *tokenB) {
 // NOTE(brendan): adds a tokenList(row, column, colour) to tokenList
 inline List<TokenLocation> *
 addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column, 
-    Token colour) {
+    Token colour) 
+{
   TokenLocation *newHighlightedToken = 
     (TokenLocation *)malloc(sizeof(TokenLocation));
   newHighlightedToken->row = row;
@@ -249,7 +293,8 @@ addNewTokenLocation(List<TokenLocation> *tokenList, int row, int column,
 // TODO(brendan): do a version of this just checking for ONE token (the
 // body of inner loop) for two-player mode.
 static List<TokenLocation> *
-getSequentialTokens(Board board) {
+getSequentialTokens(Board board) 
+{
   List<TokenLocation> *sequentialTokens = NULL;
   for(int row = 0; row < NUM_ROWS; ++row) {
     for(int col = 0; col < NUM_COLS; ++col) {
@@ -321,7 +366,8 @@ getSequentialTokens(Board board) {
 // NOTE(brendan): sets the current token to red if there are more blue than
 // red tokens, or vice versa. If the counts are equal, sets the current token
 // to RANDOMTOKEN
-void setCurrentToken(GameState *gameState) {
+void setCurrentToken(GameState *gameState) 
+{
   int redCount = countTokens(gameState->board, RED);
   int blueCount = countTokens(gameState->board, BLUE);
   if(redCount > blueCount) {
@@ -338,7 +384,8 @@ void setCurrentToken(GameState *gameState) {
 // NOTE(brendan): returns true if game is IN_PROGRESS; otherwise returns
 // false and indicates DRAW, INVALID_BOARD, RED_WON  or BLUE_WON 
 // (highlights winning tokens)
-bool readyToTransitionSetupTwoPlayer(GameState *gameState) {
+bool readyToTransitionSetupTwoPlayer(GameState *gameState) 
+{
 	// Note(Zach): Reset all the transition from setup to two player flags to 
   // false
 	resetGraphicsState(&gameState->graphicsState);
@@ -404,7 +451,8 @@ int AI_move(Board b, Token colour)
 }
 
 // NOTE(Zach): Read the board into a two dimensional array
-static void boardToArray(Board b, Token arr[][NUM_COLS]){
+static void boardToArray(Board b, Token arr[][NUM_COLS])
+{
 	int row, col;
 
 	for (row = 0; row < NUM_ROWS; row++) {
@@ -418,7 +466,8 @@ static void boardToArray(Board b, Token arr[][NUM_COLS]){
 // OUTPUT: a value indicating the best move for the token colour given the
 // board state corresponding to the array of tokens
 static int
-negamax(Token token_array[][NUM_COLS], Token colour, int column) {
+negamax(Token token_array[][NUM_COLS], Token colour, int column) 
+{
 	Board b = (Board) token_array;
 	board_dropToken(b, colour, column);
 	if (didColourWin(b, colour)) return WIN_VALUE;

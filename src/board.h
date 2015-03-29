@@ -13,6 +13,7 @@
 
 #define NUM_ROWS 6
 #define NUM_COLS 7
+#define DROPTOKEN_SUCCESS 0
 
 // NOTE(Zach): Create a new type called Token
 typedef enum {EMPTY, RED, BLUE, RANDOMTOKEN} Token;

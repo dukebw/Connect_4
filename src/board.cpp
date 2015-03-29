@@ -44,7 +44,8 @@ Token board_checkCell(Board b, int row, int col)
 
 // NOTE(Zach): Insert a token into the board, only allow dropping tokens in
 // Return 0 for success and -1 for failure
-int board_dropToken(Board b, Token token, int col) {
+int board_dropToken(Board b, Token token, int col) 
+{
 	assert(0 <= col && col < NUM_COLS);
 	if (b == NULL) return -1;
 	int row;
@@ -84,7 +85,8 @@ void board_empty(Board b)
 }
 
 // NOTE(brendan): load the board from a previously saved game
-void board_load(Board b, FILE *in_file) {
+void board_load(Board b, FILE *in_file) 
+{
   if (in_file == 0) {
     printf("Invalid file pointer in board_load function\n");
   }
@@ -94,7 +96,8 @@ void board_load(Board b, FILE *in_file) {
 }
 
 // NOTE(brendan): save the board
-void board_save(Board b, FILE *out_file) {
+void board_save(Board b, FILE *out_file) 
+{
   if (out_file == 0) {
     printf("Invalid file pointer in board_save function\n");
   }
@@ -104,7 +107,8 @@ void board_save(Board b, FILE *out_file) {
 }
 
 // NOTE(Zach): return the other token
-Token otherToken(Token token) {
+Token otherToken(Token token) 
+{
   if (token == RED) {
     return BLUE;
   } else {

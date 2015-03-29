@@ -72,7 +72,8 @@ void resetGraphicsState(GraphicsState *graphicsState)
 }
 
 // NOTE(brendan): does rendering for credits menu
-void creditsRender(GraphicsState *graphicsState) {
+void creditsRender(GraphicsState *graphicsState) 
+{
   SDL_RenderCopy(gRenderer, gCreditScreen->texture, NULL, NULL); 
 	SDL_RenderPresent(gRenderer);
 }
@@ -96,7 +97,8 @@ void renderIndicatorToken(TokenLocation *indicatorToken)
   }
 }
 
-void displayBoard() {
+void displayBoard() 
+{
   // NOTE(Zach): determine the position for the board
   SDL_Rect DestR;
   DestR.x = GRID_OFFSET_X - 1;
@@ -106,7 +108,8 @@ void displayBoard() {
   SDL_RenderCopy( gRenderer, gConnect4Board->texture, NULL, &DestR );
 }
 
-void displaySetupTokens() {
+void displaySetupTokens() 
+{
   // NOTE(Zach): determine the position for the setup tokens
   SDL_Rect tokenRect;
   tokenRect.x = SETUP_CLICKY_TOKENS_OFFSET;
@@ -133,13 +136,15 @@ void displayMainMenu(void)
 }
 
 // NOTE(brendan): does rendering for main menu
-void mainMenuRender(GraphicsState *graphicsState) {
+void mainMenuRender(GraphicsState *graphicsState) 
+{
 	displayMainMenu();
 	SDL_RenderPresent(gRenderer);
 }
 
 // NOTE(Zach): highlight a token at (row, col)
-static void highlightToken(TokenLocation *tokenToHighlight) {
+static void highlightToken(TokenLocation *tokenToHighlight) 
+{
 	// NOTE(Zach): do not delete
 	// un-condition this out to add highlighting instead or in addition
 	// to the glow
@@ -164,7 +169,8 @@ static void highlightToken(TokenLocation *tokenToHighlight) {
 
 // NOTE(brendan): places the image at (x, y)
 inline void
-placeImage(SDL_Texture *image, int x, int y, int width, int height) {
+placeImage(SDL_Texture *image, int x, int y, int width, int height) 
+{
 	SDL_Rect destRect;
   destRect.x = x;
   destRect.y = y;
@@ -247,7 +253,8 @@ void twoPlayerRender(GraphicsState *graphicsState)
 }
 
 // NOTE(brendan): free myTexture's memory
-static void freeTexture(TextureWrapper *myTexture) {
+static void freeTexture(TextureWrapper *myTexture) 
+{
   if(myTexture != NULL) {
 
     if(myTexture->texture != NULL) {
@@ -294,7 +301,8 @@ bool init() {
 }
 
 // NOTE(Zach): Loads bitmaps
-static TextureWrapper *loadTexture(std::string path) {
+static TextureWrapper *loadTexture(std::string path) 
+{
   TextureWrapper *loadedTexture = NULL;
   // NOTE(Zach): The final optimized image
   SDL_Texture *newTexture = NULL;
@@ -351,7 +359,8 @@ static TextureWrapper *loadTexture(std::string path) {
 
  static bool 
  loadAllFiles(std::string fileNames[], 
-     TextureWrapper **textureNames[], int size) {
+     TextureWrapper **textureNames[], int size) 
+{
    for (int i = 0; i < size; i++) {
      *textureNames[i] = loadTexture("../misc/"+fileNames[i]+".bmp");
      if (*textureNames[i] == NULL) {
@@ -363,7 +372,8 @@ static TextureWrapper *loadTexture(std::string path) {
  }
 
 
-bool loadMedia() {
+bool loadMedia() 
+{
 	// NOTE(brendan): Loading success flag
 	bool success = true;
 
@@ -385,7 +395,8 @@ bool loadMedia() {
   return success;
 }
 
-void close_sdl() {
+void close_sdl() 
+{
   // NOTE(brendan): de-allocate surface
   freeTexture(gConnect4Board);
   freeTexture(gRedToken);
@@ -435,12 +446,14 @@ void close_sdl() {
 // NOTE(brendan): returns true if the two tokens are in the same column,
 // false otherwise
 static bool 
-compareXPosition(FallingToken *listItem, FallingToken *item) {
+compareXPosition(FallingToken *listItem, FallingToken *item) 
+{
   return listItem->x == item->x;
 }
 
 // NOTE(Zach): visually drops the token into a cell if drop is valid
-bool dropToken(Board b, Token tokenColour, int col) {
+bool dropToken(Board b, Token tokenColour, int col) 
+{
   // NOTE(Zach): Find the row where the token should land
   int row = board_dropPosition(b, col);
   // NOTE(Zach): Check if the column was full
@@ -475,7 +488,8 @@ bool dropToken(Board b, Token tokenColour, int col) {
 }
 
 // NOTE(brendan): draw a falling token
-void drawFallingToken(FallingToken *fallingToken) {
+void drawFallingToken(FallingToken *fallingToken) 
+{
   TextureWrapper *tokenTexture;
   if(fallingToken->token == RED) {
     tokenTexture = gRedToken;
@@ -495,7 +509,8 @@ void drawFallingToken(FallingToken *fallingToken) {
   SDL_RenderCopy( gRenderer, tokenTexture->texture, NULL, &tokenRect ); 
 }
 
-void clearFallingToken(FallingToken *fallingToken) {
+void clearFallingToken(FallingToken *fallingToken) 
+{
   // NOTE(Zach): determine the position for the fallingToken
   SDL_Rect tokenRect;
   tokenRect.x = fallingToken->x;
@@ -509,7 +524,8 @@ void clearFallingToken(FallingToken *fallingToken) {
 
 // TODO(Zach): make macros for constants
 // NOTE(Zach): update position/velocity of falling token
-void updateFallingToken(FallingToken *fallingToken, float dt) {
+void updateFallingToken(FallingToken *fallingToken, float dt) 
+{
 	if (!fallingToken->isFalling) return;
 #define ACCEL 5
   fallingToken->y += fallingToken->v * dt;
@@ -533,13 +549,15 @@ void updateFallingToken(FallingToken *fallingToken, float dt) {
 }
 
 // NOTE(brendan): free token
-static void freeTokenLocation(TokenLocation *tokenLocation) {
+static void freeTokenLocation(TokenLocation *tokenLocation) 
+{
   free(tokenLocation);
 }
 
 // NOTE(brendan): sets the list of highlighted tokens, freeing the old one
 void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
-    GraphicsState *graphicsState) {
+    GraphicsState *graphicsState) 
+{
   // NOTE(brendan): get rid of old list
   List<TokenLocation>::traverseList(freeTokenLocation, gHighlightedTokens);
   gHighlightedTokens = highlightedTokenList;
@@ -547,7 +565,8 @@ void setHighlightedTokenList(List<TokenLocation> *highlightedTokenList,
 }
 
 // NOTE(brendan): load the graphics state (falling tokens/highlighted tokens?)
-void loadGraphics(GraphicsState *graphicsState, FILE *in_file) {
+void loadGraphics(GraphicsState *graphicsState, FILE *in_file) 
+{
   if (in_file == 0) {
     printf("Invalid file pointer in loadGraphics function\n");
   }
@@ -558,7 +577,8 @@ void loadGraphics(GraphicsState *graphicsState, FILE *in_file) {
 }
 
 // NOTE(brendan): save the graphics state (falling tokens/highlighted tokens?)
-void saveGraphics(GraphicsState *graphicsState, FILE *out_file) {
+void saveGraphics(GraphicsState *graphicsState, FILE *out_file) 
+{
   if (out_file == 0) {
     printf("Invalid file pointer in saveGraphics function\n");
   }
