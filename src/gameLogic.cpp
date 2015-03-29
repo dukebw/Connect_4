@@ -18,8 +18,10 @@ static List<TokenLocation> *
 getSequentialTokens(Board board);
 static void boardToArray(Board b, Token arr[][NUM_COLS]);
 static char saveGameFilename[] = "saved_game.dat";
-static int
-negamax(Token token_array[][NUM_COLS], Token colour, int column);
+static int negamax(Token token_array[][NUM_COLS], Token colour, int column, 
+                   int depthRemaining);
+// TODO(brendan): debugging; remove
+/* static void DEBUGPrintBoard(Token token_array[][NUM_COLS]); */
 
 // NOTE(Zach): switch the player
 Player otherPlayer(Player player) 
@@ -99,7 +101,8 @@ static void tryDrop(GameState *gameState, int dropColumn)
 // NOTE(Zach): do the one player mode logic
 void onePlayerLogic(GameState *gameState) 
 {
-  if (gameState->currentPlayer == PLAYERONE) {
+  if ((gameState->currentPlayer == PLAYERONE) && 
+      (gameState->currentProgress == INPROGRESS)) {
     int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
     tryDrop(gameState, aiDropColumn);
   }
@@ -178,6 +181,7 @@ countTokens(Board board, Token colour)
 // NOTE(brendan): checks if the board has been won by colour
 // TODO(brendan): do a version of this just checking for ONE token (the
 // body of inner loop) for two-player mode.
+// TODO(brendan): do efficient ninja implementation with bitboard
 static bool
 didColourWin(Board board, Token colour) 
 {
@@ -429,26 +433,9 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 // AI
 // ---------------------------------------------------------------------------
 
-#define MAX_VALUE -1000
-enum WEIGHTS{WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0};
-
-// NOTE(Zach): Given a board and a token colour this function will return
-// an int corresponding to the column where the AI should move
-int AI_move(Board b, Token colour)
-{
-	Token arr[NUM_ROWS][NUM_COLS];
-	boardToArray(b, arr);
-  int moveColumn = 0, maxValue = -MAX_VALUE, value;
-  for (int col = 0; col < NUM_COLS; ++col) {
-    if (board_dropPosition(b, col) != -1) {
-      if ((value = negamax(arr, colour, col)) > maxValue) {
-        moveColumn = col;
-        maxValue = value;
-      }
-    }
-  }
-  return moveColumn;
-}
+#define MAX_DEPTH 4
+enum Weighting {WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0,
+                THREAT_WEIGHT = 500};
 
 // NOTE(Zach): Read the board into a two dimensional array
 static void boardToArray(Board b, Token arr[][NUM_COLS])
@@ -462,25 +449,207 @@ static void boardToArray(Board b, Token arr[][NUM_COLS])
 	}
 }
 
+// NOTE(Zach): Given a board and a token colour this function will return
+// an int corresponding to the column where the AI should move
+int AI_move(Board b, Token colour)
+{
+	Token arr[NUM_ROWS][NUM_COLS];
+	boardToArray(b, arr);
+  int moveColumn = 0, maxValue = LOSE_VALUE, value;
+  for (int col = 0; col < NUM_COLS; ++col) {
+    if (board_dropPosition(b, col) != -1) {
+      if ((value = negamax(arr, colour, col, MAX_DEPTH)) > maxValue) {
+        moveColumn = col;
+        maxValue = value;
+      }
+    }
+  }
+  // TODO(brendan): remove; debugging
+  printf("Max value: %d\n", maxValue);
+  return moveColumn;
+}
+
+// NOTE(brendan): INPUT: array of tokens; current token colour
+// OUTPUT: none
+// UPDATE: the array of tokens
+// reverses the last move made in the column
+static void
+reverseDrop(Token token_array[][NUM_COLS], int column)
+{
+  for (int rowIndex = 0; rowIndex < NUM_ROWS; ++rowIndex) {
+    if (token_array[rowIndex][column] != EMPTY) {
+      token_array[rowIndex][column] = EMPTY;
+      return;
+    }
+  }
+}
+
+// NOTE(brendan): INPUT: array of tokens; current token colour
+// OUTPUT: a value indicating the score or weighting of the current board
+// position for the current token colour
+// currently finds all the "threats": moves that could make 4-in-a-row
+static int
+evaluateBoard(Token token_array[][NUM_COLS], Token colour)
+{
+  int resultWeight = 0;
+  bool threatsCounted[NUM_ROWS][NUM_COLS] = {};
+  for (int row = 0; row < NUM_ROWS; ++row) {
+    for (int col = 0; col < NUM_COLS; ++col) {
+      if (token_array[row][col] == colour) {
+        // NOTE(brendan): Check for threat starting at the (row, col) token
+        for (int currentCol = col, currentRow = row;
+            (currentCol >= 1) &&
+            (token_array[currentRow][currentCol] == colour);
+            --currentCol) {
+          // TODO(brendan): look for threats in both directions?
+          if(col - currentCol == 2) {
+            if ((token_array[currentRow][currentCol - 1] == EMPTY) &&
+                (threatsCounted[currentRow][currentCol - 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow][currentCol - 1] = true;
+            }
+            break;
+          }
+        }
+        // NOTE(brendan): Check for threat starting at the (row, col) token
+        for (int currentCol = col, currentRow = row;
+            (currentCol < (NUM_COLS - 1)) &&
+            (token_array[currentRow][currentCol] == colour);
+            ++currentCol) {
+          // TODO(brendan): look for threats in both directions?
+          if(col - currentCol == 2) {
+            if ((token_array[currentRow][currentCol - 1] == EMPTY) &&
+                (threatsCounted[currentRow][currentCol - 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow][currentCol - 1] = true;
+            }
+            break;
+          }
+        }
+
+        // NOTE(brendan): check for threat diagonal decreasing left
+        for(int currentCol = col, currentRow = row;
+            (currentRow >= 1) && (currentCol >= 1) &&
+            (token_array[currentRow][currentCol] == colour);
+            --currentRow, --currentCol) {
+          if(row - currentRow == 2) {
+            if ((token_array[currentRow - 1][currentCol - 1] == EMPTY) &&
+                (threatsCounted[currentRow - 1][currentCol - 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow - 1][currentCol - 1] = true;
+            }
+            break;
+          }
+        }
+        // NOTE(brendan): check for threat diagonal decreasing left
+        for(int currentCol = col, currentRow = row;
+            (currentRow < (NUM_ROWS - 1)) && (currentCol < (NUM_COLS - 1)) &&
+            (token_array[currentRow][currentCol] == colour);
+            ++currentRow, ++currentCol) {
+          if(row - currentRow == 2) {
+            if ((token_array[currentRow - 1][currentCol - 1] == EMPTY) &&
+                (threatsCounted[currentRow - 1][currentCol - 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow - 1][currentCol - 1] = true;
+            }
+            break;
+          }
+        }
+
+        // NOTE(brendan): check for threat diagonal increasing left
+        for (int currentCol = col, currentRow = row;
+            (currentRow >= 1) && (currentCol < (NUM_COLS - 1)) &&
+            (token_array[currentRow][currentCol] == colour);
+            --currentRow, ++currentCol) {
+          if(row - currentRow == 2) {
+            if ((token_array[currentRow - 1][currentCol + 1] == EMPTY) &&
+                (threatsCounted[currentRow - 1][currentCol + 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow - 1][currentCol + 1] = true;
+            }
+            break;
+          }
+        }
+        // NOTE(brendan): check for threat diagonal increasing left
+        for (int currentCol = col, currentRow = row;
+            (currentRow < (NUM_ROWS - 1)) && (currentCol >= 1) &&
+            (token_array[currentRow][currentCol] == colour);
+            ++currentRow, --currentCol) {
+          if(row - currentRow == 2) {
+            if ((token_array[currentRow - 1][currentCol + 1] == EMPTY) &&
+                (threatsCounted[currentRow - 1][currentCol + 1] == false)) {
+              resultWeight += THREAT_WEIGHT;
+              threatsCounted[currentRow - 1][currentCol + 1] = true;
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+  return resultWeight;
+}
+
+// TODO(brendan): ongoing bug; doesn't recognize blocking
 // NOTE(brendan): INPUT: array of tokens; current token colour
 // OUTPUT: a value indicating the best move for the token colour given the
 // board state corresponding to the array of tokens
 static int
-negamax(Token token_array[][NUM_COLS], Token colour, int column) 
+negamax(Token token_array[][NUM_COLS], Token colour, int column, 
+        int depthRemaining) 
 {
-	Board b = (Board) token_array;
+  // TODO(brendan): return colour * heuristic value of node?
+	Board b = (Board)token_array;
 	board_dropToken(b, colour, column);
-	if (didColourWin(b, colour)) return WIN_VALUE;
-	if (checkDraw(b)) return DRAW_VALUE;
+	if (didColourWin(b, colour)) {
+    reverseDrop(token_array, column);
+    return WIN_VALUE;
+  }
+	if (checkDraw(b)) {
+    reverseDrop(token_array, column);
+    return DRAW_VALUE;
+  }
+  // NOTE(brendan): reached max depth of the game tree; use a heuristic
+  // function to evaluate the board and return
+  if (depthRemaining == 0) {
+    int resultWeight = evaluateBoard(token_array, colour);
+    reverseDrop(token_array, column);
+    return resultWeight;
+  }
 
 	int bestValue = LOSE_VALUE;
 	int value;
-	// Note(Zach): for each child node
+	// NOTE(Zach): for each child node
 	for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
 		if (board_dropPosition(b, childCol) != -1) {
-			value = -negamax(token_array, otherToken(colour), childCol);
-			bestValue = MAX(bestValue, value);
+			value = -negamax(token_array, otherToken(colour), childCol, 
+                       depthRemaining - 1);
+			bestValue = maximum(bestValue, value);
 		}
 	}
+  reverseDrop(token_array, column);
 	return bestValue;
 }
+
+#if 0
+// TODO(brendan): debugging; remove
+static void
+DEBUGPrintBoard(Token token_array[][NUM_COLS])
+{
+  printf("\n");
+  for (int row = 0; row < NUM_ROWS; ++row) {
+    for (int col = 0; col < NUM_COLS; ++col) {
+      if (token_array[row][col] == EMPTY) {
+        printf("empty ");
+      }
+      else if (token_array[row][col] == RED) {
+        printf("red ");
+      }
+      else if (token_array[row][col] == BLUE) {
+        printf("blue ");
+      }
+    }
+    printf("\n");
+  }
+}
+#endif

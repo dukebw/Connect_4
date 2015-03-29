@@ -273,20 +273,26 @@ static void creditsHandleEvents(GameState *gameState)
   }
 }
 
-static MenuState handleSetupMouseClick(int x, int y, GameState *gameState) 
+inline void handleRefresh(GameState *gameState, int x, int y)
 {
   // NOTE (Jean): It works, but I am not sure if I have declared everything 
   // that needs to be declared In order to clear everything correctly
   //clear all the tokens in the screen if refresh button pressed
   if (pointInsideRect(x, y, REFRESH_BUTTON_RECT)) {
     List<FallingToken>::emptyList(&gFallingTokens);
-    resetGraphicsState(&gameState->graphicsState);   
     gameState->currentProgress = INPROGRESS;
     board_empty(gameState->board);
+    // TODO(brendan): name this something else?
+    transitionMainMenuOneTwo(gameState);
   }
+}
 
-  if(pointInsideRect(x, y, SETUP_2PLAYER_BUTTON_RECT)) {
-    if(readyToTransitionSetupTwoPlayer(gameState)) {
+static MenuState handleSetupMouseClick(GameState *gameState, int x, int y) 
+{
+  handleRefresh(gameState, x, y);
+
+  if (pointInsideRect(x, y, SETUP_2PLAYER_BUTTON_RECT)) {
+    if (readyToTransitionSetupTwoPlayer(gameState)) {
       logic[TWOPLAYER] = transitionSetupTwoPlayer;
       return TWOPLAYER;
     }
@@ -297,13 +303,13 @@ static MenuState handleSetupMouseClick(int x, int y, GameState *gameState)
     gameState->saveGame = true;
   }
 
-  if(pointInsideCircle(x, y, SETUP_RED_CLICKY_TOKENS_CIRCLE)) {
+  if (pointInsideCircle(x, y, SETUP_RED_CLICKY_TOKENS_CIRCLE)) {
     gameState->currentToken = RED;
   }
-  else if(pointInsideCircle(x, y, SETUP_BLUE_CLICKY_TOKENS_CIRCLE)) {
+  else if (pointInsideCircle(x, y, SETUP_BLUE_CLICKY_TOKENS_CIRCLE)) {
     gameState->currentToken = BLUE;
   }
-  else if(pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
+  else if (pointInsideRect(x, y, SETUP_MENU_BUTTON_RECT)) {
 	  logic[MAINMENU] = transitionSetupMainMenu;
     return MAINMENU;
   }
@@ -346,7 +352,7 @@ static void setupHandleEvents(GameState *gameState)
       x = e.button.x;
       y = e.button.y;
 
-      gameState->currentState = handleSetupMouseClick(x, y, gameState);
+      gameState->currentState = handleSetupMouseClick(gameState, x, y);
 
       // NOTE(brendan): if current state changed, click was outside grid area
       // NOTE(Zach): If the click was outside the GRID
@@ -367,14 +373,9 @@ static void setupHandleEvents(GameState *gameState)
 }
 
 // NOTE(brendan): handles mouse clicks while in the 2 player state
-static MenuState oneTwoHandleMouseClick(int x, int y, GameState *gameState) 
+static MenuState oneTwoHandleMouseClick(GameState *gameState, int x, int y) 
 {
-  if (pointInsideRect(x,y,REFRESH_BUTTON_RECT)) {
-    List<FallingToken>::emptyList(&gFallingTokens);
-    resetGraphicsState(&gameState->graphicsState);   
-    gameState->currentProgress = INPROGRESS;
-    board_empty(gameState->board);
-  }
+  handleRefresh(gameState, x, y);
 
   // NOTE(brendan): register save game event
   if (pointInsideRect(x, y, SAVE_BUTTON_RECT)) {
@@ -404,7 +405,7 @@ static void oneTwoHandleEvents(GameState *gameState)
       x = e.button.x;
       y = e.button.y;
 
-      gameState->currentState = oneTwoHandleMouseClick(x, y, gameState);
+      gameState->currentState = oneTwoHandleMouseClick(gameState, x, y);
       // NOTE(Zach): if the game is not in progress, don't allow any more
       // tokens to be dropped
       if (gameState->currentProgress != INPROGRESS) continue;

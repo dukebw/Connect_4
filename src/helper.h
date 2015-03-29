@@ -16,6 +16,12 @@ struct Circle {
   int radius;
 };
 
-#define MAX(x,y) ((x) < (y) ? (y) : (x))
+// NOTE(brendan): INPUT: two integers x and y
+// OUTPUT: the maximum of those two integers
+inline int
+maximum(int x, int y) 
+{
+  return (x > y) ? x : y;
+}
 
 #endif /* HELPER_H */
