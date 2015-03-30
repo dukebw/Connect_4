@@ -24,4 +24,12 @@ maximum(int x, int y)
   return (x > y) ? x : y;
 }
 
+// NOTE(brendan): INPUT: two integers x and y
+// OUTPUT: the minimum of those two integers
+inline int
+minimum(int x, int y) 
+{
+  return (x < y) ? x : y;
+}
+
 #endif /* HELPER_H */

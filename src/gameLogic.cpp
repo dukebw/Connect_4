@@ -18,10 +18,12 @@ static List<TokenLocation> *
 getSequentialTokens(Board board);
 static void boardToArray(Board b, Token arr[][NUM_COLS]);
 static char saveGameFilename[] = "saved_game.dat";
-static int negamax(Token token_array[][NUM_COLS], Token colour, int column, 
-                   int depthRemaining);
 // TODO(brendan): debugging; remove
 /* static void DEBUGPrintBoard(Token token_array[][NUM_COLS]); */
+static int minimax(Token token_array[][NUM_COLS], Token colour, int column,
+                   int depthRemaining, bool maximizingPlayer);
+static void checkForWinDraw(GameState *gameState, Token colour);
+static void mutualOneTwoPlayerLogic(GameState *gameState);
 
 // NOTE(Zach): switch the player
 Player otherPlayer(Player player) 
@@ -91,7 +93,7 @@ void setupLogic(GameState *gameState)
 // TODO(brendan): change this so it doesn't call the graphics function
 static void tryDrop(GameState *gameState, int dropColumn) 
 {
-  if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
+  if (dropToken(gameState->board, gameState->currentToken, dropColumn)) {
     board_dropToken(gameState->board, gameState->currentToken, dropColumn);
     gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
     gameState->currentToken = otherToken(gameState->currentToken);
@@ -101,16 +103,26 @@ static void tryDrop(GameState *gameState, int dropColumn)
 // NOTE(Zach): do the one player mode logic
 void onePlayerLogic(GameState *gameState) 
 {
-  if ((gameState->currentPlayer == PLAYERONE) && 
-      (gameState->currentProgress == INPROGRESS)) {
-    int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
-    tryDrop(gameState, aiDropColumn);
+  mutualOneTwoPlayerLogic(gameState);
+  // NOTE(brendan): don't check if game not in progress
+  if (gameState->currentProgress == INPROGRESS) {
+    if ((gameState->currentPlayer == PLAYERONE) && 
+        (gameState->currentProgress == INPROGRESS)) {
+      int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
+      tryDrop(gameState, aiDropColumn);
+    }
+    else {
+      int playerDropColumn = gameState->graphicsState.playerDrop.column;
+      if (playerDropColumn != NO_DROP_COLUMN) {
+        tryDrop(gameState, playerDropColumn);
+        gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+      }
+    }
+    checkForWinDraw(gameState, otherToken(gameState->currentToken));
   }
-	twoPlayerLogic(gameState);
 }
 
-// NOTE(Zach): do the two player mode logic
-void twoPlayerLogic(GameState *gameState) 
+static void mutualOneTwoPlayerLogic(GameState *gameState)
 {
   // NOTE(brendan): save game
   if (gameState->saveGame) {
@@ -120,47 +132,48 @@ void twoPlayerLogic(GameState *gameState)
 
 	// NOTE(Zach): update the physics of all the falling tokens
 	List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
-	// NOTE(Zach): if the game is not in progress there is no need to do all
-	// the checking of the gamestate
-	
-  if (gameState->currentProgress != INPROGRESS) {
-		gameState->graphicsState.renderIndicatorToken = false;
-	}
+}
 
+static void checkForWinDraw(GameState *gameState, Token colour)
+{
+  // NOTE(Zach): do the checking of the gamestate
+  bool colourWon = didColourWin(gameState->board, colour);
+  bool isDraw = checkDraw(gameState->board);
+
+  if (colourWon) {
+    setHighlightedTokenList(getSequentialTokens(gameState->board), 
+        &gameState->graphicsState);
+    gameState->graphicsState.renderIndicatorToken = false;
+    gameState->graphicsState.renderStatusInProgress = false;
+    if (colour == RED) {
+      gameState->currentProgress = REDWON;
+      gameState->graphicsState.renderStatusRedWon = true;
+    }
+    else {
+      gameState->currentProgress = BLUEWON;
+      gameState->graphicsState.renderStatusBlueWon = true;
+    }
+    return;
+  }
+  if (isDraw) {
+    gameState->currentProgress = DRAW;
+    gameState->graphicsState.renderIndicatorToken = false;
+    gameState->graphicsState.renderStatusDrawGame = true;
+    gameState->graphicsState.renderStatusInProgress = false;
+    return;
+  }
+}
+
+// NOTE(Zach): do the two player mode logic
+void twoPlayerLogic(GameState *gameState) 
+{
+  mutualOneTwoPlayerLogic(gameState);
   int playerDropColumn = gameState->graphicsState.playerDrop.column;
   if (playerDropColumn != NO_DROP_COLUMN) {
     tryDrop(gameState, playerDropColumn);
     gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
-    // NOTE(Zach): do the checking of the gamestate
-    bool didRedWin = didColourWin(gameState->board, RED);
-    bool didBlueWin = didColourWin(gameState->board, BLUE);
-    bool isDraw = checkDraw(gameState->board);
-
-    if (didRedWin || didBlueWin) {
-      setHighlightedTokenList(getSequentialTokens(gameState->board), 
-          &gameState->graphicsState);
-    }
-    if (didRedWin) {
-      gameState->currentProgress = REDWON;
-      gameState->graphicsState.renderIndicatorToken = false;
-      gameState->graphicsState.renderStatusRedWon = true;
-      gameState->graphicsState.renderStatusInProgress = false;
-      return;
-    }
-    if (didBlueWin) {
-      gameState->currentProgress = BLUEWON;
-      gameState->graphicsState.renderIndicatorToken = false;
-      gameState->graphicsState.renderStatusBlueWon = true;
-      gameState->graphicsState.renderStatusInProgress = false;
-      return;
-    }
-    if (isDraw) {
-      gameState->currentProgress = DRAW;
-      gameState->graphicsState.renderIndicatorToken = false;
-      gameState->graphicsState.renderStatusDrawGame = true;
-      gameState->graphicsState.renderStatusInProgress = false;
-      return;
-    }
+    // NOTE(brendan): token changed by tryDrop
+    checkForWinDraw(gameState, otherToken(gameState->currentToken));
   }
 }
 
@@ -433,9 +446,10 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 // AI
 // ---------------------------------------------------------------------------
 
+// TODO(brendan): optimize algorithm to get MAX_DEPTH up from 4 to 6 (at least)
 #define MAX_DEPTH 4
-enum Weighting {WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0,
-                THREAT_WEIGHT = 500};
+enum {WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0,
+      THREAT_WEIGHT = 500, INFINITY = 99999};
 
 // NOTE(Zach): Read the board into a two dimensional array
 static void boardToArray(Board b, Token arr[][NUM_COLS])
@@ -455,10 +469,11 @@ int AI_move(Board b, Token colour)
 {
 	Token arr[NUM_ROWS][NUM_COLS];
 	boardToArray(b, arr);
-  int moveColumn = 0, maxValue = LOSE_VALUE, value;
+  int moveColumn = 0, maxValue = -INFINITY, value;
   for (int col = 0; col < NUM_COLS; ++col) {
     if (board_dropPosition(b, col) != -1) {
-      if ((value = negamax(arr, colour, col, MAX_DEPTH)) > maxValue) {
+      value = minimax(arr, colour, col, MAX_DEPTH, true);
+      if (value > maxValue) {
         moveColumn = col;
         maxValue = value;
       }
@@ -590,6 +605,59 @@ evaluateBoard(Token token_array[][NUM_COLS], Token colour)
   return resultWeight;
 }
 
+// NOTE(brendan): INPUT: array of tokens; current token colour;
+// drop column; depth remaining, and maximizingPlayer
+// OUTPUT: a value indicating the the value of this move for the maximizing
+// player
+static int
+minimax(Token token_array[][NUM_COLS], Token colour, int column, 
+        int depthRemaining, bool maximizingPlayer)
+{
+  // NOTE(brendan): heuristic value: favourability of node for maximizing
+  // player
+	Board b = (Board)token_array;
+	board_dropToken(b, colour, column);
+	if (didColourWin(b, colour)) {
+    reverseDrop(token_array, column);
+    return (maximizingPlayer) ? WIN_VALUE : LOSE_VALUE;
+  }
+	if (checkDraw(b)) {
+    reverseDrop(token_array, column);
+    return DRAW_VALUE;
+  }
+  // NOTE(brendan): reached max depth of the game tree; use a heuristic
+  // function to evaluate the board and return
+  if (depthRemaining == 0) {
+    int resultWeight = evaluateBoard(token_array, colour);
+    reverseDrop(token_array, column);
+    return (maximizingPlayer) ? resultWeight : -resultWeight;
+  }
+  int bestValue, value;
+  if (maximizingPlayer) {
+    bestValue = INFINITY;
+    for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
+      if (board_dropPosition(b, childCol) != -1) {
+        value = minimax(token_array, otherToken(colour), childCol, 
+                        depthRemaining - 1, false);
+        bestValue = minimum(bestValue, value);
+      }
+    }
+  }
+  else {
+    bestValue = -INFINITY;
+    for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
+      if (board_dropPosition(b, childCol) != -1) {
+        value = minimax(token_array, otherToken(colour), childCol, 
+                        depthRemaining - 1, true);
+        bestValue = maximum(bestValue, value);
+      }
+    }
+  }
+  reverseDrop(token_array, column);
+  return bestValue;
+}
+
+#if 0
 // TODO(brendan): ongoing bug; doesn't recognize blocking
 // NOTE(brendan): INPUT: array of tokens; current token colour
 // OUTPUT: a value indicating the best move for the token colour given the
@@ -620,6 +688,7 @@ negamax(Token token_array[][NUM_COLS], Token colour, int column,
 	int bestValue = LOSE_VALUE;
 	int value;
 	// NOTE(Zach): for each child node
+  // TODO(brendan): try minimax alg. that is aware of maximizingPlayer?
 	for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
 		if (board_dropPosition(b, childCol) != -1) {
 			value = -negamax(token_array, otherToken(colour), childCol, 
@@ -631,7 +700,6 @@ negamax(Token token_array[][NUM_COLS], Token colour, int column,
 	return bestValue;
 }
 
-#if 0
 // TODO(brendan): debugging; remove
 static void
 DEBUGPrintBoard(Token token_array[][NUM_COLS])
