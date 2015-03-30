@@ -45,6 +45,7 @@ static void setupHandleEvents(GameState *gameState);
 static void oneTwoHandleEvents(GameState *gameState);
 static void transitionMainMenuOneTwo(GameState *gameState);
 static void oneTwoHandleEvents(GameState *gameState);
+inline void doRefresh(GameState *gameState);
 
 // NOTE(Zach): JUST FOR REFERENCE!!
 //typedef enum {
@@ -128,18 +129,13 @@ static void transitionSetupTwoPlayer(GameState *gameState)
 // NOTE(Zach): The transition "state" from setup to mainmenu
 static void transitionSetupMainMenu(GameState *gameState)
 {
-	board_empty(gameState->board);
-	List<FallingToken>::emptyList(&gFallingTokens);
-	resetGraphicsState(&gameState->graphicsState);
-	gameState->currentProgress = INPROGRESS;
+  doRefresh(gameState);
 	logic[MAINMENU] = mainMenuLogic;
 }
 
 static void transitionMainMenuSetup(GameState *gameState)
 {
-	gameState->graphicsState.indicatorToken.row = -1;
-	gameState->graphicsState.indicatorToken.column = -1;
-	resetGraphicsState(&gameState->graphicsState);
+  transitionMainMenuOneTwo(gameState);
 	logic[SETUP] = setupLogic;
 }
 
@@ -173,9 +169,7 @@ static void transitionMainMenuTwoPlayer(GameState *gameState)
 // NOTE(Zach): The transition "state" from twoplayer to mainmenu
 static void transitionOneTwoMainMenu(GameState *gameState)
 {
-	board_empty(gameState->board);
-	List<FallingToken>::emptyList(&gFallingTokens);
-	gameState->currentProgress = INPROGRESS;
+  doRefresh(gameState);
 	logic[MAINMENU] = mainMenuLogic;
 }
 
@@ -273,15 +267,24 @@ static void creditsHandleEvents(GameState *gameState)
   }
 }
 
+// NOTE(brendan): INPUT/UPDATE: GameState. resets stuff that needs to
+// be reset to reset board and graphics
+inline void doRefresh(GameState *gameState)
+{
+  List<FallingToken>::emptyList(&gFallingTokens);
+  gameState->currentProgress = INPROGRESS;
+  board_empty(gameState->board);
+  gameState->redBitboard = 0;
+  gameState->blueBitboard = 0;
+}
+
 inline void handleRefresh(GameState *gameState, int x, int y)
 {
   // NOTE (Jean): It works, but I am not sure if I have declared everything 
   // that needs to be declared In order to clear everything correctly
   //clear all the tokens in the screen if refresh button pressed
   if (pointInsideRect(x, y, REFRESH_BUTTON_RECT)) {
-    List<FallingToken>::emptyList(&gFallingTokens);
-    gameState->currentProgress = INPROGRESS;
-    board_empty(gameState->board);
+    doRefresh(gameState);
     // TODO(brendan): name this something else?
     transitionMainMenuOneTwo(gameState);
   }
@@ -359,13 +362,9 @@ static void setupHandleEvents(GameState *gameState)
       if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
       if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
 
-      // TODO(brendan): move this to gameLogic
-      int dropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
-      // NOTE(brendan): add token to list of falling tokens if valid drop
-      if(dropToken(gameState->board, gameState->currentToken, dropColumn)) {
-        // NOTE(Zach): Insert the token into the board
-        board_dropToken(gameState->board, gameState->currentToken, dropColumn);
-      }
+      // NOTE(brendan): set drop column
+      gameState->graphicsState.playerDrop.column = 
+        (x - GRID_OFFSET_X)/TOKEN_WIDTH;
     } else {
 			handleIndicatorMouseMotion(gameState);
     }

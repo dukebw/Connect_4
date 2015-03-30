@@ -15,6 +15,8 @@
 #define NUMBER_OF_STATES 7
 #define NO_DROP_COLUMN -1
 
+typedef uint64_t uint64;
+
 typedef enum {PLAYERONE, PLAYERTWO, RANDOMPLAYER} Player; 
 
 typedef enum {
@@ -32,6 +34,9 @@ struct GameState {
   Player currentPlayer;
   Board board;
   GraphicsState graphicsState;
+  // NOTE(brendan): bitboards for win-checking etc.
+  uint64 redBitboard;
+  uint64 blueBitboard;
   // NOTE(brendan): loadGame and saveGame are set in sdl2_connect4 (event
   // handing) and turned off in graphics, when the graphic state is reloaded
   bool loadGame;

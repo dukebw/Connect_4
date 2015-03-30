@@ -11,19 +11,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <inttypes.h>
 
-static bool didColourWin(Board board, Token colour);
-static bool checkDraw(Board board);
 static List<TokenLocation> *
 getSequentialTokens(Board board);
 static void boardToArray(Board b, Token arr[][NUM_COLS]);
 static char saveGameFilename[] = "saved_game.dat";
 // TODO(brendan): debugging; remove
 /* static void DEBUGPrintBoard(Token token_array[][NUM_COLS]); */
-static int minimax(Token token_array[][NUM_COLS], Token colour, int column,
-                   int depthRemaining, bool maximizingPlayer);
+static int
+minimax(Token token_array[][NUM_COLS], Token colour, 
+        uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column, 
+        int depthRemaining, bool maximizingPlayer);
 static void checkForWinDraw(GameState *gameState, Token colour);
 static void mutualOneTwoPlayerLogic(GameState *gameState);
+inline uint64 toggleDrop(uint64 bitboard, int row, int column);
+inline void reverseDrop(Token token_array[][NUM_COLS], int row, int column);
+static bool checkBitboardForWin(uint64 bitboard);
+static bool checkDraw(uint64 bitboardOne, uint64 bitboardTwo);
+static void tryDrop(GameState *gameState, int dropColumn);
+inline int countBits(uint64 value);
 
 // NOTE(Zach): switch the player
 Player otherPlayer(Player player) 
@@ -84,6 +91,11 @@ void setupLogic(GameState *gameState)
     gameState->saveGame = false;
     saveGame(gameState);
   }
+  int playerDropColumn = gameState->graphicsState.playerDrop.column;
+  if (playerDropColumn != NO_DROP_COLUMN) {
+    tryDrop(gameState, playerDropColumn);
+    gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+  }
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
 
@@ -95,8 +107,19 @@ static void tryDrop(GameState *gameState, int dropColumn)
 {
   if (dropToken(gameState->board, gameState->currentToken, dropColumn)) {
     board_dropToken(gameState->board, gameState->currentToken, dropColumn);
-    gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
-    gameState->currentToken = otherToken(gameState->currentToken);
+    if (gameState->currentToken == RED) {
+      gameState->redBitboard = toggleDrop(gameState->redBitboard, 
+          board_dropPosition(gameState->board, dropColumn), dropColumn);
+    }
+    else {
+      gameState->blueBitboard = toggleDrop(gameState->blueBitboard, 
+          board_dropPosition(gameState->board, dropColumn), dropColumn);
+    }
+    // NOTE(brendan): don't switch tokens/player in SETUP mode
+    if (gameState->currentState != SETUP) {
+      gameState->currentPlayer = otherPlayer(gameState->currentPlayer);
+      gameState->currentToken = otherToken(gameState->currentToken);
+    }
   }
 }
 
@@ -137,8 +160,14 @@ static void mutualOneTwoPlayerLogic(GameState *gameState)
 static void checkForWinDraw(GameState *gameState, Token colour)
 {
   // NOTE(Zach): do the checking of the gamestate
-  bool colourWon = didColourWin(gameState->board, colour);
-  bool isDraw = checkDraw(gameState->board);
+  bool colourWon;
+  if (colour == RED) {
+    colourWon = checkBitboardForWin(gameState->redBitboard);
+  }
+  else {
+    colourWon = checkBitboardForWin(gameState->blueBitboard);
+  }
+  bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
 
   if (colourWon) {
     setHighlightedTokenList(getSequentialTokens(gameState->board), 
@@ -177,96 +206,15 @@ void twoPlayerLogic(GameState *gameState)
   }
 }
 
-static inline int
-countTokens(Board board, Token colour) 
-{
-  int numberOfTokens = 0;
-  for(int row = 0; row < NUM_ROWS; ++row) {
-    for(int col = 0; col < NUM_COLS; ++col) {
-      if(board_checkCell(board, row, col) == colour) {
-        ++numberOfTokens;
-      }
-    }
-  }
-  return numberOfTokens;
-}
-
-// NOTE(brendan): checks if the board has been won by colour
-// TODO(brendan): do a version of this just checking for ONE token (the
-// body of inner loop) for two-player mode.
-// TODO(brendan): do efficient ninja implementation with bitboard
-static bool
-didColourWin(Board board, Token colour) 
-{
-  for(int row = 0; row < NUM_ROWS; ++row) {
-    for(int col = 0; col < NUM_COLS; ++col) {
-      if(board_checkCell(board, row, col) == colour) {
-        // NOTE(brendan): Check for 4-in-a-row in a row starting at the
-        // (row, col) token
-        for(int currentCol = col, currentRow = row;
-            (currentCol >= 0) && 
-            (board_checkCell(board, currentRow, currentCol)) == colour;
-            --currentCol) {
-          if(col - currentCol == 3) {
-            return true;
-          }
-        }
-
-        // NOTE(brendan): Check for 4-in-a-row in a column
-        for(int currentCol = col, currentRow = row;
-            (currentRow >= 0) && 
-            (board_checkCell(board, currentRow, currentCol)) == colour;
-            --currentRow) {
-          if(row - currentRow == 3) {
-            return true;
-          }
-        }
-
-        // NOTE(brendan): check for 4-in-a-row diagonal decreasing left
-        for(int currentCol = col, currentRow = row;
-            (currentRow >= 0) && (currentCol >= 0) &&
-            (board_checkCell(board, currentRow, currentCol)) == colour;
-            --currentRow, --currentCol) {
-          if(row - currentRow == 3) {
-            return true;
-          }
-        }
-
-        // NOTE(brendan): check for 4-in-a-row diagonal increasing left
-        for (int currentCol = col, currentRow = row;
-            (currentRow >= 0) && (currentCol < NUM_COLS) &&
-            (board_checkCell(board, currentRow, currentCol)) == colour;
-            --currentRow, ++currentCol) {
-          if (row - currentRow == 3) {
-            return true;
-          }
-        }
-      }
-    }
-  }
-  return false;
-}
-
-// NOTE(brendan): checks if the board is drawn
-static bool checkDraw(Board board) 
-{
-  int numberRedTokens = countTokens(board, RED);
-  int numberBlueTokens = countTokens(board, BLUE);
-  if(numberRedTokens + numberBlueTokens == NUM_ROWS*NUM_COLS) {
-    return true;
-  }
-  return false;
-}
-
 inline int abs(int x) 
 {
   return x < 0 ? -x : x;
 }
 
-static bool checkInvalidBoard(Board board) 
+static bool checkInvalidBoard(uint64 redBitboard, uint64 blueBitboard) 
 {
-  int numberRedTokens = countTokens(board, RED);
-  int numberBlueTokens = countTokens(board, BLUE);
+  int numberRedTokens = countBits(redBitboard);
+  int numberBlueTokens = countBits(blueBitboard);
   // NOTE(brendan): difference between number of each type of token is >1
   if(abs(numberRedTokens - numberBlueTokens) > 1) {
     return true;
@@ -385,8 +333,8 @@ getSequentialTokens(Board board)
 // to RANDOMTOKEN
 void setCurrentToken(GameState *gameState) 
 {
-  int redCount = countTokens(gameState->board, RED);
-  int blueCount = countTokens(gameState->board, BLUE);
+  int redCount = countBits(gameState->redBitboard);
+  int blueCount = countBits(gameState->blueBitboard);
   if(redCount > blueCount) {
     gameState->currentToken = BLUE;
   }
@@ -407,10 +355,17 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   // false
 	resetGraphicsState(&gameState->graphicsState);
 
-  bool didRedWin = didColourWin(gameState->board, RED);
-  bool didBlueWin = didColourWin(gameState->board, BLUE);
-  bool isDraw = checkDraw(gameState->board);
-  bool isBoardInvalid = checkInvalidBoard(gameState->board);
+  bool didRedWin = checkBitboardForWin(gameState->redBitboard);
+  bool didBlueWin = checkBitboardForWin(gameState->blueBitboard);
+  // TODO(brendan): testing; remove
+  printf("Red bitboard: 0x%lx\n", (unsigned long)gameState->redBitboard);
+  printf("Blue bitboard: 0x%lx\n", (unsigned long)gameState->blueBitboard);
+  printf("Red bits: %d\n", countBits(gameState->redBitboard));
+  printf("Blue bits: %d\n", countBits(gameState->blueBitboard));
+
+  bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
+  bool isBoardInvalid = checkInvalidBoard(gameState->redBitboard, 
+                                          gameState->blueBitboard);
   // NOTE(brendan): set flag to render invalid message if there is some error
   // clear invalid message otherwise
   if(isDraw || isBoardInvalid || didRedWin || didBlueWin) {
@@ -442,12 +397,62 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   return false;
 }
 
+// NOTE(brendan): source: http://tromp.github.io/c4/fhour.html
+// INPUT: 64-bit column-wise bitboard where 1 is the colour under
+// consideration's token and 0 otherwise
+// OUTPUT: true if there is 4-in-a-row on the bitboard; false otherwise
+static bool checkBitboardForWin(uint64 bitboard)
+{
+  // NOTE(brendan): check \ diagonal
+  uint64 y = bitboard & (bitboard >> 6);
+  if (y & (y >> 2*6)) {
+    return true;
+  }
+
+  // NOTE(brendan): check horizontal
+  y = bitboard & (bitboard >> 7);
+  if (y & (y >> 2*7)) {
+    return true;
+  }
+
+  // NOTE(brendan): check / diagonal
+  y = bitboard & (bitboard >> 8);
+  if (y & (y >> 2*8)) {
+    return true;
+  }
+
+  // NOTE(brendan): check / diagonal
+  y = bitboard & (bitboard >> 1);
+  if (y & (y >> 2*1)) {
+    return true;
+  }
+  return false;
+}
+
+// NOTE(brendan): INPUT: 7x6 token array and a colour to consider
+// OUTPUT: 64-bit column-wise bitboard where 1 is a token of that colour
+// and 0 is anything else (EMPTY or the other colour)
+static uint64 bitboardFromTokenArray(Token tokenArray[][NUM_COLS],
+                                     Token colour)
+{
+  uint64 resultBitboard = 0;
+  for (int row = 0; row < NUM_ROWS; ++row) {
+    for (int col = 0; col < NUM_COLS; ++col) {
+      if (tokenArray[row][col] == colour) {
+        resultBitboard = toggleDrop(resultBitboard, row, col);
+      }
+    }
+  }
+  return resultBitboard;
+}
+
 // ---------------------------------------------------------------------------
 // AI
 // ---------------------------------------------------------------------------
 
-// TODO(brendan): optimize algorithm to get MAX_DEPTH up from 4 to 6 (at least)
-#define MAX_DEPTH 4
+// TODO(brendan): optimize algorithm to get MAX_DEPTH up from 4 to 6 
+// (at least)
+#define MAX_DEPTH 7
 enum {WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0,
       THREAT_WEIGHT = 500, INFINITY = 99999};
 
@@ -469,10 +474,18 @@ int AI_move(Board b, Token colour)
 {
 	Token arr[NUM_ROWS][NUM_COLS];
 	boardToArray(b, arr);
+
+  uint64 aiBitboard = bitboardFromTokenArray(arr, colour);
+  uint64 playerBitboard = bitboardFromTokenArray(arr, otherToken(colour));
+  // TODO(brendan): testing; remove
+  /* printf("0x%lx\n", bitboard); */
+  /* printf("%" PRIu64 "\n", bitboard); */
+
   int moveColumn = 0, maxValue = -INFINITY, value;
   for (int col = 0; col < NUM_COLS; ++col) {
     if (board_dropPosition(b, col) != -1) {
-      value = minimax(arr, colour, col, MAX_DEPTH, true);
+      value = minimax(arr, colour, aiBitboard, playerBitboard, col, MAX_DEPTH, 
+                      true);
       if (value > maxValue) {
         moveColumn = col;
         maxValue = value;
@@ -488,121 +501,72 @@ int AI_move(Board b, Token colour)
 // OUTPUT: none
 // UPDATE: the array of tokens
 // reverses the last move made in the column
-static void
-reverseDrop(Token token_array[][NUM_COLS], int column)
+inline void
+reverseDrop(Token token_array[][NUM_COLS], int row, int column)
 {
-  for (int rowIndex = 0; rowIndex < NUM_ROWS; ++rowIndex) {
-    if (token_array[rowIndex][column] != EMPTY) {
-      token_array[rowIndex][column] = EMPTY;
-      return;
-    }
-  }
+  token_array[row][column] = EMPTY;
 }
 
-// NOTE(brendan): INPUT: array of tokens; current token colour
+
+// NOTE(brendan): INPUT: 64-bit column-wise bitboard of tokens of colour
+// and likewise bitboard of empty tokens
 // OUTPUT: a value indicating the score or weighting of the current board
 // position for the current token colour
-// currently finds all the "threats": moves that could make 4-in-a-row
+// currently finds all the ROW "threats": moves that could make 4-in-a-row
 static int
-evaluateBoard(Token token_array[][NUM_COLS], Token colour)
+evaluateBoard(uint64 colourBitboard, uint64 emptyBitboard)
 {
-  int resultWeight = 0;
-  bool threatsCounted[NUM_ROWS][NUM_COLS] = {};
-  for (int row = 0; row < NUM_ROWS; ++row) {
-    for (int col = 0; col < NUM_COLS; ++col) {
-      if (token_array[row][col] == colour) {
-        // NOTE(brendan): Check for threat starting at the (row, col) token
-        for (int currentCol = col, currentRow = row;
-            (currentCol >= 1) &&
-            (token_array[currentRow][currentCol] == colour);
-            --currentCol) {
-          // TODO(brendan): look for threats in both directions?
-          if(col - currentCol == 2) {
-            if ((token_array[currentRow][currentCol - 1] == EMPTY) &&
-                (threatsCounted[currentRow][currentCol - 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow][currentCol - 1] = true;
-            }
-            break;
-          }
-        }
-        // NOTE(brendan): Check for threat starting at the (row, col) token
-        for (int currentCol = col, currentRow = row;
-            (currentCol < (NUM_COLS - 1)) &&
-            (token_array[currentRow][currentCol] == colour);
-            ++currentCol) {
-          // TODO(brendan): look for threats in both directions?
-          if(col - currentCol == 2) {
-            if ((token_array[currentRow][currentCol - 1] == EMPTY) &&
-                (threatsCounted[currentRow][currentCol - 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow][currentCol - 1] = true;
-            }
-            break;
-          }
-        }
+  // NOTE(brendan): 2-in-a-row
+  uint64 y = colourBitboard & (colourBitboard >> 7);
+  // NOTE(brendan): 3-in-a-row
+  y = colourBitboard & (y >> 7);
+  // NOTE(brendan): O O O EMPTY
+  uint64 threatPositions = emptyBitboard & (y >> 7);
+  // NOTE(brendan): EMPTY O O O
+  threatPositions |= emptyBitboard & (y << 3*7);
 
-        // NOTE(brendan): check for threat diagonal decreasing left
-        for(int currentCol = col, currentRow = row;
-            (currentRow >= 1) && (currentCol >= 1) &&
-            (token_array[currentRow][currentCol] == colour);
-            --currentRow, --currentCol) {
-          if(row - currentRow == 2) {
-            if ((token_array[currentRow - 1][currentCol - 1] == EMPTY) &&
-                (threatsCounted[currentRow - 1][currentCol - 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow - 1][currentCol - 1] = true;
-            }
-            break;
-          }
-        }
-        // NOTE(brendan): check for threat diagonal decreasing left
-        for(int currentCol = col, currentRow = row;
-            (currentRow < (NUM_ROWS - 1)) && (currentCol < (NUM_COLS - 1)) &&
-            (token_array[currentRow][currentCol] == colour);
-            ++currentRow, ++currentCol) {
-          if(row - currentRow == 2) {
-            if ((token_array[currentRow - 1][currentCol - 1] == EMPTY) &&
-                (threatsCounted[currentRow - 1][currentCol - 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow - 1][currentCol - 1] = true;
-            }
-            break;
-          }
-        }
+  return THREAT_WEIGHT*countBits(threatPositions);
+}
 
-        // NOTE(brendan): check for threat diagonal increasing left
-        for (int currentCol = col, currentRow = row;
-            (currentRow >= 1) && (currentCol < (NUM_COLS - 1)) &&
-            (token_array[currentRow][currentCol] == colour);
-            --currentRow, ++currentCol) {
-          if(row - currentRow == 2) {
-            if ((token_array[currentRow - 1][currentCol + 1] == EMPTY) &&
-                (threatsCounted[currentRow - 1][currentCol + 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow - 1][currentCol + 1] = true;
-            }
-            break;
-          }
-        }
-        // NOTE(brendan): check for threat diagonal increasing left
-        for (int currentCol = col, currentRow = row;
-            (currentRow < (NUM_ROWS - 1)) && (currentCol >= 1) &&
-            (token_array[currentRow][currentCol] == colour);
-            ++currentRow, --currentCol) {
-          if(row - currentRow == 2) {
-            if ((token_array[currentRow - 1][currentCol + 1] == EMPTY) &&
-                (threatsCounted[currentRow - 1][currentCol + 1] == false)) {
-              resultWeight += THREAT_WEIGHT;
-              threatsCounted[currentRow - 1][currentCol + 1] = true;
-            }
-            break;
-          }
-        }
-      }
-    }
-  }
-  return resultWeight;
+#define FULL_BIT_BOARD 0x1fbf7efdfbf7eL
+
+// NOTE(brendan): INPUT: two disjoint 64-bit column-wise bitboards
+// OUTPUT: true iff the union of the two boards is a filled board
+inline bool
+checkDraw(uint64 bitboardOne, uint64 bitboardTwo)
+{
+  // NOTE(brendan): casting here because the compiler doesn't understand 
+  // uint64_t
+  return ((bitboardOne ^ bitboardTwo) == FULL_BIT_BOARD);
+}
+
+// NOTE(brendan): INPUT: 64-bit column-wise bitboard, row, column
+// OUTPUT: new bitboard with that drop reversed
+inline uint64
+toggleDrop(uint64 bitboard, int row, int column)
+{
+  int shiftAmount = (NUM_ROWS - 1 - row) + column*NUM_COLS;
+  return (bitboard ^ (((uint64)1) << shiftAmount));
+}
+
+// NOTE(brendan): source: http://graphics.stanford.edu/~seander/bithacks.html
+// INPUT: 64-bit int. OUTPUT: number of 1s set in the input
+inline int
+countBits(uint64 value)
+{
+  // NOTE(brendan): binary magic numbers
+  static unsigned long B[] = {0x5555555555555555L, 0x3333333333333333L, 
+                       0x0F0F0F0F0F0F0F0FL, 0x00FF00FF00FF00FFL,
+                       0x0000FFFF0000FFFFL, 0x00000000FFFFFFFFL};
+  // NOTE(brendan): powers of 2
+  static int S[] = {1, 2, 4, 8, 16, 32};
+  value = ((value >> S[0]) & B[0]) + (value & B[0]);
+  value = ((value >> S[1]) & B[1]) + (value & B[1]);
+  value = ((value >> S[2]) & B[2]) + (value & B[2]);
+  value = ((value >> S[3]) & B[3]) + (value & B[3]);
+  value = ((value >> S[4]) & B[4]) + (value & B[4]);
+  value = ((value >> S[5]) & B[5]) + (value & B[5]);
+  return value;
 }
 
 // NOTE(brendan): INPUT: array of tokens; current token colour;
@@ -610,26 +574,35 @@ evaluateBoard(Token token_array[][NUM_COLS], Token colour)
 // OUTPUT: a value indicating the the value of this move for the maximizing
 // player
 static int
-minimax(Token token_array[][NUM_COLS], Token colour, int column, 
+minimax(Token token_array[][NUM_COLS], Token colour, 
+        uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column, 
         int depthRemaining, bool maximizingPlayer)
 {
   // NOTE(brendan): heuristic value: favourability of node for maximizing
   // player
 	Board b = (Board)token_array;
+  int dropRow = board_dropPosition(b, column);
+  currentPlayerBitboard = toggleDrop(currentPlayerBitboard, dropRow, column);
+  // TODO(brendan): reverse drop for bitboard
 	board_dropToken(b, colour, column);
-	if (didColourWin(b, colour)) {
-    reverseDrop(token_array, column);
+	if (checkBitboardForWin(currentPlayerBitboard)) {
+    currentPlayerBitboard = toggleDrop(currentPlayerBitboard, dropRow, column);
+    reverseDrop(token_array, dropRow, column);
     return (maximizingPlayer) ? WIN_VALUE : LOSE_VALUE;
   }
-	if (checkDraw(b)) {
-    reverseDrop(token_array, column);
+	if (checkDraw(currentPlayerBitboard, otherPlayerBitboard)) {
+    currentPlayerBitboard = toggleDrop(currentPlayerBitboard, dropRow, column);
+    reverseDrop(token_array, dropRow, column);
     return DRAW_VALUE;
   }
   // NOTE(brendan): reached max depth of the game tree; use a heuristic
   // function to evaluate the board and return
   if (depthRemaining == 0) {
-    int resultWeight = evaluateBoard(token_array, colour);
-    reverseDrop(token_array, column);
+    unsigned long emptyBitboard = FULL_BIT_BOARD;
+    emptyBitboard ^= currentPlayerBitboard;
+    emptyBitboard ^= otherPlayerBitboard;
+    int resultWeight = evaluateBoard(currentPlayerBitboard, emptyBitboard);
+    reverseDrop(token_array, dropRow, column);
     return (maximizingPlayer) ? resultWeight : -resultWeight;
   }
   int bestValue, value;
@@ -637,8 +610,9 @@ minimax(Token token_array[][NUM_COLS], Token colour, int column,
     bestValue = INFINITY;
     for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
       if (board_dropPosition(b, childCol) != -1) {
-        value = minimax(token_array, otherToken(colour), childCol, 
-                        depthRemaining - 1, false);
+        value = minimax(token_array, otherToken(colour), otherPlayerBitboard, 
+                        currentPlayerBitboard, childCol, depthRemaining - 1, 
+                        false);
         bestValue = minimum(bestValue, value);
       }
     }
@@ -647,77 +621,14 @@ minimax(Token token_array[][NUM_COLS], Token colour, int column,
     bestValue = -INFINITY;
     for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
       if (board_dropPosition(b, childCol) != -1) {
-        value = minimax(token_array, otherToken(colour), childCol, 
-                        depthRemaining - 1, true);
+        value = minimax(token_array, otherToken(colour), otherPlayerBitboard, 
+                        currentPlayerBitboard, childCol, depthRemaining - 1, 
+                        true);
         bestValue = maximum(bestValue, value);
       }
     }
   }
-  reverseDrop(token_array, column);
+  currentPlayerBitboard = toggleDrop(currentPlayerBitboard, dropRow, column);
+  reverseDrop(token_array, dropRow, column);
   return bestValue;
 }
-
-#if 0
-// TODO(brendan): ongoing bug; doesn't recognize blocking
-// NOTE(brendan): INPUT: array of tokens; current token colour
-// OUTPUT: a value indicating the best move for the token colour given the
-// board state corresponding to the array of tokens
-static int
-negamax(Token token_array[][NUM_COLS], Token colour, int column, 
-        int depthRemaining) 
-{
-  // TODO(brendan): return colour * heuristic value of node?
-	Board b = (Board)token_array;
-	board_dropToken(b, colour, column);
-	if (didColourWin(b, colour)) {
-    reverseDrop(token_array, column);
-    return WIN_VALUE;
-  }
-	if (checkDraw(b)) {
-    reverseDrop(token_array, column);
-    return DRAW_VALUE;
-  }
-  // NOTE(brendan): reached max depth of the game tree; use a heuristic
-  // function to evaluate the board and return
-  if (depthRemaining == 0) {
-    int resultWeight = evaluateBoard(token_array, colour);
-    reverseDrop(token_array, column);
-    return resultWeight;
-  }
-
-	int bestValue = LOSE_VALUE;
-	int value;
-	// NOTE(Zach): for each child node
-  // TODO(brendan): try minimax alg. that is aware of maximizingPlayer?
-	for (int childCol = 0; childCol < NUM_COLS; ++childCol) {
-		if (board_dropPosition(b, childCol) != -1) {
-			value = -negamax(token_array, otherToken(colour), childCol, 
-                       depthRemaining - 1);
-			bestValue = maximum(bestValue, value);
-		}
-	}
-  reverseDrop(token_array, column);
-	return bestValue;
-}
-
-// TODO(brendan): debugging; remove
-static void
-DEBUGPrintBoard(Token token_array[][NUM_COLS])
-{
-  printf("\n");
-  for (int row = 0; row < NUM_ROWS; ++row) {
-    for (int col = 0; col < NUM_COLS; ++col) {
-      if (token_array[row][col] == EMPTY) {
-        printf("empty ");
-      }
-      else if (token_array[row][col] == RED) {
-        printf("red ");
-      }
-      else if (token_array[row][col] == BLUE) {
-        printf("blue ");
-      }
-    }
-    printf("\n");
-  }
-}
-#endif
