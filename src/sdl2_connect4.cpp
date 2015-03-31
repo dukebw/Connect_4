@@ -150,7 +150,8 @@ static void transitionMainMenuOnePlayer(GameState *gameState)
 static void transitionMainMenuOneTwo(GameState *gameState)
 {
   // NOTE(brendan): don't drop on first frame
-  gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+  gameState->playerDropColumn = NO_DROP_COLUMN;
+  gameState->computerDropColumn = NO_DROP_COLUMN;
 	gameState->currentPlayer = choosePlayer();
 	gameState->currentToken = chooseToken();
 	gameState->graphicsState.indicatorToken.row = -1;
@@ -363,8 +364,7 @@ static void setupHandleEvents(GameState *gameState)
       if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
 
       // NOTE(brendan): set drop column
-      gameState->graphicsState.playerDrop.column = 
-        (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+      gameState->playerDropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
     } else {
 			handleIndicatorMouseMotion(gameState);
     }
@@ -414,9 +414,10 @@ static void oneTwoHandleEvents(GameState *gameState)
       if (x <= GRID_OFFSET_X || x >= GRID_OFFSET_X + GRID_WIDTH) continue;
       if (y <= GRID_OFFSET_Y || y >= GRID_OFFSET_Y + GRID_HEIGHT) continue;
 
-      // NOTE(brendan): set drop column
-      gameState->graphicsState.playerDrop.column = 
-        (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+      if (gameState->computingAIMove == false) {
+        // NOTE(brendan): set drop column
+        gameState->playerDropColumn = (x - GRID_OFFSET_X)/TOKEN_WIDTH;
+      }
     } else {
 			handleIndicatorMouseMotion(gameState);
 	 }

@@ -11,7 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <inttypes.h>
+#include <SDL2/SDL_thread.h>
+
+#define FULL_BIT_BOARD 0xfdfbf7efdfbfL
 
 static List<TokenLocation> *
 getSequentialTokens(Board board);
@@ -27,6 +29,8 @@ static bool checkDraw(uint64 bitboardOne, uint64 bitboardTwo);
 static void tryDrop(GameState *gameState, int dropColumn);
 static int countBits(uint64 value);
 static int bitboardDropPosition(uint64 bitboard, int column);
+inline int evaluateBoardOneColour(uint64 colourBitboard, uint64 emptyBitboard);
+static int threadAIMove(void *gameStatePointer);
 
 // NOTE(Zach): switch the player
 Player otherPlayer(Player player) 
@@ -87,10 +91,9 @@ void setupLogic(GameState *gameState)
     gameState->saveGame = false;
     saveGame(gameState);
   }
-  int playerDropColumn = gameState->graphicsState.playerDrop.column;
-  if (playerDropColumn != NO_DROP_COLUMN) {
-    tryDrop(gameState, playerDropColumn);
-    gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+  if (gameState->playerDropColumn != NO_DROP_COLUMN) {
+    tryDrop(gameState, gameState->playerDropColumn);
+    gameState->playerDropColumn = NO_DROP_COLUMN;
   }
   List<FallingToken>::traverseList(updateFallingToken, 0.5, gFallingTokens);
 }
@@ -126,16 +129,33 @@ void onePlayerLogic(GameState *gameState)
   mutualOneTwoPlayerLogic(gameState);
   // NOTE(brendan): don't check if game not in progress
   if (gameState->currentProgress == INPROGRESS) {
-    if ((gameState->currentPlayer == PLAYERONE) && 
-        (gameState->currentProgress == INPROGRESS)) {
-      int aiDropColumn = AI_move(gameState->board, gameState->currentToken);
-      tryDrop(gameState, aiDropColumn);
+    if (gameState->currentPlayer == PLAYERONE) {
+      // NOTE(brendan): don't render indicator token for the AI
+      gameState->graphicsState.renderIndicatorToken = false;
+      if (gameState->computingAIMove == false) {
+        // NOTE(brendan): Run the AI move thread
+        if (SDL_CreateThread(threadAIMove, "AI Move Thread", 
+                             (void*)gameState)) {
+          gameState->computingAIMove = true;
+        }
+        else {
+          printf("Failed to create AI move thread!\n");
+        }
+      }
+      else {
+        // NOTE(brendan): an AI move has finally been made
+        if (gameState->computerDropColumn != NO_DROP_COLUMN) {
+          tryDrop(gameState, gameState->computerDropColumn);
+          gameState->computerDropColumn = NO_DROP_COLUMN;
+          gameState->computingAIMove = false;
+        }
+      }
     }
     else {
-      int playerDropColumn = gameState->graphicsState.playerDrop.column;
-      if (playerDropColumn != NO_DROP_COLUMN) {
-        tryDrop(gameState, playerDropColumn);
-        gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+      gameState->graphicsState.renderIndicatorToken = true;
+      if (gameState->playerDropColumn != NO_DROP_COLUMN) {
+        tryDrop(gameState, gameState->playerDropColumn);
+        gameState->playerDropColumn = NO_DROP_COLUMN;
       }
     }
     checkForWinDraw(gameState, otherToken(gameState->currentToken));
@@ -194,10 +214,9 @@ static void checkForWinDraw(GameState *gameState, Token colour)
 void twoPlayerLogic(GameState *gameState) 
 {
   mutualOneTwoPlayerLogic(gameState);
-  int playerDropColumn = gameState->graphicsState.playerDrop.column;
-  if (playerDropColumn != NO_DROP_COLUMN) {
-    tryDrop(gameState, playerDropColumn);
-    gameState->graphicsState.playerDrop.column = NO_DROP_COLUMN;
+  if (gameState->playerDropColumn != NO_DROP_COLUMN) {
+    tryDrop(gameState, gameState->playerDropColumn);
+    gameState->playerDropColumn = NO_DROP_COLUMN;
     // NOTE(brendan): token changed by tryDrop
     checkForWinDraw(gameState, otherToken(gameState->currentToken));
   }
@@ -353,7 +372,14 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 
   bool didRedWin = checkBitboardForWin(gameState->redBitboard);
   bool didBlueWin = checkBitboardForWin(gameState->blueBitboard);
-  // TODO(brendan): test evaluation function
+
+  // TODO(brendan): testing evaluation function; remove
+  uint64 emptyBitboard = FULL_BIT_BOARD^
+    (gameState->redBitboard|gameState->blueBitboard);
+  printf("Evaluate red board: %d\n", 
+      evaluateBoardOneColour(gameState->redBitboard, emptyBitboard));
+  printf("Evaluate blue board: %d\n", 
+      evaluateBoardOneColour(gameState->blueBitboard, emptyBitboard));
 
   bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
   bool isBoardInvalid = checkInvalidBoard(gameState->redBitboard, 
@@ -387,6 +413,27 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   }
   // NOTE(brendan): game not in progress: continue setup
   return false;
+}
+
+// ---------------------------------------------------------------------------
+// AI
+// ---------------------------------------------------------------------------
+
+// TODO(brendan): use iterative deepening to control depth of search tree 
+// instead of fixed depth
+#define MAX_DEPTH 8
+
+enum {WIN_WEIGHT = 10000, LOSE_WEIGHT = -10000, DRAW_WEIGHT = 0,
+      THREAT_WEIGHT = 500, INFINITY_WEIGHT = 99999};
+
+// NOTE(brendan): INPUT: has to be void * for SDL threads
+// OUTPUT: 0?
+static int threadAIMove(void *gameStatePointer)
+{
+  GameState *gameState = (GameState *)gameStatePointer;
+  gameState->computerDropColumn = AI_move(gameState->board, 
+                                          gameState->currentToken);
+  return 0;
 }
 
 // NOTE(brendan): source: http://tromp.github.io/c4/fhour.html
@@ -438,18 +485,6 @@ static uint64 bitboardFromTokenArray(Token tokenArray[][NUM_COLS],
   return resultBitboard;
 }
 
-// ---------------------------------------------------------------------------
-// AI
-// ---------------------------------------------------------------------------
-
-// TODO(brendan): optimize algorithm to get MAX_DEPTH up from 4 to 6 
-// (at least)
-// TODO(brendan): use timer to control depth of search tree instead of fixed
-// depth
-#define MAX_DEPTH 7
-enum {WIN_VALUE = 10000, LOSE_VALUE = -10000, DRAW_VALUE = 0,
-      THREAT_WEIGHT = 500, INFINITY = 99999};
-
 // NOTE(Zach): Read the board into a two dimensional array
 static void boardToArray(Board b, Token arr[][NUM_COLS])
 {
@@ -472,7 +507,7 @@ int AI_move(Board b, Token colour)
   uint64 aiBitboard = bitboardFromTokenArray(arr, colour);
   uint64 playerBitboard = bitboardFromTokenArray(arr, otherToken(colour));
 
-  int moveColumn = 0, maxValue = -INFINITY, value;
+  int moveColumn = 0, maxValue = -INFINITY_WEIGHT, value;
   for (int col = 0; col < NUM_COLS; ++col) {
     if (bitboardDropPosition(aiBitboard|playerBitboard, col) != -1) {
       value = minimax(aiBitboard, playerBitboard, col, MAX_DEPTH, true);
@@ -487,6 +522,11 @@ int AI_move(Board b, Token colour)
   return moveColumn;
 }
 
+// TODO(brendan): count odd threats for first-to-move colour; even threats
+// for second-to-move player
+// NOTE(brendan): INPUT: bitboard for a colour; empty board.
+// OUTPUT: THREAT_WEIGHT multiplied by the number of threats that the
+// given player has on the board
 inline int
 evaluateBoardOneColour(uint64 colourBitboard, uint64 emptyBitboard)
 {
@@ -515,8 +555,6 @@ evaluateBoard(uint64 currentColourBitboard, uint64 otherColourBitboard,
   return evaluateBoardOneColour(currentColourBitboard, emptyBitboard) -
          evaluateBoardOneColour(otherColourBitboard, emptyBitboard);
 }
-
-#define FULL_BIT_BOARD 0xfdfbf7efdfbf
 
 // NOTE(brendan): INPUT: two disjoint 64-bit column-wise bitboards
 // OUTPUT: true iff the union of the two boards is a filled board
@@ -588,10 +626,10 @@ minimax(uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column,
   currentPlayerBitboard = toggleDrop(currentPlayerBitboard, dropRow, column);
 
 	if (checkBitboardForWin(currentPlayerBitboard)) {
-    return (maximizingPlayer) ? WIN_VALUE : LOSE_VALUE;
+    return (maximizingPlayer) ? WIN_WEIGHT : LOSE_WEIGHT;
   }
 	if (checkDraw(currentPlayerBitboard, otherPlayerBitboard)) {
-    return DRAW_VALUE;
+    return DRAW_WEIGHT;
   }
   // NOTE(brendan): reached max depth of the game tree; use a heuristic
   // function to evaluate the board and return
@@ -603,11 +641,12 @@ minimax(uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column,
     return (maximizingPlayer) ? resultWeight : -resultWeight;
   }
 
+  // TODO(brendan): compress these two loops
   int bestValue, value;
   if (maximizingPlayer) {
-    bestValue = INFINITY;
+    bestValue = INFINITY_WEIGHT;
     for (int childCol = 0; 
-         (childCol < NUM_COLS) && (bestValue > LOSE_VALUE); 
+         (childCol < NUM_COLS) && (bestValue > LOSE_WEIGHT); 
          ++childCol) {
       if (bitboardDropPosition(bitboardAllTokens, childCol) != -1) {
         value = minimax(otherPlayerBitboard, currentPlayerBitboard, childCol, 
@@ -617,9 +656,9 @@ minimax(uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column,
     }
   }
   else {
-    bestValue = -INFINITY;
+    bestValue = -INFINITY_WEIGHT;
     for (int childCol = 0; 
-         (childCol < NUM_COLS) && (bestValue < WIN_VALUE); 
+         (childCol < NUM_COLS) && (bestValue < WIN_WEIGHT); 
          ++childCol) {
       if (bitboardDropPosition(bitboardAllTokens, childCol) != -1) {
         value = minimax(otherPlayerBitboard, currentPlayerBitboard, childCol, 

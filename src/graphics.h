@@ -128,8 +128,6 @@ struct TokenLocation {
 // NOTE(brendan): contains rendering information
 struct GraphicsState {
   TokenLocation indicatorToken;
-  TokenLocation playerDrop;
-  TokenLocation computerDrop;
   bool renderInvalidMessage;
   bool renderInvalidTokenMessage;
   bool renderHighlighted;

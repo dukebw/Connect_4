@@ -39,6 +39,9 @@ struct GameState {
   uint64 blueBitboard;
   // NOTE(brendan): loadGame and saveGame are set in sdl2_connect4 (event
   // handing) and turned off in graphics, when the graphic state is reloaded
+  int playerDropColumn;
+  int computerDropColumn;
+  bool computingAIMove;
   bool loadGame;
   bool saveGame;
 };
