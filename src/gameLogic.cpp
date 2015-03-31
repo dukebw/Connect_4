@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL_thread.h>
+#include <SDL2/SDL.h>
 
 #define FULL_BIT_BOARD 0xfdfbf7efdfbfL
 
@@ -419,9 +420,9 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 // AI
 // ---------------------------------------------------------------------------
 
-// TODO(brendan): use iterative deepening to control depth of search tree 
-// instead of fixed depth
-#define MAX_DEPTH 8
+#define MIN_DEPTH 7
+// NOTE(brendan): time for AI to move in ms
+#define AI_MOVE_TIME 300
 
 enum {WIN_WEIGHT = 10000, LOSE_WEIGHT = -10000, DRAW_WEIGHT = 0,
       THREAT_WEIGHT = 500, INFINITY_WEIGHT = 99999};
@@ -508,14 +509,23 @@ int AI_move(Board b, Token colour)
   uint64 playerBitboard = bitboardFromTokenArray(arr, otherToken(colour));
 
   int moveColumn = 0, maxValue = -INFINITY_WEIGHT, value;
-  for (int col = 0; col < NUM_COLS; ++col) {
-    if (bitboardDropPosition(aiBitboard|playerBitboard, col) != -1) {
-      value = minimax(aiBitboard, playerBitboard, col, MAX_DEPTH, true);
-      if (value > maxValue) {
-        moveColumn = col;
-        maxValue = value;
+  unsigned int startTime = SDL_GetTicks();
+  unsigned int endTime = startTime;
+  for (int depth = MIN_DEPTH; 
+      ((endTime - startTime) < AI_MOVE_TIME) && (abs(maxValue) != WIN_WEIGHT);
+      endTime = SDL_GetTicks(), ++depth) {
+    for (int col = 0; 
+        (col < NUM_COLS) && (maxValue < WIN_WEIGHT); 
+        ++col) {
+      if (bitboardDropPosition(aiBitboard|playerBitboard, col) != -1) {
+        value = minimax(aiBitboard, playerBitboard, col, depth, true);
+        if (value > maxValue) {
+          moveColumn = col;
+          maxValue = value;
+        }
       }
     }
+    printf("Depth: %d\n", depth);
   }
   // TODO(brendan): remove; debugging
   printf("Max value: %d\n", maxValue);
@@ -641,7 +651,7 @@ minimax(uint64 currentPlayerBitboard, uint64 otherPlayerBitboard, int column,
     return (maximizingPlayer) ? resultWeight : -resultWeight;
   }
 
-  // TODO(brendan): compress these two loops
+  // TODO(brendan): compress these two loops with loop from AI_move
   int bestValue, value;
   if (maximizingPlayer) {
     bestValue = INFINITY_WEIGHT;
