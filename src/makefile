@@ -9,7 +9,7 @@
 SDL_CFLAGS=`sdl2-config --cflags`
 SDL_LDFLAGS=`sdl2-config --libs`
 
-CFLAGS=$(SDL_CFLAGS) -c -Wall -std=c++11
+CFLAGS=$(SDL_CFLAGS) -c -Wall -std=c++11 -O2
 LDFLAGS=$(SDL_LDFLAGS)
 
 CC=g++
