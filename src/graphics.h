@@ -40,7 +40,7 @@ initCircle(int centerX, int centerY, int radius) {
 const int CONNECT4_WINDOW_OFFSET_Y = 100;
 
 // TODO(brendan): load these values when textures are loaded
-const float SCALE  = 0.8; 
+const float SCALE  = 0.8f; 
 const int SCREEN_WIDTH = (int)(1002*(SCALE));
 const int SCREEN_HEIGHT = (int)(902*(SCALE));
 const int TOKEN_WIDTH = (int)(100*(SCALE));

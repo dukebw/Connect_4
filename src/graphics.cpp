@@ -317,8 +317,8 @@ static TextureWrapper *loadTexture(std::string path)
     SDL_Rect scaleRect;
     scaleRect.x = 0;
     scaleRect.y = 0;
-    scaleRect.w = loadedSurface->w*(SCALE);
-    scaleRect.h = loadedSurface->h*(SCALE);
+    scaleRect.w = (int)(loadedSurface->w*(SCALE));
+    scaleRect.h = (int)(loadedSurface->h*(SCALE));
     SDL_Surface *scaledSurface = 
       SDL_CreateRGBSurface(0, scaleRect.w, scaleRect.h, 32, 0, 0, 0, 0);
     if(scaledSurface == NULL) {
@@ -528,8 +528,8 @@ void updateFallingToken(FallingToken *fallingToken, float dt)
 {
 	if (!fallingToken->isFalling) return;
 #define ACCEL 5
-  fallingToken->y += fallingToken->v * dt;
-  fallingToken->v += ACCEL * dt;
+  fallingToken->y += (int)(fallingToken->v * dt);
+  fallingToken->v += (int)(ACCEL * dt);
   // NOTE(Zach): Remove energy when token hits a surface and the token
   // is moving down
   if((fallingToken->y >= fallingToken->yFinal) && 

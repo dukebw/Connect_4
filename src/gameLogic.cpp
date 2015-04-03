@@ -14,7 +14,7 @@
 #include <SDL2/SDL_thread.h>
 #include <SDL2/SDL.h>
 
-#define FULL_BIT_BOARD 0xfdfbf7efdfbfL
+static uint64 FULL_BIT_BOARD = 0xfdfbf7efdfbfL;
 
 static List<TokenLocation> *
 getSequentialTokens(Board board);
@@ -47,7 +47,8 @@ Player otherPlayer(Player player)
 // NOTE(brendan): load all the game state from a file
 void loadGame(GameState *gameState) 
 {
-  FILE *in_file = fopen(saveGameFilename, "r");
+  FILE *in_file;
+  fopen_s(&in_file, saveGameFilename, "r");
   if (in_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
@@ -64,7 +65,8 @@ void loadGame(GameState *gameState)
 // NOTE(brendan): save all the game state to a file so we can read it back
 void saveGame(GameState *gameState) 
 {
-  FILE *out_file = fopen(saveGameFilename, "w");
+  FILE *out_file;
+  fopen_s(&out_file, saveGameFilename, "w");
   if (out_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
@@ -224,11 +226,6 @@ void twoPlayerLogic(GameState *gameState)
   }
 }
 
-inline int abs(int x) 
-{
-  return x < 0 ? -x : x;
-}
-
 static bool checkInvalidBoard(uint64 redBitboard, uint64 blueBitboard) 
 {
   int numberRedTokens = countBits(redBitboard);
@@ -376,7 +373,7 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   bool didBlueWin = checkBitboardForWin(gameState->blueBitboard);
 
   // TODO(brendan): testing evaluation function; remove
-  uint64 emptyBitboard = FULL_BIT_BOARD^
+  uint64 emptyBitboard = (uint64)FULL_BIT_BOARD^
     (gameState->redBitboard|gameState->blueBitboard);
   printf("Evaluate red board: %d\n", 
       evaluateBoardOneColour(gameState->redBitboard, emptyBitboard, true));
@@ -544,10 +541,10 @@ int AI_move(Board b, Token colour)
   return moveColumn;
 }
 
-// NOTE(brendan): INPUT: 64-bit integer. OUTPUT: 1 if odd # of bits set;
-// 0 if even # of bits set
+// NOTE(brendan): INPUT: 64-bit integer. OUTPUT: true if odd # of bits set;
+// false if even # of bits set
 // source: http://graphics.stanford.edu/~seander/bithacks.html
-inline int
+inline bool
 oddParity(uint64 v)
 {
   v ^= v >> 32;
@@ -555,7 +552,7 @@ oddParity(uint64 v)
   v ^= v >> 8;
   v ^= v >> 4;
   v &= 0xf;
-  return (0x6996 >> v) & 1;
+  return (((0x6996 >> v) & 1) == 1);
 }
 
 // NOTE(brendan): INPUT: bitboard for a colour; empty board.
@@ -645,7 +642,7 @@ countBits(uint64 value)
   value = ((value >> S[3]) & B[3]) + (value & B[3]);
   value = ((value >> S[4]) & B[4]) + (value & B[4]);
   value = ((value >> S[5]) & B[5]) + (value & B[5]);
-  return value;
+  return (int)value;
 }
 
 // NOTE(brendan): INPUT: bitboard, column. OUTPUT: position of next EMPTY

@@ -157,7 +157,7 @@ List<T>::writeListToFile(List<T> *list, FILE *fp)
     ++count;
 	}
   printf("tokens written: %d\n", count);
-  fseek(fp, -(count*sizeof(T) + sizeof(int)), SEEK_CUR);
+  fseek(fp, -(int)(count*sizeof(T) + sizeof(int)), SEEK_CUR);
   fwrite(&count, sizeof(int), 1, fp);
   fseek(fp, count*sizeof(T), SEEK_CUR);
 }
