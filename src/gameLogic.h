@@ -15,7 +15,11 @@
 #define NUMBER_OF_STATES 7
 #define NO_DROP_COLUMN -1
 
+#ifdef _WIN32
 typedef unsigned __int64 uint64;
+#else
+typedef uint64_t uint64;
+#endif
 
 typedef enum {PLAYERONE, PLAYERTWO, RANDOMPLAYER} Player; 
 
