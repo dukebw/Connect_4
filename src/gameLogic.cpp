@@ -44,11 +44,11 @@ Player otherPlayer(Player player)
   }
 }
 
+// TODO(brendan): move to own module? fix breaking when no save file
 // NOTE(brendan): load all the game state from a file
 void loadGame(GameState *gameState) 
 {
-  FILE *in_file;
-  fopen_s(&in_file, saveGameFilename, "r");
+  FILE *in_file = fopen(saveGameFilename, "r");
   if (in_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
@@ -65,8 +65,7 @@ void loadGame(GameState *gameState)
 // NOTE(brendan): save all the game state to a file so we can read it back
 void saveGame(GameState *gameState) 
 {
-  FILE *out_file;
-  fopen_s(&out_file, saveGameFilename, "w");
+  FILE *out_file = fopen(saveGameFilename, "w");
   if (out_file == 0) {
     fprintf(stderr, "?Couldn't open %s\n", saveGameFilename);
   }
