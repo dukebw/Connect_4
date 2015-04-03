@@ -14,7 +14,7 @@
 #include <SDL2/SDL_thread.h>
 #include <SDL2/SDL.h>
 
-static uint64 FULL_BIT_BOARD = 0xfdfbf7efdfbfL;
+static uint64 FULL_BIT_BOARD = (uint64)0xfdfbf7efdfbf;
 
 static List<TokenLocation> *
 getSequentialTokens(Board board);
@@ -30,9 +30,13 @@ static bool checkDraw(uint64 bitboardOne, uint64 bitboardTwo);
 static void tryDrop(GameState *gameState, int dropColumn);
 static int countBits(uint64 value);
 static int bitboardDropPosition(uint64 bitboard, int column);
-inline int evaluateBoardOneColour(uint64 colourBitboard, uint64 emptyBitboard,
-                                  bool bitboardFirstTurn);
+static uint64 
+lowestThreatsOneColour(uint64 colourBitboard, uint64 emptyBitboard,
+                       bool bitboardFirstTurn);
 static int threadAIMove(void *gameStatePointer);
+static int
+evaluateBoard(uint64 currentColourBitboard, uint64 otherColourBitboard,
+              uint64 emptyBitboard);
 
 // NOTE(Zach): switch the player
 Player otherPlayer(Player player) 
@@ -374,12 +378,8 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   // TODO(brendan): testing evaluation function; remove
   uint64 emptyBitboard = (uint64)FULL_BIT_BOARD^
     (gameState->redBitboard|gameState->blueBitboard);
-  printf("Evaluate red board: %d\n", 
-      evaluateBoardOneColour(gameState->redBitboard, emptyBitboard, true));
-  printf("Evaluate blue board: %d\n", 
-      evaluateBoardOneColour(gameState->blueBitboard, emptyBitboard, false));
-  printf("Red board: %lx\n", gameState->redBitboard);
-  printf("Blue board: %lx\n", gameState->blueBitboard);
+  int boardWeightBlue = evaluateBoard(gameState->blueBitboard, 
+                                      gameState->redBitboard, emptyBitboard);
 
   bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
   bool isBoardInvalid = checkInvalidBoard(gameState->redBitboard, 
@@ -419,11 +419,12 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 // AI
 // ---------------------------------------------------------------------------
 
-#define MIN_DEPTH 7
+// TODO(brendan): change MIN_DEPTH back?
+#define MIN_DEPTH 1
 // NOTE(brendan): time for AI to move in ms
 #define AI_MOVE_TIME 300
-#define EVEN_ROWS 0x54a952a54a95L
-#define ODD_ROWS 0xa952a54a952aL
+#define EVEN_ROWS (uint64)0x54a952a54a95
+#define ODD_ROWS (uint64)0xa952a54a952a
 
 enum {WIN_WEIGHT = 10000, LOSE_WEIGHT = -10000, DRAW_WEIGHT = 0,
       THREAT_WEIGHT = 500, INFINITY_WEIGHT = 99999};
@@ -476,7 +477,7 @@ static bool checkBitboardForWin(uint64 bitboard)
 static uint64 bitboardFromTokenArray(Token tokenArray[][NUM_COLS],
                                      Token colour)
 {
-  uint64 resultBitboard = 0L;
+  uint64 resultBitboard = (uint64)0;
   for (int row = 0; row < NUM_ROWS; ++row) {
     for (int col = 0; col < NUM_COLS; ++col) {
       if (tokenArray[row][col] == colour) {
@@ -557,28 +558,28 @@ oddParity(uint64 v)
 // NOTE(brendan): INPUT: bitboard for a colour; empty board.
 // OUTPUT: THREAT_WEIGHT multiplied by the number of threats that the
 // given player has on the board
-inline int
-evaluateBoardOneColour(uint64 colourBitboard, uint64 emptyBitboard,
+static uint64
+lowestThreatsOneColour(uint64 colourBitboard, uint64 emptyBitboard,
                        bool bitboardFirstTurn)
 {
   // NOTE(brendan): 2-in-a-row
   uint64 twoInARow = colourBitboard & (colourBitboard >> 7);
   // NOTE(brendan): 3-in-a-row
   uint64 threeInARow = colourBitboard & (twoInARow >> 7);
-  // NOTE(brendan): O O O EMPTY
-  uint64 threatPositions = emptyBitboard & (threeInARow >> 7);
   // NOTE(brendan): EMPTY O O O
+  uint64 threatPositions = emptyBitboard & (threeInARow >> 7);
+  // NOTE(brendan): O O O EMPTY
   threatPositions |= emptyBitboard & (threeInARow << 3*7);
 
-  // NOTE(brendan): O O EMPTY
-  uint64 ooEmpty = emptyBitboard & (twoInARow >> 7);
-  // NOTE(brendan): O O EMPTY O
-  threatPositions |= colourBitboard & (ooEmpty >> 7);
-
   // NOTE(brendan): EMPTY O O
-  uint64 emptyoo = emptyBitboard & (twoInARow << 2*7);
+  uint64 emptyoo = emptyBitboard & (twoInARow >> 7);
   // NOTE(brendan): O EMPTY O O
-  threatPositions |= colourBitboard & (emptyoo << 7);
+  threatPositions |= (colourBitboard << 7) & emptyoo;
+
+  // NOTE(brendan): O O EMPTY
+  uint64 ooEmpty = emptyBitboard & (twoInARow << 2*7);
+  // NOTE(brendan): O O EMPTY O
+  threatPositions |= (colourBitboard >> 7) & ooEmpty;
 
   if (bitboardFirstTurn) {
     threatPositions &= EVEN_ROWS;
@@ -587,7 +588,19 @@ evaluateBoardOneColour(uint64 colourBitboard, uint64 emptyBitboard,
     threatPositions &= ODD_ROWS;
   }
 
-  return THREAT_WEIGHT*countBits(threatPositions);
+  // NOTE(brendan): only the lowest threat in each column counts
+  uint64 lowestThreats = 0;
+  for (int col = 0; col < NUM_COLS; ++col) {
+    uint64 lowestThreatInCol = threatPositions & ((uint64)0x3f << 7*col);
+    // NOTE(brendan): extracting lowest 1 bit in value
+    if (lowestThreatInCol) {
+      lowestThreatInCol = (lowestThreatInCol^(lowestThreatInCol - 1))^
+                          ((lowestThreatInCol^(lowestThreatInCol - 1)) >> 1);
+    }
+    lowestThreats |= lowestThreatInCol;
+  }
+
+  return lowestThreats;
 }
 
 // NOTE(brendan): INPUT: 64-bit column-wise bitboard of tokens of colour
@@ -599,12 +612,43 @@ static int
 evaluateBoard(uint64 currentColourBitboard, uint64 otherColourBitboard,
               uint64 emptyBitboard)
 {
-  bool otherPlayerFirstTurn = 
+  // NOTE(brendan): board is evaluated AFTER the current player dropped.
+  // Therefore the board parity will be odd if the current player went first,
+  // and even if the other player went first
+  bool currentPlayerFirstTurn = 
     oddParity(currentColourBitboard|otherColourBitboard);
-  return evaluateBoardOneColour(currentColourBitboard, emptyBitboard,
-                                !otherPlayerFirstTurn) -
-         evaluateBoardOneColour(otherColourBitboard, emptyBitboard,
-                                otherPlayerFirstTurn);
+  uint64 lowestThreatsCurrent = 
+    lowestThreatsOneColour(currentColourBitboard, emptyBitboard, 
+                           currentPlayerFirstTurn);
+  uint64 lowestThreatsOther = 
+    lowestThreatsOneColour(otherColourBitboard, emptyBitboard, 
+                           !currentPlayerFirstTurn);
+
+  // NOTE(brendan): each player's threats are only valid if that threat is on
+  // a lower row than any threats the other player has in the same column
+  uint64 validThreatsCurrent = 0;
+  uint64 validThreatsOther = 0;
+  for (int col = 0; col < NUM_COLS; ++col) {
+    uint64 threatInColCurrent = lowestThreatsCurrent & ((uint64)0x3f << 7*col);
+    uint64 threatInColOther = lowestThreatsOther & ((uint64)0x3f << 7*col);
+    if (threatInColCurrent && threatInColOther) {
+      if (threatInColCurrent < threatInColOther) {
+        validThreatsCurrent |= threatInColCurrent;
+      }
+      else {
+        validThreatsOther |= threatInColOther;
+      }
+    }
+    else if (threatInColCurrent) {
+      validThreatsCurrent |= threatInColCurrent;
+    }
+    else if (threatInColOther) {
+      validThreatsOther |= threatInColOther;
+    }
+  }
+
+  return THREAT_WEIGHT*(countBits(validThreatsCurrent) - 
+                        countBits(validThreatsOther));
 }
 
 // NOTE(brendan): INPUT: two disjoint 64-bit column-wise bitboards
@@ -630,9 +674,10 @@ static int
 countBits(uint64 value)
 {
   // NOTE(brendan): binary magic numbers
-  static const uint64 B[] = {0x5555555555555555L, 0x3333333333333333L, 
-                             0x0F0F0F0F0F0F0F0FL, 0x00FF00FF00FF00FFL,
-                             0x0000FFFF0000FFFFL, 0x00000000FFFFFFFFL};
+  static const uint64 B[] = {
+    (uint64)0x5555555555555555, (uint64)0x3333333333333333, 
+    (uint64)0x0F0F0F0F0F0F0F0F, (uint64)0x00FF00FF00FF00FF, 
+    (uint64)0x0000FFFF0000FFFF, (uint64)0x00000000FFFFFFFF};
   // NOTE(brendan): powers of 2
   static const int S[] = {1, 2, 4, 8, 16, 32};
   value = ((value >> S[0]) & B[0]) + (value & B[0]);
