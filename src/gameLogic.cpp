@@ -380,6 +380,8 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
     (gameState->redBitboard|gameState->blueBitboard);
   int boardWeightBlue = evaluateBoard(gameState->blueBitboard, 
                                       gameState->redBitboard, emptyBitboard);
+  int boardWeightRed = evaluateBoard(gameState->redBitboard, 
+                                     gameState->blueBitboard, emptyBitboard);
 
   bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
   bool isBoardInvalid = checkInvalidBoard(gameState->redBitboard, 
@@ -515,22 +517,30 @@ int AI_move(Board b, Token colour)
     return 3;
   }
 
-  int moveColumn = 0, maxValue = -INFINITY_WEIGHT, value;
+  int moveColumn = 0;
+  int maxValue = -INFINITY_WEIGHT;
+  int value;
+  unsigned int timeElapsedMaxValue = 0;
+  unsigned int timeElapsedValue;
   unsigned int startTime = SDL_GetTicks();
   unsigned int endTime = startTime;
   for (int depth = MIN_DEPTH; 
-      ((endTime - startTime) < AI_MOVE_TIME) && 
-      (abs(maxValue) != WIN_WEIGHT) && (depth < NUM_COLS*NUM_ROWS);
+      ((endTime - startTime) < AI_MOVE_TIME) && (depth < NUM_COLS*NUM_ROWS);
       endTime = SDL_GetTicks(), ++depth) {
     maxValue = -INFINITY_WEIGHT;
     for (int col = 0; 
         (col < NUM_COLS) && (maxValue < WIN_WEIGHT); 
         ++col) {
       if (bitboardDropPosition(aiBitboard|playerBitboard, col) != -1) {
+        unsigned int startTimeValue = SDL_GetTicks();
         value = minimax(aiBitboard, playerBitboard, col, depth, true);
-        if (value > maxValue) {
+        timeElapsedValue = SDL_GetTicks() - startTimeValue;
+        if ((value > maxValue) || 
+            ((value == maxValue) && 
+             (timeElapsedValue > timeElapsedMaxValue))) {
           moveColumn = col;
           maxValue = value;
+          timeElapsedMaxValue = timeElapsedValue;
         }
       }
     }
@@ -556,6 +566,34 @@ oddParity(uint64 v)
   return (((0x6996 >> v) & 1) == 1);
 }
 
+// NOTE(brendan): INPUT: bitboard, shift amount, empty bitboard.
+// OUTPUT: threat positions due to the type of threat: 8 == /,
+// 6 == \ and 7 is horizontal
+static uint64
+threatPositionsOfType(uint64 colourBitboard, uint64 emptyBitboard, 
+                      int shiftAmount)
+{
+  // NOTE(brendan): 2-in-a-row
+  uint64 twoInARow = colourBitboard & (colourBitboard >> shiftAmount);
+  // NOTE(brendan): 3-in-a-row
+  uint64 threeInARow = colourBitboard & (twoInARow >> shiftAmount);
+  // NOTE(brendan): EMPTY O O O
+  uint64 threatPositions = emptyBitboard & (threeInARow >> shiftAmount);
+  // NOTE(brendan): O O O EMPTY
+  threatPositions |= emptyBitboard & (threeInARow << 3*shiftAmount);
+
+  // NOTE(brendan): EMPTY O O
+  uint64 emptyoo = emptyBitboard & (twoInARow >> shiftAmount);
+  // NOTE(brendan): O EMPTY O O
+  threatPositions |= (colourBitboard << shiftAmount) & emptyoo;
+
+  // NOTE(brendan): O O EMPTY
+  uint64 ooEmpty = emptyBitboard & (twoInARow << 2*shiftAmount);
+  // NOTE(brendan): O O EMPTY O
+  return threatPositions | (colourBitboard >> shiftAmount) & ooEmpty;
+
+}
+
 // NOTE(brendan): INPUT: bitboard for a colour; empty board.
 // OUTPUT: THREAT_WEIGHT multiplied by the number of threats that the
 // given player has on the board
@@ -563,24 +601,10 @@ static uint64
 lowestThreatsOneColour(uint64 colourBitboard, uint64 emptyBitboard,
                        bool bitboardFirstTurn)
 {
-  // NOTE(brendan): 2-in-a-row
-  uint64 twoInARow = colourBitboard & (colourBitboard >> 7);
-  // NOTE(brendan): 3-in-a-row
-  uint64 threeInARow = colourBitboard & (twoInARow >> 7);
-  // NOTE(brendan): EMPTY O O O
-  uint64 threatPositions = emptyBitboard & (threeInARow >> 7);
-  // NOTE(brendan): O O O EMPTY
-  threatPositions |= emptyBitboard & (threeInARow << 3*7);
-
-  // NOTE(brendan): EMPTY O O
-  uint64 emptyoo = emptyBitboard & (twoInARow >> 7);
-  // NOTE(brendan): O EMPTY O O
-  threatPositions |= (colourBitboard << 7) & emptyoo;
-
-  // NOTE(brendan): O O EMPTY
-  uint64 ooEmpty = emptyBitboard & (twoInARow << 2*7);
-  // NOTE(brendan): O O EMPTY O
-  threatPositions |= (colourBitboard >> 7) & ooEmpty;
+  uint64 threatPositions = threatPositionsOfType(colourBitboard, 
+                                                 emptyBitboard, 7);
+  threatPositions |= threatPositionsOfType(colourBitboard, emptyBitboard, 8);
+  threatPositions |= threatPositionsOfType(colourBitboard, emptyBitboard, 6);
 
   if (bitboardFirstTurn) {
     threatPositions &= EVEN_ROWS;
