@@ -522,6 +522,7 @@ int AI_move(Board b, Token colour)
       ((endTime - startTime) < AI_MOVE_TIME) && 
       (abs(maxValue) != WIN_WEIGHT) && (depth < NUM_COLS*NUM_ROWS);
       endTime = SDL_GetTicks(), ++depth) {
+    maxValue = -INFINITY_WEIGHT;
     for (int col = 0; 
         (col < NUM_COLS) && (maxValue < WIN_WEIGHT); 
         ++col) {
