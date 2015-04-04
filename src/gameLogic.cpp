@@ -375,14 +375,6 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
   bool didRedWin = checkBitboardForWin(gameState->redBitboard);
   bool didBlueWin = checkBitboardForWin(gameState->blueBitboard);
 
-  // TODO(brendan): testing evaluation function; remove
-  uint64 emptyBitboard = (uint64)FULL_BIT_BOARD^
-    (gameState->redBitboard|gameState->blueBitboard);
-  int boardWeightBlue = evaluateBoard(gameState->blueBitboard, 
-                                      gameState->redBitboard, emptyBitboard);
-  int boardWeightRed = evaluateBoard(gameState->redBitboard, 
-                                     gameState->blueBitboard, emptyBitboard);
-
   bool isDraw = checkDraw(gameState->redBitboard, gameState->blueBitboard);
   bool isBoardInvalid = checkInvalidBoard(gameState->redBitboard, 
                                           gameState->blueBitboard);
@@ -590,7 +582,7 @@ threatPositionsOfType(uint64 colourBitboard, uint64 emptyBitboard,
   // NOTE(brendan): O O EMPTY
   uint64 ooEmpty = emptyBitboard & (twoInARow << 2*shiftAmount);
   // NOTE(brendan): O O EMPTY O
-  return threatPositions | (colourBitboard >> shiftAmount) & ooEmpty;
+  return threatPositions | ((colourBitboard >> shiftAmount) & ooEmpty);
 
 }
 
