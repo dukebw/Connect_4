@@ -413,8 +413,7 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 // AI
 // ---------------------------------------------------------------------------
 
-// TODO(brendan): change MIN_DEPTH back?
-#define MIN_DEPTH 1
+#define MIN_DEPTH 7
 // NOTE(brendan): time for AI to move in ms
 #define AI_MOVE_TIME 300
 #define EVEN_ROWS (uint64)0x54a952a54a95
