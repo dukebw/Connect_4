@@ -14,7 +14,7 @@
 #include <SDL2/SDL_thread.h>
 #include <SDL2/SDL.h>
 
-static uint64 FULL_BIT_BOARD = (uint64)0xfdfbf7efdfbf;
+static uint64 FULL_BIT_BOARD = (uint64)0xfdfbf7efdfbfLL;
 
 static List<TokenLocation> *
 getSequentialTokens(Board board);
@@ -416,8 +416,8 @@ bool readyToTransitionSetupTwoPlayer(GameState *gameState)
 #define MIN_DEPTH 7
 // NOTE(brendan): time for AI to move in ms
 #define AI_MOVE_TIME 300
-#define EVEN_ROWS (uint64)0x54a952a54a95
-#define ODD_ROWS (uint64)0xa952a54a952a
+#define EVEN_ROWS (uint64)0x54a952a54a95LL
+#define ODD_ROWS (uint64)0xa952a54a952aLL
 
 enum {WIN_WEIGHT = 10000, LOSE_WEIGHT = -10000, DRAW_WEIGHT = 0,
       THREAT_WEIGHT = 500, INFINITY_WEIGHT = 99999};
@@ -470,7 +470,7 @@ static bool checkBitboardForWin(uint64 bitboard)
 static uint64 bitboardFromTokenArray(Token tokenArray[][NUM_COLS],
                                      Token colour)
 {
-  uint64 resultBitboard = (uint64)0;
+  uint64 resultBitboard = (uint64)0LL;
   for (int row = 0; row < NUM_ROWS; ++row) {
     for (int col = 0; col < NUM_COLS; ++col) {
       if (tokenArray[row][col] == colour) {
@@ -607,7 +607,7 @@ lowestThreatsOneColour(uint64 colourBitboard, uint64 emptyBitboard,
   // NOTE(brendan): only the lowest threat in each column counts
   uint64 lowestThreats = 0;
   for (int col = 0; col < NUM_COLS; ++col) {
-    uint64 lowestThreatInCol = threatPositions & ((uint64)0x3f << 7*col);
+    uint64 lowestThreatInCol = threatPositions & ((uint64)0x3fLL << 7*col);
     // NOTE(brendan): extracting lowest 1 bit in value
     if (lowestThreatInCol) {
       lowestThreatInCol = (lowestThreatInCol^(lowestThreatInCol - 1))^
@@ -645,8 +645,8 @@ evaluateBoard(uint64 currentColourBitboard, uint64 otherColourBitboard,
   uint64 validThreatsCurrent = 0;
   uint64 validThreatsOther = 0;
   for (int col = 0; col < NUM_COLS; ++col) {
-    uint64 threatInColCurrent = lowestThreatsCurrent & ((uint64)0x3f << 7*col);
-    uint64 threatInColOther = lowestThreatsOther & ((uint64)0x3f << 7*col);
+    uint64 threatInColCurrent = lowestThreatsCurrent & ((uint64)0x3fLL << 7*col);
+    uint64 threatInColOther = lowestThreatsOther & ((uint64)0x3fLL << 7*col);
     if (threatInColCurrent && threatInColOther) {
       if (threatInColCurrent < threatInColOther) {
         validThreatsCurrent |= threatInColCurrent;
@@ -681,7 +681,7 @@ inline uint64
 toggleDrop(uint64 bitboard, int row, int column)
 {
   int shiftAmount = (NUM_ROWS - row - 1) + column*NUM_COLS;
-  return (bitboard ^ (((uint64)1) << shiftAmount));
+  return (bitboard ^ (((uint64)1LL) << shiftAmount));
 }
 
 // NOTE(brendan): source: http://graphics.stanford.edu/~seander/bithacks.html
@@ -691,9 +691,9 @@ countBits(uint64 value)
 {
   // NOTE(brendan): binary magic numbers
   static const uint64 B[] = {
-    (uint64)0x5555555555555555, (uint64)0x3333333333333333, 
-    (uint64)0x0F0F0F0F0F0F0F0F, (uint64)0x00FF00FF00FF00FF, 
-    (uint64)0x0000FFFF0000FFFF, (uint64)0x00000000FFFFFFFF};
+    (uint64)0x5555555555555555LL, (uint64)0x3333333333333333LL, 
+    (uint64)0x0F0F0F0F0F0F0F0FLL, (uint64)0x00FF00FF00FF00FFLL, 
+    (uint64)0x0000FFFF0000FFFFLL, (uint64)0x00000000FFFFFFFFLL};
   // NOTE(brendan): powers of 2
   static const int S[] = {1, 2, 4, 8, 16, 32};
   value = ((value >> S[0]) & B[0]) + (value & B[0]);

@@ -18,6 +18,7 @@
 #ifdef _WIN32
 typedef unsigned __int64 uint64;
 #else
+#include <stdint.h>
 typedef uint64_t uint64;
 #endif
 
